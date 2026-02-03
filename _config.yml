@@ -1,0 +1,10 @@
+title: "Primary Design Co Blog"
+description: "Daily catalog of thoughts and work"
+url: "https://blog.primarydesignco.com"
+baseurl: ""
+remote_theme: jekyll/minima
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+markdown: kramdown
+show_excerpts: true
