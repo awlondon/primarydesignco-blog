@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="960"
+  height="420"
+  viewBox="0 0 960 420"
+  preserveAspectRatio="xMidYMid meet"
+  role="img"
+  aria-labelledby="title desc">
+
+  <title id="title">Documentation as Living Infrastructure</title>
+  <desc id="desc">
+    Diagram illustrating documentation as a feedback loop that preserves reasoning,
+    enables revision, and supports long-term system learning.
+  </desc>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="960" height="420" fill="#ffffff"/>
+
+  <!-- Title -->
+  <text x="480" y="36" text-anchor="middle"
+        font-size="18" font-family="Arial, Helvetica, sans-serif"
+        fill="#444444">
+    Documentation as Living Infrastructure
+  </text>
+
+  <!-- Loop arrows -->
+  <path d="M 480 90
+           C 650 90, 760 180, 760 210
+           C 760 240, 650 330, 480 330
+           C 310 330, 200 240, 200 210
+           C 200 180, 310 90, 480 90 Z"
+        fill="none"
+        stroke="#64b5f6"
+        stroke-width="2"/>
+
+  <!-- Arrowheads -->
+  <polygon points="760,210 748,204 748,216" fill="#64b5f6"/>
+  <polygon points="480,330 472,318 488,318" fill="#64b5f6"/>
+  <polygon points="200,210 212,204 212,216" fill="#64b5f6"/>
+  <polygon points="480,90 472,102 488,102" fill="#64b5f6"/>
+
+  <!-- Nodes -->
+  <circle cx="480" cy="90" r="18" fill="#64b5f6"/>
+  <circle cx="760" cy="210" r="18" fill="#64b5f6"/>
+  <circle cx="480" cy="330" r="18" fill="#64b5f6"/>
+  <circle cx="200" cy="210" r="18" fill="#64b5f6"/>
+
+  <!-- Labels -->
+  <text x="480" y="68" text-anchor="middle"
+        font-size="12" font-family="Arial, Helvetica, sans-serif"
+        fill="#444444">
+    Reasoning
+  </text>
+
+  <text x="792" y="214"
+        font-size="12" font-family="Arial, Helvetica, sans-serif"
+        fill="#444444">
+    Action
+  </text>
+
+  <text x="480" y="364" text-anchor="middle"
+        font-size="12" font-family="Arial, Helvetica, sans-serif"
+        fill="#444444">
+    Record
+  </text>
+
+  <text x="122" y="214"
+        font-size="12" font-family="Arial, Helvetica, sans-serif"
+        fill="#444444">
+    Revision
+  </text>
+
+  <!-- Center text -->
+  <text x="480" y="214" text-anchor="middle"
+        font-size="13" font-family="Arial, Helvetica, sans-serif"
+        fill="#777777">
+    Systems learn when reasoning remains accessible
+  </text>
+
+  <!-- Footer -->
+  <text x="480" y="392" text-anchor="middle"
+        font-size="12" font-family="Arial, Helvetica, sans-serif"
+        fill="#aaaaaa">
+    Documentation sustains judgment beyond individual decisions.
+  </text>
+
+</svg>
