@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 900 360"
+  width="900"
+  height="360"
+  preserveAspectRatio="xMidYMid meet"
+  role="img"
+  aria-labelledby="title desc">
+
+  <title id="title">Traceability as System Memory</title>
+  <desc id="desc">
+    Comparison of low-traceability and high-traceability systems showing how preserved reasoning enables long-term adaptation.
+  </desc>
+
+  <!-- SVG CONTENT HERE -->
+
+</svg>
