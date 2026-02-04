@@ -5,7 +5,7 @@ subtitle: "Why verification—not agreement—is the basis of shared reality"
 author: Alexander Warren London
 published_at: 2026-02-04T11:00:00-08:00
 tags: [epistemology, media-theory, social-psychology, systems-thinking]
-reading_time: 22
+reading_time: 16
 ---
 
 ## Introduction
