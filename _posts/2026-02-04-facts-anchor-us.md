@@ -88,11 +88,11 @@ Over time, this reflex produces belief lock-in. The belief is no longer held bec
 
 At this point, verification becomes adversarial. Requests for evidence are interpreted not as epistemic hygiene, but as hostile acts. The belief system shifts from truth-seeking to boundary maintenance.
 
-<!-- Diagram: Belief Lock-In Feedback Loop -->
+![Belief Lock-In Feedback Loop](/assets/2026-02-04-facts-anchor-us/diagram-belief-lock-in.svg)
 
 
-Signal → Emotional resonance → Identity binding → Social reinforcement → Resistance to falsification → Increased confidence
-
+#### Belief Lock-In Feedback Loop.
+As beliefs bind to identity, social reinforcement suppresses falsification. Confidence increases even as external correction weakens.
 This loop explains why confidence often increases as beliefs become less connected to external reality. The loop is internally stabilizing even as it grows externally fragile.
 
 ### Why Education Does Not Immunize Against This
