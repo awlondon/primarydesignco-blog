@@ -188,17 +188,12 @@ The probability generator that follows is not meant to dramatize this risk. It i
 
 ### The Probability Generator (Conceptual Bridge)
 
-At this point in the essay, readers are primed to see belief formation as probabilistic rather than moral. This is where the probability generator enters—not as prediction, but as intuition pump.
-
-The generator will model how belief divergence increases as:
-• emotional salience rises
-• algorithmic reinforcement intensifies
-• verification effort declines
-
-And how convergence improves when:
-• verification norms are shared
-• identity costs of revision are reduced
-• time delays allow evidence to surface
+<iframe
+  src="/assets/2026-02-04-facts-anchor-us/probability-generator.html"
+  style="width:100%; height:720px; border:0; border-radius:12px; overflow:hidden;"
+  loading="lazy"
+  title="Belief Divergence Probability Generator">
+</iframe>
 
 The key insight the generator reinforces is simple: small changes in verification behavior produce large systemic effects over time.
 
