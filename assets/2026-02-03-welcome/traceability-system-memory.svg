@@ -1,18 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg
   xmlns="http://www.w3.org/2000/svg"
-  viewBox="0 0 900 360"
-  width="900"
-  height="360"
+  width="960"
+  height="420"
+  viewBox="0 0 960 420"
   preserveAspectRatio="xMidYMid meet"
   role="img"
   aria-labelledby="title desc">
 
   <title id="title">Traceability as System Memory</title>
   <desc id="desc">
-    Comparison of low-traceability and high-traceability systems showing how preserved reasoning enables long-term adaptation.
+    Comparison between low-traceability systems that lose reasoning over time
+    and high-traceability systems that preserve decision rationale as durable memory.
   </desc>
 
-  <!-- SVG CONTENT HERE -->
+  <!-- Background -->
+  <rect x="0" y="0" width="960" height="420" fill="#ffffff"/>
+
+  <!-- Divider -->
+  <line x1="480" y1="40" x2="480" y2="380" stroke="#cccccc" stroke-width="2"/>
+
+  <!-- LEFT: Low Traceability -->
+  <text x="240" y="40" text-anchor="middle"
+        font-size="18" font-family="Arial, Helvetica, sans-serif"
+        fill="#444444">
+    Low Traceability
+  </text>
+
+  <text x="240" y="64" text-anchor="middle"
+        font-size="13" font-family="Arial, Helvetica, sans-serif"
+        fill="#777777">
+    reasoning lost over time
+  </text>
+
+  <!-- Nodes (left) -->
+  <circle cx="180" cy="140" r="10" fill="#e57373"/>
+  <circle cx="240" cy="180" r="10" fill="#e57373"/>
+  <circle cx="300" cy="220" r="10" fill="#e57373"/>
+
+  <!-- Broken links -->
+  <line x1="180" y1="140" x2="240" y2="180"
+        stroke="#e57373" stroke-width="2" stroke-dasharray="4,6"/>
+  <line x1="240" y1="180" x2="300" y2="220"
+        stroke="#e57373" stroke-width="2" stroke-dasharray="4,6"/>
+
+  <text x="240" y="270" text-anchor="middle"
+        font-size="12" font-family="Arial, Helvetica, sans-serif"
+        fill="#999999">
+    Decisions inherited without rationale
+  </text>
+
+  <!-- RIGHT: High Traceability -->
+  <text x="720" y="40" text-anchor="middle"
+        font-size="18" font-family="Arial, Helvetica, sans-serif"
+        fill="#444444">
+    High Traceability
+  </text>
+
+  <text x="720" y="64" text-anchor="middle"
+        font-size="13" font-family="Arial, Helvetica, sans-serif"
+        fill="#777777">
+    reasoning preserved as memory
+  </text>
+
+  <!-- Nodes (right) -->
+  <circle cx="660" cy="140" r="10" fill="#64b5f6"/>
+  <circle cx="720" cy="180" r="10" fill="#64b5f6"/>
+  <circle cx="780" cy="220" r="10" fill="#64b5f6"/>
+
+  <!-- Strong links -->
+  <line x1="660" y1="140" x2="720" y2="180"
+        stroke="#64b5f6" stroke-width="2"/>
+  <line x1="720" y1="180" x2="780" y2="220"
+        stroke="#64b5f6" stroke-width="2"/>
+
+  <!-- Memory spine -->
+  <rect x="708" y="120" width="24" height="140"
+        fill="none" stroke="#64b5f6" stroke-width="2"/>
+
+  <text x="720" y="290" text-anchor="middle"
+        font-size="12" font-family="Arial, Helvetica, sans-serif"
+        fill="#777777">
+    Decisions remain explainable
+  </text>
+
+  <!-- Footer caption -->
+  <text x="480" y="380" text-anchor="middle"
+        font-size="12" font-family="Arial, Helvetica, sans-serif"
+        fill="#aaaaaa">
+    Documentation preserves judgment across time; opacity fragments it.
+  </text>
 
 </svg>
