@@ -152,6 +152,10 @@ History repeatedly confirms this pattern. Financial bubbles persist not because 
 
 Epistemic collapse is rarely sudden. It is preceded by long periods in which reality is technically visible but functionally ignored.
 
+![Illusion Stability vs Reality Correction Over Time](/assets/2026-02-04-facts-anchor-us/diagram-illusion-vs-correction-time.svg)
+#### Illusion Stability vs. Reality Correction Over Time.
+Shared illusions suppress error signals, producing apparent stability until correction becomes abrupt and costly. Verification introduces friction early, enabling slower but survivable adaptation.
+
 ### The Moralization Trap
 
 One of the most corrosive effects of epistemic drift is the moralization of belief. When beliefs become markers of virtue, verification is recast as suspicion. Doubt becomes disloyalty. Inquiry becomes aggression.
