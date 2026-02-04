@@ -1,0 +1,67 @@
+<svg viewBox="0 0 960 220" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    text {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      fill: #cfd3e6;
+    }
+    .label { font-size: 14px; font-weight: 600; }
+    .sub { font-size: 12px; fill: #aab0c6; }
+
+    .node {
+      fill: #8aa2ff;
+      opacity: .85;
+    }
+
+    .drift {
+      fill: #ff8b8b;
+      opacity: .85;
+    }
+
+    .axis {
+      stroke: #3a3d4d;
+      stroke-width: 1;
+    }
+  </style>
+
+  <!-- Titles -->
+  <text class="label" x="240" y="26" text-anchor="middle">Shared Verification</text>
+  <text class="sub"   x="240" y="44" text-anchor="middle">slow convergence</text>
+
+  <text class="label" x="720" y="26" text-anchor="middle">Emotional Reinforcement</text>
+  <text class="sub"   x="720" y="44" text-anchor="middle">accelerating drift</text>
+
+  <!-- Divider -->
+  <line class="axis" x1="480" y1="20" x2="480" y2="200"/>
+
+  <!-- LEFT: convergence -->
+  <g>
+    <circle class="node" cx="180" cy="120" r="6">
+      <animate attributeName="cx" from="150" to="210" dur="6s" repeatCount="indefinite" direction="alternate"/>
+    </circle>
+    <circle class="node" cx="240" cy="90" r="6">
+      <animate attributeName="cy" from="70" to="120" dur="6s" repeatCount="indefinite" direction="alternate"/>
+    </circle>
+    <circle class="node" cx="300" cy="130" r="6">
+      <animate attributeName="cx" from="330" to="260" dur="6s" repeatCount="indefinite" direction="alternate"/>
+    </circle>
+    <circle class="node" cx="220" cy="150" r="6">
+      <animate attributeName="cy" from="170" to="120" dur="6s" repeatCount="indefinite" direction="alternate"/>
+    </circle>
+  </g>
+
+  <!-- RIGHT: drift -->
+  <g>
+    <circle class="drift" cx="620" cy="120" r="6">
+      <animate attributeName="cx" from="600" to="560" dur="5s" repeatCount="indefinite"/>
+    </circle>
+    <circle class="drift" cx="700" cy="90" r="6">
+      <animate attributeName="cy" from="90" to="40" dur="5s" repeatCount="indefinite"/>
+    </circle>
+    <circle class="drift" cx="760" cy="140" r="6">
+      <animate attributeName="cx" from="760" to="820" dur="5s" repeatCount="indefinite"/>
+    </circle>
+    <circle class="drift" cx="820" cy="120" r="6">
+      <animate attributeName="cy" from="120" to="180" dur="5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>
