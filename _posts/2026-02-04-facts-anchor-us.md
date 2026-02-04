@@ -19,6 +19,10 @@ The deeper danger is not simply that false beliefs spread. It’s that verificat
 
 This essay argues that the central crisis is not misinformation per se, but the degradation of verification as a social norm. Without shared methods for checking claims, even true statements lose stabilizing power. The result is not a plurality of perspectives, but a proliferation of incompatible realities.
 
+![Verification vs Drift](/assets/2026-02-04-facts-anchor-us/diagram-reality-drift-animated.svg)
+#### Verification vs. Drift.
+Shared verification gently pulls disagreement toward convergence. Emotional reinforcement accelerates divergence by suppressing corrective feedback.
+
 {% include ad.html %}
 
 ## The Coordination Problem (Not the Truth Problem)
