@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Belief Divergence Probability Generator</title>
+  <style>
+    :root { --bg:#0b0c10; --panel:#111218; --muted:#9aa0aa; --text:#e8eaf0; --line:#252734; }
+    html, body { height:100%; }
+    body {
+      margin:0; background:var(--bg); color:var(--text);
+      font: 15px/1.45 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 18px; }
+    .card {
+      background:var(--panel); border:1px solid var(--line); border-radius:14px;
+      padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    h1 { margin: 0 0 6px; font-size: 18px; letter-spacing: .2px; }
+    p { margin: 8px 0; color: var(--muted); }
+    .grid { display:grid; grid-template-columns: 1.2fr .8fr; gap: 14px; margin-top: 12px; }
+    @media (max-width: 880px){ .grid { grid-template-columns: 1fr; } }
+    .row { display:flex; align-items:center; justify-content:space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+    .row:first-child { border-top: 0; }
+    .label { font-weight: 600; color: var(--text); }
+    .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    input[type="range"] { width: 58%; min-width: 220px; }
+    .num { width: 54px; text-align:right; font-variant-numeric: tabular-nums; color: var(--text); }
+    .pill {
+      display:inline-flex; gap:8px; align-items:center;
+      padding: 8px 10px; border:1px solid var(--line); border-radius: 999px;
+      background: rgba(255,255,255,.02);
+      font-variant-numeric: tabular-nums;
+    }
+    .out {
+      display:grid; gap: 10px;
+    }
+    .barwrap { border:1px solid var(--line); border-radius:12px; overflow:hidden; background:rgba(255,255,255,.02); }
+    .barrow { display:flex; align-items:center; justify-content:space-between; gap: 10px; padding: 10px 12px; border-top: 1px solid var(--line); }
+    .barrow:first-child { border-top: 0; }
+    .barname { font-weight: 600; }
+    .bar {
+      flex: 1;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      overflow: hidden;
+      margin: 0 10px;
+    }
+    .fill { height: 100%; width: 0%; background: rgba(120,180,255,.9); }
+    .pct { width: 58px; text-align:right; font-variant-numeric: tabular-nums; }
+    .fine { font-size: 12px; color: var(--muted); }
+    .btnrow { display:flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    button {
+      cursor:pointer; border-radius: 10px; padding: 10px 12px;
+      border: 1px solid var(--line); background: rgba(255,255,255,.03); color: var(--text);
+    }
+    button:hover { background: rgba(255,255,255,.06); }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+    .mini { display:flex; gap: 10px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Belief Divergence Probability Generator</h1>
+      <p>
+        This is an intuition tool, not a forecast. It illustrates how verification norms, reinforcement, and emotional salience
+        can shift the likely stability of a shared reality.
+      </p>
+
+      <div class="grid">
+        <div>
+          <div class="row">
+            <div>
+              <div class="label">Emotional salience</div>
+              <div class="sub">How strongly the claim grabs identity, fear, outrage, or moral certainty.</div>
+            </div>
+            <input id="salience" type="range" min="0" max="100" value="55" />
+            <div class="num" id="salienceVal">55</div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="label">Algorithmic reinforcement</div>
+              <div class="sub">How strongly feeds repeat / amplify content aligned with prior engagement.</div>
+            </div>
+            <input id="reinforce" type="range" min="0" max="100" value="65" />
+            <div class="num" id="reinforceVal">65</div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="label">Verification effort</div>
+              <div class="sub">Time + friction invested in checking, triangulating, and tolerating uncertainty.</div>
+            </div>
+            <input id="verify" type="range" min="0" max="100" value="40" />
+            <div class="num" id="verifyVal">40</div>
+          </div>
+
+          <div class="row">
+            <div>
+              <div class="label">Identity cost of revision</div>
+              <div class="sub">Social/psych cost of changing one’s mind inside a group.</div>
+            </div>
+            <input id="idcost" type="range" min="0" max="100" value="55" />
+            <div class="num" id="idcostVal">55</div>
+          </div>
+
+          <div class="btnrow">
+            <button id="reset">Reset</button>
+            <button id="exampleA">Example: high-verification</button>
+            <button id="exampleB">Example: high-amplification</button>
+          </div>
+
+          <div class="fine" style="margin-top:10px;">
+            Seed (deterministic): <code id="seedOut"></code>
+          </div>
+        </div>
+
+        <div class="out">
+          <div class="barwrap">
+            <div class="barrow">
+              <div class="barname">Convergence (shared reality)</div>
+              <div class="bar"><div class="fill" id="pConv"></div></div>
+              <div class="pct" id="pConvTxt">0%</div>
+            </div>
+            <div class="barrow">
+              <div class="barname">Fragmentation (fractured realities)</div>
+              <div class="bar"><div class="fill" id="pFrag"></div></div>
+              <div class="pct" id="pFragTxt">0%</div>
+            </div>
+            <div class="barrow">
+              <div class="barname">Short-term illusion stability</div>
+              <div class="bar"><div class="fill" id="pIll"></div></div>
+              <div class="pct" id="pIllTxt">0%</div>
+            </div>
+          </div>
+
+          <div class="card" style="padding:12px; border-radius:12px;">
+            <div class="label" style="margin-bottom:6px;">Interpretation</div>
+            <div class="fine" id="interp"></div>
+            <hr style="border:0; border-top:1px solid var(--line); margin:10px 0;">
+            <div class="mini fine">
+              <span class="pill">Drift score: <strong id="drift">0.00</strong></span>
+              <span class="pill">Correction capacity: <strong id="corr">0.00</strong></span>
+              <span class="pill">Loop pressure: <strong id="loop">0.00</strong></span>
+            </div>
+          </div>
+
+          <p class="fine">
+            The “short-term illusion stability” line reflects a failure mode: cohesion can increase even as reality feedback is suppressed.
+            In the long run, suppressed error signals raise the probability of abrupt correction.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Deterministic PRNG (mulberry32) for small illustrative jitter.
+    function mulberry32(a) {
+      return function() {
+        var t = a += 0x6D2B79F5;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    function clamp01(x){ return Math.max(0, Math.min(1, x)); }
+
+    // Softmax for stable probabilities
+    function softmax3(a,b,c){
+      const m = Math.max(a,b,c);
+      const ea = Math.exp(a - m), eb = Math.exp(b - m), ec = Math.exp(c - m);
+      const s = ea + eb + ec;
+      return [ea/s, eb/s, ec/s];
+    }
+
+    const el = {
+      salience: document.getElementById('salience'),
+      reinforce: document.getElementById('reinforce'),
+      verify: document.getElementById('verify'),
+      idcost: document.getElementById('idcost'),
+      salienceVal: document.getElementById('salienceVal'),
+      reinforceVal: document.getElementById('reinforceVal'),
+      verifyVal: document.getElementById('verifyVal'),
+      idcostVal: document.getElementById('idcostVal'),
+      seedOut: document.getElementById('seedOut'),
+      pConv: document.getElementById('pConv'),
+      pFrag: document.getElementById('pFrag'),
+      pIll: document.getElementById('pIll'),
+      pConvTxt: document.getElementById('pConvTxt'),
+      pFragTxt: document.getElementById('pFragTxt'),
+      pIllTxt: document.getElementById('pIllTxt'),
+      interp: document.getElementById('interp'),
+      drift: document.getElementById('drift'),
+      corr: document.getElementById('corr'),
+      loop: document.getElementById('loop'),
+      reset: document.getElementById('reset'),
+      exampleA: document.getElementById('exampleA'),
+      exampleB: document.getElementById('exampleB'),
+    };
+
+    function setVals(s, r, v, i){
+      el.salience.value = s; el.reinforce.value = r; el.verify.value = v; el.idcost.value = i;
+      update();
+    }
+
+    function update(){
+      const s = Number(el.salience.value) / 100;
+      const r = Number(el.reinforce.value) / 100;
+      const v = Number(el.verify.value) / 100;
+      const i = Number(el.idcost.value) / 100;
+
+      el.salienceVal.textContent = Math.round(s*100);
+      el.reinforceVal.textContent = Math.round(r*100);
+      el.verifyVal.textContent = Math.round(v*100);
+      el.idcostVal.textContent = Math.round(i*100);
+
+      // Deterministic seed from sliders
+      const seed = (Math.round(s*100) * 1000000) ^ (Math.round(r*100) * 10000) ^ (Math.round(v*100) * 100) ^ (Math.round(i*100));
+      el.seedOut.textContent = String(seed >>> 0);
+      const rand = mulberry32(seed >>> 0);
+
+      // Core constructed scores
+      // drift: how strongly the environment pushes belief away from correction
+      const drift = clamp01(0.45*s + 0.45*r + 0.25*i - 0.55*v);
+      // correction capacity: ability to absorb disconfirming evidence without identity rupture
+      const correction = clamp01(0.70*v - 0.35*i - 0.10*s + 0.05*(1-r));
+      // loop pressure: internal stabilization via repetition/resonance
+      const loop = clamp01(0.50*r + 0.35*s + 0.25*i - 0.20*v);
+
+      // Add small illustrative jitter that stays deterministic
+      const j1 = (rand() - 0.5) * 0.10;
+      const j2 = (rand() - 0.5) * 0.10;
+      const j3 = (rand() - 0.5) * 0.10;
+
+      // Logit-like scores (higher => more likely)
+      // Convergence grows with correction and verification, declines with drift/loop pressure
+      const scoreConv = 1.6*correction + 0.7*v - 1.2*drift - 0.4*loop + j1;
+      // Fragmentation grows with drift and reinforcement, declines with verification
+      const scoreFrag = 1.5*drift + 0.8*r + 0.4*i - 1.1*v + j2;
+      // Illusion stability grows with loop pressure + reinforcement + salience, but penalized when verification is high
+      const scoreIll  = 1.4*loop + 0.7*r + 0.5*s + 0.2*i - 0.9*v + j3;
+
+      const [pConv, pFrag, pIll] = softmax3(scoreConv, scoreFrag, scoreIll);
+
+      renderProb(pConv, el.pConv, el.pConvTxt);
+      renderProb(pFrag, el.pFrag, el.pFragTxt);
+      renderProb(pIll,  el.pIll,  el.pIllTxt);
+
+      el.drift.textContent = drift.toFixed(2);
+      el.corr.textContent = correction.toFixed(2);
+      el.loop.textContent = loop.toFixed(2);
+
+      el.interp.textContent = interpret(pConv, pFrag, pIll, drift, correction, loop);
+    }
+
+    function renderProb(p, barEl, txtEl){
+      const pct = Math.round(p * 100);
+      barEl.style.width = pct + "%";
+      txtEl.textContent = pct + "%";
+    }
+
+    function interpret(pConv, pFrag, pIll, drift, corr, loop){
+      // Keep this short and non-prescriptive.
+      if (pConv >= 0.45) {
+        return "High convergence conditions: verification effort is strong enough to keep disagreement tethered to shared checks. Expect more revisability, slower polarization, and fewer self-sealing narratives.";
+      }
+      if (pFrag >= 0.45) {
+        return "High fragmentation conditions: drift and reinforcement outweigh correction. Expect parallel realities, asymmetric standards of evidence, and rising coordination costs across groups.";
+      }
+      if (pIll >= 0.45) {
+        return "High illusion-stability conditions: cohesion can increase inside a loop even while error signals are muted. Short-term alignment rises; long-term brittleness rises with it.";
+      }
+      // Mixed regime
+      return "Mixed regime: no single outcome dominates. Small shifts—especially increasing verification or lowering identity cost of revision—can push the system toward convergence.";
+    }
+
+    // Events
+    ['input','change'].forEach(evt => {
+      el.salience.addEventListener(evt, update);
+      el.reinforce.addEventListener(evt, update);
+      el.verify.addEventListener(evt, update);
+      el.idcost.addEventListener(evt, update);
+    });
+
+    el.reset.addEventListener('click', () => setVals(55, 65, 40, 55));
+    el.exampleA.addEventListener('click', () => setVals(30, 25, 80, 25));
+    el.exampleB.addEventListener('click', () => setVals(80, 85, 20, 70));
+
+    update();
+  </script>
+</body>
+</html>
