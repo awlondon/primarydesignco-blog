@@ -5,7 +5,7 @@ subtitle: "Why verification—not agreement—is the basis of shared reality"
 author: Alexander Warren London
 published_at: 2026-02-04T11:00:00-08:00
 tags: [epistemology, media-theory, social-psychology, systems-thinking]
-reading_time: 18
+reading_time: 22
 ---
 
 ## Introduction
@@ -13,7 +13,7 @@ Modern societies don’t fail because people disagree. Disagreement is normal—
 
 This shift rarely announces itself as “rejecting reality.” It presents as sincerity. Beliefs feel true. Narratives feel coherent. Moral confidence intensifies. Yet something essential erodes underneath: the capacity to verify claims independently of how they feel or whom they flatter.
 
-Facts are not sacred objects. They are coordination tools. They let people who differ in values and interests still reason about external constraints that won’t negotiate with anyone. When verification norms hold, disagreement remains legible and revisable. When they collapse, belief becomes unmoored from correction, and society drifts toward epistemic chaos—not because people stop caring, but because care is redirected toward identity affirmation instead of external validation.
+Facts are not sacred objects. They are coordination tools. They let people who differ in values and interests still reason about external constraints that won’t negotiate. When verification norms hold, disagreement remains legible and revisable. When they collapse, belief becomes unmoored from correction, and society drifts toward epistemic chaos—not because people stop caring, but because care is redirected toward identity affirmation instead of external validation.
 
 The deeper danger is not simply that false beliefs spread. It’s that verification is reframed as optional, partisan, or naïve. At that point, reality stops functioning as a shared environment and becomes a personalized experience. Politics, media, and social life follow.
 
@@ -43,7 +43,7 @@ The alternative is not enforced consensus. It is a recommitment to verification 
 
 At first glance, shared illusions appear preferable to fractured realities. A population that believes the same falsehoods can still coordinate. A population that believes incompatible truths cannot. This intuition explains why myths, national narratives, and simplified moral stories have historically played stabilizing roles. They compress complexity. They reduce friction. They make collective action possible.
 
-The problem is not that shared illusions coordinate behavior. It is that they coordinate behavior by severing feedback from reality.
+The problem is not that shared illusions enable coordination. It is that they coordinate behavior by severing feedback from reality.
 
 Shared illusions are brittle because they suppress correction. As long as external conditions remain forgiving, the illusion holds. When conditions change—economic pressure, military conflict, technological disruption—the illusion collapses abruptly, often catastrophically. Because the belief system lacks internal mechanisms for falsification, adjustment comes too late.
 
@@ -88,8 +88,9 @@ Over time, this reflex produces belief lock-in. The belief is no longer held bec
 
 At this point, verification becomes adversarial. Requests for evidence are interpreted not as epistemic hygiene, but as hostile acts. The belief system shifts from truth-seeking to boundary maintenance.
 
-Diagram insertion point:
-Belief Lock-In Feedback Loop
+<!-- Diagram: Belief Lock-In Feedback Loop -->
+
+
 Signal → Emotional resonance → Identity binding → Social reinforcement → Resistance to falsification → Increased confidence
 
 This loop explains why confidence often increases as beliefs become less connected to external reality. The loop is internally stabilizing even as it grows externally fragile.
@@ -221,7 +222,7 @@ Third, time delay: many errors persist because beliefs are endorsed faster than 
 
 Fourth, probabilistic language: treating beliefs as degrees of confidence lowers the cost of revision. “This seems likely given what I know” keeps beliefs corrigible. “This must be true” recruits identity defense.
 
-These practices do not eliminate bias. They counteract it. Bias is a constant; norms determine whether it compounds or cancels out.
+These practices do not eliminate bias. They contain it. Bias is a constant; norms determine whether it compounds or cancels out.
 
 ### Why This Is Encouraging, Not Pessimistic
 
