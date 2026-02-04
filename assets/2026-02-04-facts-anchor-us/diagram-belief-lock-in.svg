@@ -1,0 +1,45 @@
+<svg viewBox="0 0 900 420" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    text { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; fill:#e6e8ee; }
+    .box { fill:#12131a; stroke:#3a3d4d; stroke-width:1.2; rx:12; }
+    .arrow { stroke:#8aa2ff; stroke-width:2; fill:none; marker-end:url(#arrow); }
+    .label { font-size:14px; font-weight:600; }
+    .sub { font-size:12px; fill:#b3b7c6; }
+  </style>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#8aa2ff"/>
+    </marker>
+  </defs>
+
+  <!-- Boxes -->
+  <rect class="box" x="40"  y="160" width="160" height="70"/>
+  <rect class="box" x="220" y="40"  width="180" height="70"/>
+  <rect class="box" x="460" y="40"  width="200" height="70"/>
+  <rect class="box" x="700" y="160" width="180" height="70"/>
+  <rect class="box" x="460" y="300" width="220" height="70"/>
+
+  <!-- Text -->
+  <text class="label" x="120" y="195" text-anchor="middle">Signal Exposure</text>
+  <text class="sub"   x="120" y="214" text-anchor="middle">content / claim</text>
+
+  <text class="label" x="310" y="75" text-anchor="middle">Emotional Resonance</text>
+  <text class="sub"   x="310" y="94" text-anchor="middle">fear · outrage · affirmation</text>
+
+  <text class="label" x="560" y="75" text-anchor="middle">Identity Binding</text>
+  <text class="sub"   x="560" y="94" text-anchor="middle">belief ↔ self-concept</text>
+
+  <text class="label" x="790" y="195" text-anchor="middle">Social Reinforcement</text>
+  <text class="sub"   x="790" y="214" text-anchor="middle">likes · shares · group approval</text>
+
+  <text class="label" x="570" y="335" text-anchor="middle">Resistance to Falsification</text>
+  <text class="sub"   x="570" y="354" text-anchor="middle">discounting contrary evidence</text>
+
+  <!-- Arrows -->
+  <path class="arrow" d="M200 195 L220 75"/>
+  <path class="arrow" d="M400 75 L460 75"/>
+  <path class="arrow" d="M660 75 L760 160"/>
+  <path class="arrow" d="M790 230 L600 300"/>
+  <path class="arrow" d="M460 335 L120 230"/>
+</svg>
