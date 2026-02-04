@@ -111,13 +111,9 @@ Algorithmic systems amplify content that generates engagement: outrage, affirmat
 
 Verification suffers under these conditions because it is slow, socially costly, and rarely rewarding in the short term. Correction does not go viral. Retractions feel anticlimactic. Ambiguity does not satisfy.
 
-Diagram insertion point:
-Shared Reality vs Fragmented Illusion System Map
-Nodes: individuals
-Edges: information flows
-Modifiers: algorithmic amplification, verification norms
-Outcome A: convergence under shared verification
-Outcome B: divergence under emotional reinforcement
+![Shared Reality vs Fragmented Illusion](/assets/2026-02-04-facts-anchor-us/diagram-shared-vs-fragmented.svg)
+#### Shared Reality vs Fragmented Illusion.
+When verification norms exist, disagreement converges. When amplification outweighs verification, networks fragment into internally coherent but incompatible realities.
 
 In environments where amplification outweighs verification, belief systems drift toward narrative coherence rather than empirical constraint.
 
