@@ -55,7 +55,7 @@ Fractured realities, by contrast, feel chaotic immediately. Disagreement is visi
 
 This distinction matters. Systems theory consistently shows that delayed feedback produces more severe failures than immediate friction. Shared illusions delay feedback by design. Fractured realities surface conflict early, when correction is still possible.
 
-# A Short Case: Weapons of Mass Destruction in Iraq
+### A Short Case: Weapons of Mass Destruction in Iraq
 
 The pre–2003 consensus around Iraqi weapons of mass destruction illustrates the danger of shared illusion. Across political parties, media institutions, and allied governments, the belief that Iraq possessed active WMD programs became dominant. Dissenting assessments existed, but they were marginalized as inconvenient rather than evaluated as falsification attempts.
 
@@ -65,7 +65,7 @@ When the illusion collapsed—after invasion rather than before—the cost of co
 
 The lesson is not partisan. It is structural. When belief coherence substitutes for evidentiary discipline, institutions lose the ability to stop themselves.
 
-# Why Shared Illusions Feel Safer
+### Why Shared Illusions Feel Safer
 
 Shared illusions offer psychological relief. They reduce cognitive load. They align identity with belief. Social psychology shows that agreement within a group lowers perceived threat and increases confidence, regardless of accuracy. Certainty feels like competence.
 
@@ -73,7 +73,7 @@ Fractured realities do the opposite. They demand ongoing evaluation. They force 
 
 Modern media systems exploit this asymmetry. Algorithms reward engagement, not correction. Content that reinforces a shared narrative spreads faster than content that introduces uncertainty. The result is an environment where illusions scale efficiently, while verification struggles to compete.
 
-# The Real Tradeoff
+### The Real Tradeoff
 
 The real choice is not between harmony and chaos. It is between short-term coherence and long-term adaptability.
 
@@ -98,7 +98,7 @@ Signal → Emotional resonance → Identity binding → Social reinforcement →
 
 This loop explains why confidence often increases as beliefs become less connected to external reality. The loop is internally stabilizing even as it grows externally fragile.
 
-# Why Education Does Not Immunize Against This
+### Why Education Does Not Immunize Against This
 
 Higher education increases argumentative skill, not epistemic neutrality. Educated individuals are often better at constructing post-hoc rationalizations for preferred conclusions. They can cite sources selectively, contextualize inconvenient data away, and frame uncertainty as bias when it contradicts their position.
 
@@ -137,7 +137,7 @@ This does not require malice. It emerges naturally when success is measured by r
 
 The result is a subtle inversion: facts are no longer the substrate upon which narratives are built; narratives become the filter through which facts are permitted entry.
 
-# The Asymmetry of Cost
+### The Asymmetry of Cost
 
 One reason illusions scale so effectively is that the costs of being wrong are often delayed or diffused, while the costs of dissent are immediate and personal.
 
@@ -147,7 +147,7 @@ This asymmetry explains why belief correction is so rare in public. Revision fee
 
 Importantly, this selection pressure operates across ideological lines. It is not unique to any political orientation. Wherever identity and belief fuse tightly, verification becomes costly. Wherever verification becomes costly, illusion becomes attractive.
 
-# The Collapse of Error Signals
+### The Collapse of Error Signals
 
 Complex systems depend on error signals to remain adaptive. In engineering, these signals trigger correction before failure cascades. In biological systems, pain serves this role. In epistemic systems, falsification is the equivalent mechanism.
 
@@ -159,7 +159,7 @@ History repeatedly confirms this pattern. Financial bubbles persist not because 
 
 Epistemic collapse is rarely sudden. It is preceded by long periods in which reality is technically visible but functionally ignored.
 
-# The Moralization Trap
+### The Moralization Trap
 
 One of the most corrosive effects of epistemic drift is the moralization of belief. When beliefs become markers of virtue, verification is recast as suspicion. Doubt becomes disloyalty. Inquiry becomes aggression.
 
@@ -169,7 +169,7 @@ Once this happens, correction becomes almost impossible. Evidence no longer addr
 
 This is not a call for moral neutrality. Values matter. But values cannot substitute for evidence without collapsing into dogma. When belief is protected by moral immunity, it no longer evolves.
 
-# Re-Anchoring Without Authoritarianism
+### Re-Anchoring Without Authoritarianism
 
 The solution to epistemic drift is often misunderstood as a demand for centralized truth enforcement. This is neither feasible nor desirable. Forced consensus does not produce shared reality; it produces compliance.
 
@@ -179,7 +179,7 @@ Re-anchoring reality, then, is a design problem. It requires lowering the cost o
 
 This is difficult in environments optimized for speed and scale. But difficulty does not imply impossibility. It implies intention.
 
-# Why This Still Matters
+### Why This Still Matters
 
 It is tempting to conclude that epistemic fragmentation is an irreversible consequence of modern media. That conclusion confuses exposure with inevitability. Technologies shape behavior, but they do not dictate norms. Norms are reinforced—or resisted—through practice.
 
@@ -189,7 +189,7 @@ The alternative is not pluralism. It is epistemic isolation—millions of intern
 
 The probability generator that follows is not meant to dramatize this risk. It is meant to normalize it. Once belief formation is understood as a system with inputs, feedback, and incentives, moral panic gives way to design thinking. The question stops being “Who is wrong?” and becomes “What are we rewarding?”
 
-# The Probability Generator (Conceptual Bridge)
+### The Probability Generator (Conceptual Bridge)
 
 At this point in the essay, readers are primed to see belief formation as probabilistic rather than moral. This is where the probability generator enters—not as prediction, but as intuition pump.
 
@@ -215,7 +215,7 @@ Verification is often misunderstood as a technical exercise reserved for experts
 
 At the individual level, verification begins with a simple shift in posture. Instead of asking whether a claim feels right, the question becomes whether it can be independently checked. This does not require expertise in every domain. It requires humility about what one does not know and discipline about how certainty is earned.
 
-# Several norms matter more than any single fact.
+### Several norms matter more than any single fact.
 
 First, falsifiability. A claim that cannot, even in principle, be proven wrong is not informative. It may be motivating or identity-affirming, but it does not anchor behavior to reality. Healthy belief systems treat disconfirming evidence as valuable, not as hostile.
 
@@ -227,7 +227,7 @@ Fourth, probabilistic language. Treating beliefs as degrees of confidence rather
 
 These practices do not eliminate bias. They counteract it. Bias is a constant; norms determine whether it compounds or cancels out.
 
-# Why This Is Encouraging, Not Pessimistic
+### Why This Is Encouraging, Not Pessimistic
 
 It is tempting to read the current information environment as evidence that shared reality is impossible. That conclusion mistakes difficulty for futility. The fact that verification requires effort does not mean it cannot scale. It means it must be deliberately cultivated.
 
@@ -237,7 +237,7 @@ The same is true in civic life. Verification does not require that people abando
 
 What undermines verification is not disagreement, but the belief that sincerity is sufficient. Feeling certain is not the same as being correct. Caring deeply does not exempt a claim from external checks. In fact, the more consequential a belief is, the higher the standard of verification it deserves.
 
-# From Diagnosis to Design
+### From Diagnosis to Design
 
 If facts function as coordination infrastructure, then verification norms are a design problem. Platforms, institutions, and communities can either lower or raise the cost of checking claims. They can reward confidence or reward accuracy. They can treat revision as weakness or as competence.
 
