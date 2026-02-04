@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="960"
+  height="420"
+  viewBox="0 0 960 420"
+  preserveAspectRatio="xMidYMid meet"
+  role="img"
+  aria-labelledby="title desc">
+
+  <title id="title">Internal Memory vs Public Accountability</title>
+  <desc id="desc">
+    Diagram showing the distinction between internal documentation that preserves reasoning
+    and public documentation that enables accountability and trust.
+  </desc>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="960" height="420" fill="#ffffff"/>
+
+  <!-- Title -->
+  <text x="480" y="36" text-anchor="middle"
+        font-size="18" font-family="Arial, Helvetica, sans-serif"
+        fill="#444444">
+    Two Functions of Documentation
+  </text>
+
+  <!-- LEFT: Internal Memory -->
+  <rect x="80" y="80" width="320" height="240"
+        fill="none" stroke="#64b5f6" stroke-width="2"/>
+
+  <text x="240" y="68" text-anchor="middle"
+        font-size="14" font-family="Arial, Helvetica, sans-serif"
+        fill="#444444">
+    Internal Memory
+  </text>
+
+  <circle cx="160" cy="150" r="10" fill="#64b5f6"/>
+  <circle cx="240" cy="190" r="10" fill="#64b5f6"/>
+  <circle cx="320" cy="230" r="10" fill="#64b5f6"/>
+
+  <line x1="160" y1="150" x2="240" y2="190"
+        stroke="#64b5f6" stroke-width="2"/>
+  <line x1="240" y1="190" x2="320" y2="230"
+        stroke="#64b5f6" stroke-width="2"/>
+
+  <text x="240" y="280" text-anchor="middle"
+        font-size="12" font-family="Arial, Helvetica, sans-serif"
+        fill="#777777">
+    Preserves reasoning across time
+  </text>
+
+  <!-- RIGHT: Public Accountability -->
+  <rect x="560" y="80" width="320" height="240"
+        fill="none" stroke="#9575cd" stroke-width="2"/>
+
+  <text x="720" y="68" text-anchor="middle"
+        font-size="14" font-family="Arial, Helvetica, sans-serif"
+        fill="#444444">
+    Public Accountability
+  </text>
+
+  <rect x="610" y="140" width="80" height="40"
+        fill="#9575cd" opacity="0.25"/>
+  <rect x="710" y="200" width="80" height="40"
+        fill="#9575cd" opacity="0.25"/>
+
+  <line x1="650" y1="180" x2="750" y2="200"
+        stroke="#9575cd" stroke-width="2" stroke-dasharray="4,4"/>
+
+  <text x="720" y="280" text-anchor="middle"
+        font-size="12" font-family="Arial, Helvetica, sans-serif"
+        fill="#777777">
+    Enables scrutiny and trust
+  </text>
+
+  <!-- Middle separation -->
+  <line x1="480" y1="90" x2="480" y2="310"
+        stroke="#cccccc" stroke-width="2"/>
+
+  <text x="480" y="350" text-anc
