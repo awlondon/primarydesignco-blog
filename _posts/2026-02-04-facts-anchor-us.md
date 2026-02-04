@@ -265,18 +265,22 @@ Explore related projects and frameworks here:
 [Explore Primary Design Co’s ongoing work]({{ page.primary_recommendation }})
 
 ## References
-Bernays, E. (1928). Propaganda. Horace Liveright.
 
-Debord, G. (1967). The Society of the Spectacle. Buchet-Chastel.
+Kahneman, D. (2011). *Thinking, Fast and Slow*. Farrar, Straus and Giroux.
 
-Ellul, J. (1965). Propaganda: The Formation of Men’s Attitudes. Vintage Books.
+Kunda, Z. (1990). “The Case for Motivated Reasoning.” *Psychological Bulletin*, 108(3), 480–498.
 
-Haidt, J. (2012). The Righteous Mind. Pantheon Books.
+Lewandowsky, S., Ecker, U. K. H., Seifert, C. M., Schwarz, N., & Cook, J. (2012).
+“Misinformation and Its Correction.” *Psychological Science in the Public Interest*, 13(3), 106–131.
 
-McLuhan, M. (1964). Understanding Media. McGraw-Hill.
+Sunstein, C. R. (2017). *#Republic: Divided Democracy in the Age of Social Media*. Princeton University Press.
 
-Postman, N. (1985). Amusing Ourselves to Death. Viking Penguin.
+Pariser, E. (2011). *The Filter Bubble*. Penguin Press.
 
-RAND Corporation. (2017). The Russian “Firehose of Falsehood” Propaganda Model.
+Lippmann, W. (1922). *Public Opinion*. Harcourt, Brace & Company.
 
-Sunstein, C. R. (2017). #Republic: Divided Democracy in the Age of Social Media. Princeton University Press.
+Haidt, J. (2012). *The Righteous Mind*. Pantheon Books.
+
+Zuboff, S. (2019). *The Age of Surveillance Capitalism*. PublicAffairs.
+
+Oreskes, N., & Conway, E. M. (2010). *Merchants of Doubt*. Bloomsbury Press.
