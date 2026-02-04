@@ -77,4 +77,10 @@
   <line x1="480" y1="90" x2="480" y2="310"
         stroke="#cccccc" stroke-width="2"/>
 
-  <text x="480" y="350" text-anc
+  <text x="480" y="350" text-anchor="middle"
+        font-size="12" font-family="Arial, Helvetica, sans-serif"
+        fill="#999999">
+    Internal clarity enables continuity; public visibility enables accountability.
+  </text>
+
+</svg>
