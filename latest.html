@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Latest Blog Post</title>
+  <meta name="robots" content="noindex">
+  <script>
+    async function redirectToLatest() {
+      try {
+        const feedUrl = "https://blog.primarydesignco.com/feed.xml"; 
+        const proxy = "https://api.allorigins.win/raw?url=";
+        const res = await fetch(proxy + encodeURIComponent(feedUrl));
+        const text = await res.text();
+
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(text, "application/xml");
+
+        const firstItem =
+          xml.querySelector("entry link") ||   // Atom
+          xml.querySelector("item link");       // RSS
+
+        const link = firstItem.getAttribute("href") || firstItem.textContent;
+
+        window.location.replace(link);
+      } catch (e) {
+        // fallback: blog homepage
+        window.location.replace("https://blog.primarydesignco.com");
+      }
+    }
+
+    redirectToLatest();
+  </script>
+</head>
+<body>
+  Redirecting to latest article…
+</body>
+</html>
