@@ -1,0 +1,44 @@
+<svg viewBox="0 0 960 420" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    text { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; fill:#e6e8ee; }
+    .axis { stroke:#4a4e63; stroke-width:1.2; }
+    .illus { stroke:#ff8b8b; stroke-width:3; fill:none; }
+    .real  { stroke:#7fd3a6; stroke-width:3; fill:none; }
+    .dash  { stroke-dasharray:6 6; }
+    .label { font-size:14px; font-weight:600; }
+    .sub   { font-size:12px; fill:#b3b7c6; }
+  </style>
+
+  <!-- Axes -->
+  <line class="axis" x1="80" y1="340" x2="880" y2="340"/>
+  <line class="axis" x1="80" y1="60"  x2="80"  y2="340"/>
+
+  <!-- Axis labels -->
+  <text class="label" x="880" y="365" text-anchor="end">Time</text>
+  <text class="label" x="40" y="60" text-anchor="start" transform="rotate(-90 40 60)">System Error</text>
+
+  <!-- Illusion curve -->
+  <path class="illus"
+        d="M80 260
+           C200 250, 320 240, 440 235
+           C560 230, 640 230, 700 240
+           C760 260, 820 300, 880 90"/>
+
+  <!-- Reality-corrected curve -->
+  <path class="real"
+        d="M80 260
+           C200 270, 320 265, 440 270
+           C560 275, 700 265, 820 270"/>
+
+  <!-- Collapse marker -->
+  <line class="axis dash" x1="740" y1="60" x2="740" y2="340"/>
+  <text class="sub" x="740" y="48" text-anchor="middle">Delayed correction</text>
+
+  <!-- Legend -->
+  <line class="illus" x1="520" y1="90" x2="560" y2="90"/>
+  <text class="sub" x="570" y="95">Shared illusion (suppressed feedback)</text>
+
+  <line class="real" x1="520" y1="120" x2="560" y2="120"/>
+  <text class="sub" x="570" y="125">Verified beliefs (continuous correction)</text>
+
+</svg>
