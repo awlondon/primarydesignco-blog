@@ -141,6 +141,19 @@
         <div class="box">
           <h4>Design implication</h4>
           <p id="dlgCue"></p>
+          <p style="margin-top:10px;">
+            <a id="dlgLink"
+               href="#"
+               target="_parent"
+               style="
+                 font-size:13px;
+                 text-decoration:none;
+                 color:#0b57d0;
+                 font-weight:600;
+               ">
+              → Jump to essay section
+            </a>
+          </p>
         </div>
       </div>
     </div>
@@ -152,81 +165,69 @@ const DB = {
   core:{
     title:"Verification as Infrastructure",
     what:"Facts function as shared reference points only when methods for checking them are socially enforced.",
-    why:"Agreement without verification produces coherence without correction; verification enables disagreement without collapse.",
+    why:"Agreement without verification produces coherence without correction.",
     cases:[
       "Scientific peer review",
       "Legal cross-examination",
       "Engineering safety margins"
     ],
-    cue:"Design systems that reward correction, not confidence."
+    cue:"Design systems that reward correction, not confidence.",
+    link:"/2026/02/04/facts-anchor-us.html#introduction"
   },
+
   lockin:{
     title:"Belief Lock-In",
     what:"Beliefs bind to identity, making evidence feel like threat rather than input.",
     why:"Once belief change incurs social cost, verification is interpreted as hostility.",
     cases:[
-      "Motivated reasoning in polarized groups",
+      "Motivated reasoning",
       "Identity-protective cognition",
-      "Escalating confidence under contradiction"
+      "Confidence escalation under contradiction"
     ],
-    cue:"Separate belief revision from identity signaling."
+    cue:"Separate belief revision from identity signaling.",
+    link:"/2026/02/04/facts-anchor-us.html#belief-lock-in"
   },
+
   amplification:{
     title:"Amplification Loops",
     what:"Media systems reward emotional resonance and repetition over correction.",
-    why:"Repetition masquerades as reliability; virality outpaces verification.",
+    why:"Virality outpaces verification.",
     cases:[
-      "Algorithmic outrage amplification",
-      "Narrative reinforcement in closed networks",
-      "Decline of retractions and updates"
+      "Algorithmic outrage",
+      "Closed narrative networks",
+      "Suppressed retractions"
     ],
-    cue:"Introduce friction and decay into sharing pathways."
+    cue:"Introduce friction into sharing pathways.",
+    link:"/2026/02/04/facts-anchor-us.html#amplification-loops"
   },
+
   cost:{
     title:"Cost Asymmetry",
-    what:"Accepting false beliefs is often cheaper than challenging them.",
-    why:"Dissent is immediate and personal; being wrong is delayed and diffuse.",
+    what:"Challenging beliefs is often more expensive than accepting them.",
+    why:"Dissent is immediate; error is delayed.",
     cases:[
       "Whistleblower retaliation",
-      "Public retractions vs silent error",
+      "Public correction penalties",
       "Institutional inertia"
     ],
-    cue:"Lower the social cost of saying 'I might be wrong.'"
+    cue:"Lower the cost of saying ‘I might be wrong.’",
+    link:"/2026/02/04/facts-anchor-us.html#cost-asymmetry"
   },
+
   verification:{
     title:"Verification Norms",
     what:"Shared methods for checking claims independent of who asserts them.",
-    why:"Methods allow coordination without moral or ideological agreement.",
+    why:"Methods enable coordination without agreement.",
     cases:[
-      "Falsifiability in science",
-      "Triangulation in journalism",
-      "Redundancy in safety-critical systems"
+      "Falsifiability",
+      "Triangulation",
+      "Redundant checks"
     ],
-    cue:"Reward method adherence, not narrative alignment."
-  },
-  delay:{
-    title:"Time Delay",
-    what:"Slowing endorsement reduces emotional capture.",
-    why:"Most false beliefs spread faster than they can be checked.",
-    cases:[
-      "Cooling-off periods",
-      "Editorial review delays",
-      "Rate-limited sharing"
-    ],
-    cue:"Design for pause before propagation."
-  },
-  probability:{
-    title:"Probabilistic Language",
-    what:"Treat beliefs as degrees of confidence, not identities.",
-    why:"Lower certainty lowers the cost of revision.",
-    cases:[
-      "Forecast ranges",
-      "Bayesian reasoning",
-      "Scientific uncertainty bands"
-    ],
-    cue:"Normalize ‘likely’, ‘uncertain’, and ‘subject to revision’."
+    cue:"Reward method adherence over narrative alignment.",
+    link:"/2026/02/04/facts-anchor-us.html#verification-norms"
   }
 };
+
 
 const dlg=document.getElementById("dlg");
 const t=document.getElementById("dlgTitle");
@@ -242,6 +243,7 @@ document.querySelectorAll(".node").forEach(n=>{
     w.textContent=d.what;
     y.textContent=d.why;
     q.textContent=d.cue;
+    document.getElementById("dlgLink").href = d.link;
     c.innerHTML="";
     d.cases.forEach(x=>{
       const li=document.createElement("li");
