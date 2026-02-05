@@ -143,13 +143,13 @@ For derivative components, the system surfaces proximate sources: established th
 #### Aggregation and explanation
 The ADE outputs:
 
-an overall anomaly score (with uncertainty),
+- an overall anomaly score (with uncertainty),
 
-a breakdown by sub-idea,
+- a breakdown by sub-idea,
 
-a short explanation of why certain parts are considered original or derivative,
+- a short explanation of why certain parts are considered original or derivative,
 
-citations for detected lineages.
+- citations for detected lineages.
 
 The result is not judgment, but orientation. The user can see where their thinking is doing real work.
 
