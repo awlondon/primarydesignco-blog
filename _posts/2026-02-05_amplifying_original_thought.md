@@ -82,9 +82,9 @@ That capability is often misinterpreted. The model is not having the original th
 
 This distinction matters because it defines the correct division of labor in an AGI economy:
 
-Humans supply anomaly, intuition, value judgments, and conceptual risk.
+- Humans supply anomaly, intuition, value judgments, and conceptual risk.
 
-AGI supplies context, compression, verification scaffolding, and amplification.
+- AGI supplies context, compression, verification scaffolding, and amplification.
 
 When AGI is treated as a replacement for human thinking, it collapses into derivative output engines. When it is treated as an evaluator and amplifier of human originality, it becomes a force multiplier for cognition.
 
