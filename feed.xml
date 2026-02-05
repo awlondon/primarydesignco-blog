@@ -1,30 +1,29 @@
----
-layout: null
----
-{% assign page.feed = true %}
-<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>{{ site.title | xml_escape }}</title>
-    <description>{{ site.description | xml_escape }}</description>
-    <link>{{ site.url }}{{ site.baseurl }}/</link>
-    <atom:link href="{{ '/feed.xml' | absolute_url }}" rel="self" type="application/rss+xml" />
-    <lastBuildDate>{{ site.time | date_to_rfc822 }}</lastBuildDate>
-    {% for post in site.posts limit:20 %}
-    <item>
-      <title>{{ post.title | xml_escape }}</title>
-      <description>{{
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>{{ site.title | xml_escape }}</title>
+  <subtitle>{{ site.description | xml_escape }}</subtitle>
+  <link href="{{ site.url }}{{ site.baseurl }}/"/>
+  <link href="{{ '/feed.xml' | absolute_url }}" rel="self" type="application/atom+xml"/>
+  <updated>{{ site.time | date_to_xmlschema }}</updated>
+  <id>{{ '/feed.xml' | absolute_url }}</id>
+
+  {% for post in site.posts limit:20 %}
+  <entry>
+    <title>{{ post.title | xml_escape }}</title>
+    <link href="{{ post.url | absolute_url }}"/>
+    <id>{{ post.url | absolute_url }}</id>
+    <updated>{{ post.date | date_to_xmlschema }}</updated>
+
+    <content type="html">
+      {{
         post.content_html
         | replace: '<iframe', '<!-- iframe removed from feed: '
         | replace: '</iframe>', ' -->'
         | replace: '<script', '<!-- script removed from feed: '
         | replace: '</script>', ' -->'
         | xml_escape
-      }}</description>
-      <pubDate>{{ post.date | date_to_rfc822 }}</pubDate>
-      <link>{{ post.url | absolute_url }}</link>
-      <guid>{{ post.url | absolute_url }}</guid>
-    </item>
-    {% endfor %}
-  </channel>
-</rss>
+      }}
+    </content>
+  </entry>
+  {% endfor %}
+</feed>
