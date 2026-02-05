@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Verification as Epistemic Infrastructure — Clickable Schema</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --fg:#111;
+      --muted:#666;
+      --stroke:#cfcfcf;
+      --panel:#f7f7f7;
+      --panel2:#eef5ff;
+      --warn:#fff2f2;
+      --good:#f2fff5;
+      --shadow:0 10px 30px rgba(0,0,0,.12);
+    }
+    html,body{height:100%; margin:0; background:var(--bg); color:var(--fg); font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;}
+    .wrap{max-width:1200px; margin:0 auto; padding:18px 14px 28px;}
+    .title{font-size:22px; font-weight:650;}
+    .sub{font-size:14px; color:var(--muted);}
+    .stage{position:relative; width:100%; aspect-ratio:1200/900; min-height:720px;}
+    svg{width:100%; height:100%;}
+    .node{cursor:pointer;}
+    .node:hover rect{filter: drop-shadow(0 6px 10px rgba(0,0,0,.12));}
+    dialog{border:0; border-radius:16px; width:min(860px,calc(100vw - 28px)); box-shadow:var(--shadow);}
+    dialog::backdrop{background:rgba(0,0,0,.35);}
+    .modal-h{padding:14px 16px; background:var(--panel); border-bottom:1px solid var(--stroke);}
+    .modal-b{padding:14px 16px;}
+    .grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+    @media(max-width:720px){.grid{grid-template-columns:1fr;}}
+    .box{border:1px solid var(--stroke); border-radius:14px; padding:12px;}
+    .box h4{margin:0 0 6px; font-size:13px; text-transform:uppercase; color:#333;}
+    .close{float:right; border:1px solid var(--stroke); background:#fff; border-radius:8px; padding:6px 10px; cursor:pointer;}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="title">Verification as Epistemic Infrastructure</div>
+  <div class="sub">Click any element to explore how belief systems drift or stabilize.</div>
+
+  <div class="stage">
+    <svg viewBox="0 0 1200 900">
+
+      <!-- Spine -->
+      <line x1="600" y1="110" x2="600" y2="860" stroke="#ddd" stroke-width="4"/>
+
+      <!-- Core Claim -->
+      <g class="node" data-key="core">
+        <rect x="300" y="130" width="600" height="110" rx="16" fill="#f7f7f7" stroke="#ccc"/>
+        <text x="600" y="170" text-anchor="middle" font-size="16" font-weight="700">
+          Core Claim
+        </text>
+        <text x="600" y="198" text-anchor="middle" font-size="14">
+          Verification is coordination infrastructure, not moral agreement.
+        </text>
+        <text x="600" y="222" text-anchor="middle" font-size="12" fill="#666">
+          (click for examples)
+        </text>
+      </g>
+
+      <!-- Left: Failure Dynamics -->
+      <text x="160" y="300" text-anchor="middle" font-size="15" font-weight="700">Drift Dynamics</text>
+
+      <g class="node" data-key="lockin">
+        <rect x="60" y="330" width="200" height="80" rx="12" fill="#fff2f2" stroke="#d99"/>
+        <text x="160" y="375" text-anchor="middle" font-size="13" font-weight="600">
+          Belief Lock-In
+        </text>
+      </g>
+
+      <g class="node" data-key="amplification">
+        <rect x="60" y="430" width="200" height="80" rx="12" fill="#fff2f2" stroke="#d99"/>
+        <text x="160" y="475" text-anchor="middle" font-size="13" font-weight="600">
+          Amplification Loops
+        </text>
+      </g>
+
+      <g class="node" data-key="cost">
+        <rect x="60" y="530" width="200" height="80" rx="12" fill="#fff2f2" stroke="#d99"/>
+        <text x="160" y="575" text-anchor="middle" font-size="13" font-weight="600">
+          Cost Asymmetry
+        </text>
+      </g>
+
+      <!-- Right: Stabilizing Norms -->
+      <text x="1040" y="300" text-anchor="middle" font-size="15" font-weight="700">
+        Stabilizing Norms
+      </text>
+
+      <g class="node" data-key="verification">
+        <rect x="940" y="330" width="200" height="80" rx="12" fill="#f2fff5" stroke="#9d9"/>
+        <text x="1040" y="365" text-anchor="middle" font-size="12.5" font-weight="600">
+          Verification Norms
+        </text>
+        <text x="1040" y="385" text-anchor="middle" font-size="12.5">
+          (falsifiability, triangulation)
+        </text>
+      </g>
+
+      <g class="node" data-key="delay">
+        <rect x="940" y="430" width="200" height="80" rx="12" fill="#f2fff5" stroke="#9d9"/>
+        <text x="1040" y="465" text-anchor="middle" font-size="12.5" font-weight="600">
+          Time Delay
+        </text>
+        <text x="1040" y="485" text-anchor="middle" font-size="12.5">
+          Slowed endorsement
+        </text>
+      </g>
+
+      <g class="node" data-key="probability">
+        <rect x="940" y="530" width="200" height="80" rx="12" fill="#f2fff5" stroke="#9d9"/>
+        <text x="1040" y="565" text-anchor="middle" font-size="12.5" font-weight="600">
+          Probabilistic Language
+        </text>
+      </g>
+
+    </svg>
+  </div>
+
+  <dialog id="dlg">
+    <div class="modal-h">
+      <strong id="dlgTitle"></strong>
+      <button class="close" onclick="dlg.close()">Close</button>
+    </div>
+    <div class="modal-b">
+      <div class="grid">
+        <div class="box">
+          <h4>What it is</h4>
+          <p id="dlgWhat"></p>
+        </div>
+        <div class="box">
+          <h4>Why it destabilizes / stabilizes</h4>
+          <p id="dlgWhy"></p>
+        </div>
+        <div class="box">
+          <h4>Illustrative cases</h4>
+          <ul id="dlgCases"></ul>
+        </div>
+        <div class="box">
+          <h4>Design implication</h4>
+          <p id="dlgCue"></p>
+        </div>
+      </div>
+    </div>
+  </dialog>
+</div>
+
+<script>
+const DB = {
+  core:{
+    title:"Verification as Infrastructure",
+    what:"Facts function as shared reference points only when methods for checking them are socially enforced.",
+    why:"Agreement without verification produces coherence without correction; verification enables disagreement without collapse.",
+    cases:[
+      "Scientific peer review",
+      "Legal cross-examination",
+      "Engineering safety margins"
+    ],
+    cue:"Design systems that reward correction, not confidence."
+  },
+  lockin:{
+    title:"Belief Lock-In",
+    what:"Beliefs bind to identity, making evidence feel like threat rather than input.",
+    why:"Once belief change incurs social cost, verification is interpreted as hostility.",
+    cases:[
+      "Motivated reasoning in polarized groups",
+      "Identity-protective cognition",
+      "Escalating confidence under contradiction"
+    ],
+    cue:"Separate belief revision from identity signaling."
+  },
+  amplification:{
+    title:"Amplification Loops",
+    what:"Media systems reward emotional resonance and repetition over correction.",
+    why:"Repetition masquerades as reliability; virality outpaces verification.",
+    cases:[
+      "Algorithmic outrage amplification",
+      "Narrative reinforcement in closed networks",
+      "Decline of retractions and updates"
+    ],
+    cue:"Introduce friction and decay into sharing pathways."
+  },
+  cost:{
+    title:"Cost Asymmetry",
+    what:"Accepting false beliefs is often cheaper than challenging them.",
+    why:"Dissent is immediate and personal; being wrong is delayed and diffuse.",
+    cases:[
+      "Whistleblower retaliation",
+      "Public retractions vs silent error",
+      "Institutional inertia"
+    ],
+    cue:"Lower the social cost of saying 'I might be wrong.'"
+  },
+  verification:{
+    title:"Verification Norms",
+    what:"Shared methods for checking claims independent of who asserts them.",
+    why:"Methods allow coordination without moral or ideological agreement.",
+    cases:[
+      "Falsifiability in science",
+      "Triangulation in journalism",
+      "Redundancy in safety-critical systems"
+    ],
+    cue:"Reward method adherence, not narrative alignment."
+  },
+  delay:{
+    title:"Time Delay",
+    what:"Slowing endorsement reduces emotional capture.",
+    why:"Most false beliefs spread faster than they can be checked.",
+    cases:[
+      "Cooling-off periods",
+      "Editorial review delays",
+      "Rate-limited sharing"
+    ],
+    cue:"Design for pause before propagation."
+  },
+  probability:{
+    title:"Probabilistic Language",
+    what:"Treat beliefs as degrees of confidence, not identities.",
+    why:"Lower certainty lowers the cost of revision.",
+    cases:[
+      "Forecast ranges",
+      "Bayesian reasoning",
+      "Scientific uncertainty bands"
+    ],
+    cue:"Normalize ‘likely’, ‘uncertain’, and ‘subject to revision’."
+  }
+};
+
+const dlg=document.getElementById("dlg");
+const t=document.getElementById("dlgTitle");
+const w=document.getElementById("dlgWhat");
+const y=document.getElementById("dlgWhy");
+const c=document.getElementById("dlgCases");
+const q=document.getElementById("dlgCue");
+
+document.querySelectorAll(".node").forEach(n=>{
+  n.onclick=()=>{
+    const d=DB[n.dataset.key];
+    t.textContent=d.title;
+    w.textContent=d.what;
+    y.textContent=d.why;
+    q.textContent=d.cue;
+    c.innerHTML="";
+    d.cases.forEach(x=>{
+      const li=document.createElement("li");
+      li.textContent=x;
+      c.appendChild(li);
+    });
+    dlg.showModal();
+  };
+});
+</script>
+</body>
+</html>
