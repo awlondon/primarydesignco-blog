@@ -62,7 +62,7 @@ When an idea becomes a template for further reasoning, its expected value shifts
 The critical point is not the exact number. It is this:
 in an AGI economy, the unit of value is not output, but original signal. Thirty minutes of genuine thinking can dominate weeks of derivative production.
 
-What LLMs Actually Do (and Don’t)
+## What LLMs Actually Do (and Don’t)
 
 Large language models do not discover new knowledge. They do not form hypotheses in the scientific or philosophical sense, and they do not generate originality ex nihilo.
 
@@ -92,17 +92,106 @@ The Anomaly Detection Engine proposed in this essay formalizes that relationship
 
 {% include ad.html %}
 
-## What LLMs Actually Do
+## Anomaly, Novelty, and Truth (A Necessary Distinction)
+Before describing the Anomaly Detection Engine, three terms must be separated. Much of the confusion around “AI creativity” comes from collapsing them.
 
-## Originality as Anomaly
+Truth concerns correspondence with reality. An idea can be true or false regardless of whether it is original. Most truths are rediscoveries.
+
+Novelty concerns surface-level difference. A recombination of familiar ideas phrased differently may feel new while remaining fully derivative.
+
+Anomaly concerns statistical and conceptual deviation within a structured space of prior knowledge. An anomalous idea is one that:
+
+does not closely match known formulations,
+
+is not easily predicted from adjacent concepts,
+
+yet remains internally coherent.
+
+Anomaly is the scarce signal AGI can detect but not generate. It is also the signal most correlated with downstream discovery, innovation, and creative value.
+
+The ADE is designed to operate strictly at this level. It does not assess truth. It does not reward novelty for its own sake. It identifies where human thought departs meaningfully from precedent.
 
 {% include ad.html %}
 
-## The Anomaly Detection Engine
+## The Anomaly Detection Engine (ADE)
 
-<!-- SVG diagrams -->
+The ADE is not a creativity engine. It is an epistemic instrument.
+
+Its purpose is to answer one question:
+To what extent does this human input meaningfully deviate from what is already known?
+
+Inputs
+
+A free-form prompt: “Type your hypothesis or idea.”
+
+Optional context tags (domain, intent, constraints).
+
+Core process
+
+Semantic decomposition
+The input is parsed into discrete claims, assumptions, and relational structures. Complex ideas are split so that partial originality can be detected.
+
+Manifold positioning
+Each component is embedded against a large, multimodal knowledge representation: academic literature, technical patterns, historical arguments, and common heuristics.
+
+Predictability estimation
+The system estimates how likely each component would be generated given existing distributions. High-likelihood components are flagged as derivative; low-likelihood but coherent components are flagged as anomalous.
+
+Lineage tracing
+For derivative components, the system surfaces proximate sources: established theories, prior art, or canonical framings. These are not accusations; they are context.
+
+Aggregation and explanation
+The ADE outputs:
+
+an overall anomaly score (with uncertainty),
+
+a breakdown by sub-idea,
+
+a short explanation of why certain parts are considered original or derivative,
+
+citations for detected lineages.
+
+The result is not judgment, but orientation. The user can see where their thinking is doing real work.
+
+#### Diagram 1: Human Thought in a Knowledge Manifold
+
+This diagram represents the core intuition behind the ADE.
+
+Description (to accompany SVG):
+A dense manifold represents accumulated human knowledge. Most ideas fall along well-traveled gradients. Anomalous ideas appear as vectors that depart from these gradients while remaining structurally coherent. The ADE measures distance and direction—not correctness.
+
+This diagram visually reinforces a key claim: originality is geometric, not mystical.
+
+#### Diagram 2: The Creative Cognition Economy Loop
+
+Description:
+Humans generate hypotheses → AGI evaluates anomaly → anomalous inputs are amplified, refined, and tested → value accrues downstream → humans are compensated for original signal, not output volume.
+
+This loop reframes AGI from replacement technology to cognitive market maker.
 
 {% include ad.html %}
+
+## Why This Interface Matters
+
+Without an ADE-like interface, AGI systems default to rewarding:
+
+- verbosity,
+
+- stylistic polish,
+
+- confidence signaling.
+
+Those are cheap to fake and easy to automate.
+
+With an ADE, incentives shift toward:
+
+- clarity of thought,
+
+- conceptual risk,
+
+- and genuine deviation from precedent.
+
+This is how AGI becomes compatible with a human creative economy rather than hostile to it.
 
 ## Why Humans Don’t Become Irrelevant
 
