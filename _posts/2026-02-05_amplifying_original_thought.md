@@ -35,11 +35,11 @@ From an economic perspective, those thirty minutes are not valued by time, but b
 
 If a single concentrated thinking session produces:
 
-a defensible conceptual distinction (originality vs. derivation),
+- a defensible conceptual distinction (originality vs. derivation),
 
-a reframing of human–AGI roles,
+- a reframing of human–AGI roles,
 
-and a designable interface concept (the ADE),
+- and a designable interface concept (the ADE),
 
 then its value is not comparable to wage labor or content production. It is comparable to early-stage research, product definition, or hypothesis generation—activities whose downstream value routinely compounds by orders of magnitude.
 
