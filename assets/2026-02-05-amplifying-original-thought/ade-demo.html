@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anomaly Detection Engine (ADE) — Demo</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f1115;
+      color: #e6e8eb;
+      margin: 0;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    p {
+      line-height: 1.6;
+      color: #b7bcc5;
+    }
+    textarea {
+      width: 100%;
+      min-height: 180px;
+      margin-top: 1.5rem;
+      padding: 1rem;
+      font-size: 1rem;
+      background: #161a22;
+      color: #e6e8eb;
+      border: 1px solid #2a2f3a;
+      border-radius: 8px;
+      resize: vertical;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.7rem 1.2rem;
+      font-size: 0.95rem;
+      background: #2f6bff;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #2456cc;
+    }
+    .output {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: #161a22;
+      border: 1px solid #2a2f3a;
+      border-radius: 8px;
+    }
+    .metric {
+      margin-bottom: 1rem;
+    }
+    .label {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      color: #8f96a3;
+      letter-spacing: 0.05em;
+    }
+    .value {
+      font-size: 1.1rem;
+      margin-top: 0.25rem;
+    }
+    .note {
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      color: #8f96a3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Anomaly Detection Engine (ADE)</h1>
+    <p>
+      This demo evaluates <strong>predictability</strong>, not truth. It decomposes your input,
+      positions each component against prior art, and estimates where—if anywhere—your thinking
+      departs meaningfully from existing knowledge.
+    </p>
+
+    <textarea id="input" placeholder="Type your hypothesis or idea..."></textarea>
+    <button onclick="runADE()">Evaluate</button>
+
+    <div id="output" class="output" style="display:none;">
+      <div class="metric">
+        <div class="label">Estimated Anomaly Score</div>
+        <div class="value" id="score"></div>
+      </div>
+      <div class="metric">
+        <div class="label">Interpretation</div>
+        <div class="value" id="interpretation"></div>
+      </div>
+      <div class="metric">
+        <div class="label">Lineage Signals</div>
+        <div class="value" id="lineage"></div>
+      </div>
+    </div>
+
+    <div class="note">
+      This is a conceptual demonstration. No claims about correctness, usefulness, or truth are made.
+      Scores reflect deviation under constraint, not merit.
+    </div>
+  </div>
+
+<script>
+  function splitClaims(text) {
+    return text
+      .split(/(?<=[.!?])\s+/)
+      .map(function (s) { return s.trim(); })
+      .filter(function (s) { return s.length > 0; });
+  }
+
+  function scoreClaim(claim) {
+    // Deterministic heuristics (no randomness)
+    const lengthScore = Math.min(claim.length / 200, 1);
+
+    const words = claim
+      .toLowerCase()
+      .split(/\W+/)
+      .filter(Boolean);
+
+    const uniqueWords = new Set(words).size;
+    const densityScore = Math.min(uniqueWords / 25, 1);
+
+    const punctuationScore = /[:;()]/.test(claim) ? 0.1 : 0;
+
+    const raw = 0.4 * lengthScore + 0.5 * densityScore + punctuationScore;
+    return Math.round(Math.min(raw, 1) * 100);
+  }
+
+  function interpretScore(score) {
+    if (score > 70) {
+      return 'Conceptually atypical. Weakly predictable relative to common formulations.';
+    }
+    if (score > 40) {
+      return 'Mixed signal. Some alignment with established patterns; some deviation.';
+    }
+    return 'Highly predictable. Closely tracks common formulations.';
+  }
+
+  function runADE() {
+    const text = document.getElementById('input').value.trim();
+    if (!text) return;
+
+    const claims = splitClaims(text);
+
+    const results = claims.map(function (c) {
+      const s = scoreClaim(c);
+      return {
+        claim: c,
+        score: s,
+        interpretation: interpretScore(s)
+      };
+    });
+
+    const avgScore = Math.round(
+      results.reduce(function (sum, r) { return sum + r.score; }, 0) / results.length
+    );
+
+    document.getElementById('score').innerText = avgScore + ' / 100';
+    document.getElementById('interpretation').innerText =
+      avgScore > 70
+        ? 'Overall input shows significant conceptual deviation.'
+        : avgScore > 40
+        ? 'Overall input shows partial originality.'
+        : 'Overall input is largely predictable.';
+
+    document.getElementById('lineage').innerHTML = results
+      .map(function (r) {
+        return '• \"' + r.claim + '\" → ' + r.score + '/100 (' + r.interpretation + ')';
+      })
+      .join('<br/>');
+
+    document.getElementById('output').style.display = 'block';
+  }
+</script>
+
+</body>
+</html>
