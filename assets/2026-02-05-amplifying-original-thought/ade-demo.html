@@ -211,7 +211,9 @@
     const text = document.getElementById("input").value.trim();
     if (!text) return;
 
-    const domain = document.getElementById("domain").value;
+    const domainEl = document.getElementById("domain");
+    const domain = domainEl ? domainEl.value : "general";
+
     const claims = splitClaims(text);
     const analyses = claims.map(c => analyzeClaim(c, domain));
 
