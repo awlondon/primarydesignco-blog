@@ -13,7 +13,10 @@ layout: null
     {% for post in site.posts limit:20 %}
     <item>
       <title>{{ post.title | xml_escape }}</title>
-      <description><![CDATA[{{ post.content }}]]></description>
+      <description><![CDATA[{{ post.content
+        | replace: '<iframe', '<!-- iframe removed from feed: '
+        | replace: '</iframe>', ' -->'
+      }}]]></description>
       <pubDate>{{ post.date | date_to_rfc822 }}</pubDate>
       <link>{{ post.url | absolute_url }}</link>
       <guid>{{ post.url | absolute_url }}</guid>
