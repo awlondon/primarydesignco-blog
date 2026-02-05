@@ -104,8 +104,6 @@
   opacity: 0.4;
   font-style: italic;
  }
-
-
   </style>
 </head>
 <body>
@@ -116,6 +114,17 @@
       positions each component against prior art, and estimates where—if anywhere—your thinking
       departs meaningfully from existing knowledge.
     </p>
+    
+    <label style="display:block; margin-top:1rem; font-size:0.85rem; color:#8f96a3;">
+      Domain lens
+    </label>
+    <select id="domain" style="margin-top:0.25rem; padding:0.4rem;">
+      <option value="general">General</option>
+      <option value="philosophy">Philosophy / Theory</option>
+      <option value="science">Science / Engineering</option>
+      <option value="design">Design / Creative</option>
+      <option value="political">Political / Social</option>
+    </select>
 
     <textarea id="input" placeholder="Type your hypothesis or idea..."></textarea>
     <button onclick="runADE()">Evaluate</button>
@@ -140,8 +149,15 @@
       Scores reflect deviation under constraint, not merit.
     </div>
   </div>
-
 <script>
+  const DOMAIN_THRESHOLDS = {
+    general:    { anomalous: 78, recombination: 58, common: 38 },
+    philosophy:{ anomalous: 74, recombination: 54, common: 36 },
+    science:   { anomalous: 82, recombination: 62, common: 42 },
+    design:    { anomalous: 75, recombination: 55, common: 35 },
+    political: { anomalous: 85, recombination: 65, common: 45 }
+  };
+
   function splitClaims(text) {
     return text
       .split(/(?<=[.!?])\s+/)
@@ -149,7 +165,7 @@
       .filter(Boolean);
   }
 
-  function analyzeClaim(claim) {
+  function analyzeClaim(claim, domain) {
     const words = claim.toLowerCase().split(/\W+/).filter(Boolean);
     const unique = new Set(words).size;
 
@@ -159,72 +175,63 @@
     const punctuationScore = /[:;()]/.test(claim) ? 0.1 : 0;
 
     const raw = 0.35 * lengthScore + 0.45 * densityScore + structureScore + punctuationScore;
-    const score = Math.round(Math.min(raw, 1) * 100);
+    let score = Math.round(Math.min(raw, 1) * 100);
+
+    // Prevent punchy one-liners from scoring as anomalous
+    if (claim.length < 120) {
+      score = Math.min(score, 75);
+    }
 
     const uncertainty = Math.round(10 + (1 - raw) * 15);
-    const cls =
-      a.category === "Structural deviation"
-        ? "anomalous"
-        : a.category === "Recombination of known ideas"
-        ? "recombination"
-        : a.category === "Highly canonical"
-        ? "canonical"
-        : "common";
-
+    const t = DOMAIN_THRESHOLDS[domain];
 
     let category, suggestion;
 
-    if (score >= 78) {
+    if (score >= t.anomalous) {
       category = "Structural deviation";
-      suggestion =
-        "This formulation is weakly predictable. Try formalizing it into a testable or falsifiable claim.";
-    } else if (score >= 58) {
+      suggestion = "Formalize this deviation into a testable or falsifiable claim.";
+    } else if (score >= t.recombination) {
       category = "Recombination of known ideas";
-      suggestion =
-        "This appears to synthesize familiar components. Identify which assumption you are altering.";
-    } else if (score >= 38) {
+      suggestion = "Identify which assumption is being altered or recombined.";
+    } else if (score >= t.common) {
       category = "Common framing";
-      suggestion =
-        "This framing is competent but expected. Consider inverting a core assumption or shifting scale.";
+      suggestion = "Competent but expected. Try changing scale or constraint.";
     } else {
       category = "Highly canonical";
-      suggestion =
-        "This closely tracks standard formulations. Introduce a constraint or counterfactual.";
+      suggestion = "Closely tracks standard discourse. Introduce a counterfactual.";
     }
 
-    return {
-      claim,
-      score,
-      uncertainty,
-      category,
-      suggestion
-    };
+    return { claim, score, uncertainty, category, suggestion };
   }
 
   function runADE() {
     const text = document.getElementById("input").value.trim();
     if (!text) return;
 
+    const domain = document.getElementById("domain").value;
     const claims = splitClaims(text);
-    const analyses = claims.map(analyzeClaim);
+    const analyses = claims.map(c => analyzeClaim(c, domain));
 
-    const avg =
-      Math.round(
-        analyses.reduce((s, a) => s + a.score, 0) / analyses.length
-      );
+    const avgScore = Math.round(
+      analyses.reduce((s, a) => s + a.score, 0) / analyses.length
+    );
+
+    const t = DOMAIN_THRESHOLDS[domain];
 
     document.getElementById("score").innerText =
-      `${avg} / 100 (±${Math.round(
+      `${avgScore} / 100 (±${Math.round(
         analyses.reduce((s, a) => s + a.uncertainty, 0) / analyses.length
       )})`;
 
     document.getElementById("interpretation").innerText =
-      avg > 70
+      avgScore >= t.anomalous
         ? "Overall input shows significant conceptual deviation."
-        : avg > 45
-        ? "Overall input contains partial originality."
-        : "Overall input is highly predictable.";
-    
+        : avgScore >= t.recombination
+        ? "Overall input shows non-trivial synthesis."
+        : avgScore >= t.common
+        ? "Overall input is competent but expected."
+        : "Overall input closely tracks canonical formulations.";
+
     document.getElementById("lineage").innerHTML = analyses
       .map(a => {
         const cls =
@@ -232,8 +239,10 @@
             ? "anomalous"
             : a.category === "Recombination of known ideas"
             ? "recombination"
+            : a.category === "Highly canonical"
+            ? "canonical"
             : "common";
-    
+
         return `
           <div class="claim ${cls}">
             "${a.claim}"
@@ -249,7 +258,5 @@
     document.getElementById("output").style.display = "block";
   }
 </script>
-
-
 </body>
 </html>
