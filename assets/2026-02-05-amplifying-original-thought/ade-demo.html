@@ -113,74 +113,82 @@
   function splitClaims(text) {
     return text
       .split(/(?<=[.!?])\s+/)
-      .map(function (s) { return s.trim(); })
-      .filter(function (s) { return s.length > 0; });
+      .map(s => s.trim())
+      .filter(Boolean);
   }
 
-  function scoreClaim(claim) {
-    // Deterministic heuristics (no randomness)
+  function analyzeClaim(claim) {
+    const words = claim.toLowerCase().split(/\W+/).filter(Boolean);
+    const unique = new Set(words).size;
+
     const lengthScore = Math.min(claim.length / 200, 1);
-
-    const words = claim
-      .toLowerCase()
-      .split(/\W+/)
-      .filter(Boolean);
-
-    const uniqueWords = new Set(words).size;
-    const densityScore = Math.min(uniqueWords / 25, 1);
-
+    const densityScore = Math.min(unique / 25, 1);
+    const structureScore = /because|therefore|if|but|however|rather than/i.test(claim) ? 0.15 : 0;
     const punctuationScore = /[:;()]/.test(claim) ? 0.1 : 0;
 
-    const raw = 0.4 * lengthScore + 0.5 * densityScore + punctuationScore;
-    return Math.round(Math.min(raw, 1) * 100);
-  }
+    const raw = 0.35 * lengthScore + 0.45 * densityScore + structureScore + punctuationScore;
+    const score = Math.round(Math.min(raw, 1) * 100);
 
-  function interpretScore(score) {
+    const uncertainty = Math.round(10 + (1 - raw) * 15);
+
+    let category, suggestion;
+
     if (score > 70) {
-      return 'Conceptually atypical. Weakly predictable relative to common formulations.';
+      category = "Structural deviation";
+      suggestion = "Try formalizing this deviation into a testable or falsifiable claim.";
+    } else if (score > 45) {
+      category = "Recombination of known ideas";
+      suggestion = "Identify which assumption is borrowed and which is new.";
+    } else {
+      category = "Common framing";
+      suggestion = "Invert a core assumption or change the level of analysis.";
     }
-    if (score > 40) {
-      return 'Mixed signal. Some alignment with established patterns; some deviation.';
-    }
-    return 'Highly predictable. Closely tracks common formulations.';
+
+    return {
+      claim,
+      score,
+      uncertainty,
+      category,
+      suggestion
+    };
   }
 
   function runADE() {
-    const text = document.getElementById('input').value.trim();
+    const text = document.getElementById("input").value.trim();
     if (!text) return;
 
     const claims = splitClaims(text);
+    const analyses = claims.map(analyzeClaim);
 
-    const results = claims.map(function (c) {
-      const s = scoreClaim(c);
-      return {
-        claim: c,
-        score: s,
-        interpretation: interpretScore(s)
-      };
-    });
+    const avg =
+      Math.round(
+        analyses.reduce((s, a) => s + a.score, 0) / analyses.length
+      );
 
-    const avgScore = Math.round(
-      results.reduce(function (sum, r) { return sum + r.score; }, 0) / results.length
-    );
+    document.getElementById("score").innerText =
+      `${avg} / 100 (±${Math.round(
+        analyses.reduce((s, a) => s + a.uncertainty, 0) / analyses.length
+      )})`;
 
-    document.getElementById('score').innerText = avgScore + ' / 100';
-    document.getElementById('interpretation').innerText =
-      avgScore > 70
-        ? 'Overall input shows significant conceptual deviation.'
-        : avgScore > 40
-        ? 'Overall input shows partial originality.'
-        : 'Overall input is largely predictable.';
+    document.getElementById("interpretation").innerText =
+      avg > 70
+        ? "Overall input shows significant conceptual deviation."
+        : avg > 45
+        ? "Overall input contains partial originality."
+        : "Overall input is highly predictable.";
 
-    document.getElementById('lineage').innerHTML = results
-      .map(function (r) {
-        return '• \"' + r.claim + '\" → ' + r.score + '/100 (' + r.interpretation + ')';
-      })
-      .join('<br/>');
+    document.getElementById("lineage").innerHTML = analyses
+      .map(a =>
+        `• "${a.claim}"<br/>
+         &nbsp;&nbsp;→ ${a.score} ± ${a.uncertainty} (${a.category})<br/>
+         &nbsp;&nbsp;↳ ${a.suggestion}`
+      )
+      .join("<br/><br/>");
 
-    document.getElementById('output').style.display = 'block';
+    document.getElementById("output").style.display = "block";
   }
 </script>
+
 
 </body>
 </html>
