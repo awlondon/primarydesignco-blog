@@ -7,6 +7,24 @@ published_at: 2026-02-04T11:00:00-08:00
 tags: [epistemology, media-theory, social-psychology, systems-thinking]
 reading_time: 16
 ---
+<div style="position:relative; width:100%; padding-top:78%;">
+  <iframe
+    src="/assets/2026-02-04-facts-anchor-us/epistemic-verification-clickable.html"
+    style="
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      border:0;
+      border-radius:14px;
+      overflow:hidden;
+      background:#ffffff;
+    "
+    loading="lazy"
+    title="Verification as Epistemic Infrastructure — Clickable Schema">
+  </iframe>
+</div>
+
 
 ## Introduction
 Modern societies do not fail because people disagree. They fail when disagreement no longer occurs within a shared frame of reference—when people stop recognizing the same kinds of evidence as binding.
