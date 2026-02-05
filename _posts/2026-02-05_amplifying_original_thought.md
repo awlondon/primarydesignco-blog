@@ -14,6 +14,15 @@ abstract: |
 
 ## Anomaly Detection Engine (ADE)
 
+<iframe
+  src="/assets/2026-02-05-amplifying-original-thought/ade-demo.html"
+  width="100%"
+  height="720"
+  style="border:none;"
+  loading="lazy">
+</iframe>
+
+
 *Type your hypothesis or idea.*
 
 This interface evaluates **predictability**, not truth. It decomposes your input, positions each component against existing knowledge, and estimates where—if anywhere—your thinking departs meaningfully from prior art. Outputs include an originality score, partial originality flags, and cited lineages for derivative components.
