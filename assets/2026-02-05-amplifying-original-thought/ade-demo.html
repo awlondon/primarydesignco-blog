@@ -192,11 +192,6 @@
         "This closely tracks standard formulations. Introduce a constraint or counterfactual.";
     }
 
-    if (claim.length < 120) {
-      score = Math.min(score, 75);
-    }
-
-
     return {
       claim,
       score,
