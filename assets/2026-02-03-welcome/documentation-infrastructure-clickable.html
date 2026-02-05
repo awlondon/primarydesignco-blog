@@ -1,0 +1,497 @@
+<!--
+Save as:
+  /assets/2026-02-03-welcome/documentation-infrastructure-clickable.html
+
+Embed in a post with:
+<iframe
+  src="/assets/2026-02-03-welcome/documentation-infrastructure-clickable.html"
+  style="width:100%; height:900px; border:0; border-radius:12px; overflow:hidden;"
+  loading="lazy"
+  title="Documentation as Infrastructure (clickable schema)">
+</iframe>
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Documentation as Infrastructure — Clickable Schema</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --fg:#111;
+      --muted:#666;
+      --stroke:#cfcfcf;
+      --panel:#f7f7f7;
+      --panel2:#eef5ff;
+      --bad:#fff2f2;
+      --good:#f2fff5;
+      --shadow:0 10px 30px rgba(0,0,0,.12);
+    }
+    html,body{height:100%; margin:0; background:var(--bg); color:var(--fg); font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;}
+    .wrap{max-width:1200px; margin:0 auto; padding:18px 14px 28px;}
+    .head{display:flex; flex-direction:column; gap:6px; margin-bottom:10px;}
+    .title{font-size:22px; font-weight:650; letter-spacing:.2px;}
+    .sub{font-size:14px; color:var(--muted); line-height:1.3;}
+    .hint{font-size:12px; color:var(--muted); margin-top:6px;}
+    .card{
+      border:1px solid var(--stroke);
+      border-radius:14px;
+      background:#fff;
+      overflow:hidden;
+      box-shadow: 0 1px 0 rgba(0,0,0,.02);
+    }
+    .stage{position:relative; width:100%; aspect-ratio: 1200 / 980; min-height: 720px; background:#fff;}
+    svg{width:100%; height:100%; display:block;}
+    .node{cursor:pointer;}
+    .node rect{transition: transform .08s ease, filter .08s ease;}
+    .node:hover rect{filter: drop-shadow(0 6px 10px rgba(0,0,0,.10)); transform: translateY(-1px);}
+    .node:focus-visible rect{outline: none; filter: drop-shadow(0 0 0 rgba(0,0,0,0));}
+    .node:focus-visible{outline: 3px solid #4c9ffe; outline-offset: 4px; border-radius: 10px;}
+
+    /* Modal */
+    dialog{
+      border:0; border-radius:16px; padding:0;
+      width:min(860px, calc(100vw - 28px));
+      box-shadow: var(--shadow);
+      background:#fff;
+    }
+    dialog::backdrop{background: rgba(0,0,0,.35);}
+    .modal{
+      display:flex; flex-direction:column;
+      border:1px solid var(--stroke);
+      border-radius:16px;
+      overflow:hidden;
+    }
+    .modal-h{
+      display:flex; gap:10px; align-items:flex-start; justify-content:space-between;
+      padding:14px 16px; background:var(--panel);
+      border-bottom:1px solid var(--stroke);
+    }
+    .modal-title{font-weight:700; margin:0; font-size:16px;}
+    .modal-sub{margin:4px 0 0; color:var(--muted); font-size:13px; line-height:1.35;}
+    .close{
+      border:1px solid var(--stroke);
+      background:#fff;
+      border-radius:10px;
+      padding:8px 10px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    .close:hover{background:#fafafa;}
+    .modal-b{padding:14px 16px 16px;}
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width:720px){
+      .stage{min-height:860px; aspect-ratio: 3 / 4;}
+      .grid{grid-template-columns:1fr;}
+    }
+    .box{
+      border:1px solid var(--stroke);
+      border-radius:14px;
+      padding:12px 12px 10px;
+      background:#fff;
+    }
+    .box h4{margin:0 0 6px; font-size:13px; letter-spacing:.2px; text-transform:uppercase; color:#333;}
+    .box p{margin:0; color:#222; font-size:13.5px; line-height:1.45;}
+    .box ul{margin:8px 0 0 16px; padding:0; font-size:13.5px; line-height:1.45;}
+    .box li{margin:4px 0;}
+    .badge{
+      display:inline-block; font-size:11px; font-weight:700;
+      padding:4px 8px; border-radius:999px; border:1px solid var(--stroke);
+      background:#fff; color:#333;
+    }
+    .foot{
+      margin-top:10px; font-size:12px; color:var(--muted);
+    }
+    .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="head">
+      <div class="title">Documentation as Infrastructure</div>
+      <div class="sub">Clickable schema. Select any box to open a short case-study popup and implementation cues.</div>
+      <div class="hint">Tip: Use <span class="kbd">Tab</span> to focus nodes, <span class="kbd">Enter</span> to open, <span class="kbd">Esc</span> to close.</div>
+    </div>
+
+    <div class="card">
+      <div class="stage" id="stage">
+        <!-- Inline SVG -->
+        <svg viewBox="0 0 1200 980" role="img" aria-label="Documentation as Infrastructure schema">
+          <!-- Guides -->
+          <line x1="600" y1="120" x2="600" y2="920" stroke="#dddddd" stroke-width="4"/>
+
+          <!-- Title band -->
+          <text x="600" y="60" text-anchor="middle" font-size="20" font-weight="650" fill="#111">One-page schema</text>
+          <text x="600" y="88" text-anchor="middle" font-size="13" fill="#666">Problem → Functions → Principles → Outcomes</text>
+
+          <!-- Core Claim -->
+          <g class="node" tabindex="0" role="button" aria-label="Core Claim" data-key="core_claim">
+            <rect x="320" y="130" width="560" height="120" rx="16" fill="#f7f7f7" stroke="#cfcfcf"/>
+            <text x="600" y="170" text-anchor="middle" font-size="16" font-weight="700" fill="#111">Core Claim</text>
+            <text x="600" y="198" text-anchor="middle" font-size="14" fill="#111">Documentation is not a record of work.</text>
+            <text x="600" y="222" text-anchor="middle" font-size="14" fill="#111">It is infrastructure for judgment across time.</text>
+            <text x="600" y="246" text-anchor="middle" font-size="12" fill="#666">(click for examples)</text>
+          </g>
+
+          <!-- Column headings -->
+          <text x="170" y="310" text-anchor="middle" font-size="15" font-weight="700" fill="#111">When Absent</text>
+          <text x="600" y="310" text-anchor="middle" font-size="16" font-weight="750" fill="#111">Infrastructural Functions</text>
+          <text x="1030" y="310" text-anchor="middle" font-size="15" font-weight="700" fill="#111">Design Principles</text>
+
+          <!-- Left: Failure modes -->
+          <g class="node" tabindex="0" role="button" aria-label="Hindsight distortion" data-key="fail_hindsight">
+            <rect x="70" y="340" width="200" height="80" rx="12" fill="#fff2f2" stroke="#d8a2a2"/>
+            <text x="170" y="385" text-anchor="middle" font-size="13" font-weight="650" fill="#111">Hindsight distortion</text>
+          </g>
+          <g class="node" tabindex="0" role="button" aria-label="Policy oscillation" data-key="fail_oscillation">
+            <rect x="70" y="440" width="200" height="80" rx="12" fill="#fff2f2" stroke="#d8a2a2"/>
+            <text x="170" y="485" text-anchor="middle" font-size="13" font-weight="650" fill="#111">Policy oscillation</text>
+          </g>
+          <g class="node" tabindex="0" role="button" aria-label="Technical debt" data-key="fail_debt">
+            <rect x="70" y="540" width="200" height="80" rx="12" fill="#fff2f2" stroke="#d8a2a2"/>
+            <text x="170" y="585" text-anchor="middle" font-size="13" font-weight="650" fill="#111">Technical debt</text>
+          </g>
+          <g class="node" tabindex="0" role="button" aria-label="Blame diffusion" data-key="fail_blame">
+            <rect x="70" y="640" width="200" height="80" rx="12" fill="#fff2f2" stroke="#d8a2a2"/>
+            <text x="170" y="685" text-anchor="middle" font-size="13" font-weight="650" fill="#111">Blame diffusion</text>
+          </g>
+
+          <!-- Center: Functions -->
+          <g class="node" tabindex="0" role="button" aria-label="Reasoning Externalization" data-key="fn_externalization">
+            <rect x="320" y="340" width="560" height="110" rx="16" fill="#eef5ff" stroke="#a9b8d6"/>
+            <text x="600" y="377" text-anchor="middle" font-size="15" font-weight="750" fill="#111">Reasoning Externalization</text>
+            <text x="600" y="404" text-anchor="middle" font-size="13" fill="#111">Captures judgment while it is still forming</text>
+            <text x="600" y="427" text-anchor="middle" font-size="13" fill="#111">Preserves uncertainty, alternatives, assumptions</text>
+          </g>
+
+          <g class="node" tabindex="0" role="button" aria-label="Temporal Bridging" data-key="fn_temporal">
+            <rect x="320" y="470" width="560" height="110" rx="16" fill="#eef5ff" stroke="#a9b8d6"/>
+            <text x="600" y="507" text-anchor="middle" font-size="15" font-weight="750" fill="#111">Temporal Bridging</text>
+            <text x="600" y="534" text-anchor="middle" font-size="13" fill="#111">Keeps decisions interpretable through turnover</text>
+            <text x="600" y="557" text-anchor="middle" font-size="13" fill="#111">Enables revision instead of oscillation</text>
+          </g>
+
+          <g class="node" tabindex="0" role="button" aria-label="Traceability" data-key="fn_traceability">
+            <rect x="320" y="600" width="560" height="110" rx="16" fill="#eef5ff" stroke="#a9b8d6"/>
+            <text x="600" y="637" text-anchor="middle" font-size="15" font-weight="750" fill="#111">Traceability</text>
+            <text x="600" y="664" text-anchor="middle" font-size="13" fill="#111">Links outcomes back to the decisions that produced them</text>
+            <text x="600" y="687" text-anchor="middle" font-size="13" fill="#111">Prevents opaque accumulation of complexity</text>
+          </g>
+
+          <g class="node" tabindex="0" role="button" aria-label="Accountability Without Dogma" data-key="fn_accountability">
+            <rect x="320" y="730" width="560" height="110" rx="16" fill="#eef5ff" stroke="#a9b8d6"/>
+            <text x="600" y="767" text-anchor="middle" font-size="15" font-weight="750" fill="#111">Accountability Without Dogma</text>
+            <text x="600" y="794" text-anchor="middle" font-size="13" fill="#111">Responsibility without requiring infallibility</text>
+            <text x="600" y="817" text-anchor="middle" font-size="13" fill="#111">Trust emerges from explainability over time</text>
+          </g>
+
+          <!-- Right: Principles -->
+          <g class="node" tabindex="0" role="button" aria-label="Document while reasoning is live" data-key="pr_live">
+            <rect x="930" y="340" width="240" height="80" rx="12" fill="#f2fff5" stroke="#9bc79b"/>
+            <text x="1050" y="375" text-anchor="middle" font-size="12.5" font-weight="750" fill="#111">Document while reasoning is live</text>
+            <text x="1050" y="398" text-anchor="middle" font-size="12.5" fill="#111">(not post-hoc)</text>
+          </g>
+          <g class="node" tabindex="0" role="button" aria-label="Preserve judgment, not just output" data-key="pr_judgment">
+            <rect x="930" y="440" width="240" height="80" rx="12" fill="#f2fff5" stroke="#9bc79b"/>
+            <text x="1050" y="485" text-anchor="middle" font-size="12.5" font-weight="750" fill="#111">Preserve judgment, not just output</text>
+          </g>
+          <g class="node" tabindex="0" role="button" aria-label="Favor context over coherence" data-key="pr_context">
+            <rect x="930" y="540" width="240" height="80" rx="12" fill="#f2fff5" stroke="#9bc79b"/>
+            <text x="1050" y="585" text-anchor="middle" font-size="12.5" font-weight="750" fill="#111">Favor context over coherence</text>
+          </g>
+          <g class="node" tabindex="0" role="button" aria-label="Treat records as living infrastructure" data-key="pr_living">
+            <rect x="930" y="640" width="240" height="80" rx="12" fill="#f2fff5" stroke="#9bc79b"/>
+            <text x="1050" y="685" text-anchor="middle" font-size="12.5" font-weight="750" fill="#111">Treat records as living infrastructure</text>
+          </g>
+
+          <!-- Footer -->
+          <text x="600" y="930" text-anchor="middle" font-size="12.5" fill="#666">
+            Documentation allows systems to argue with themselves over time (without relying on memory).
+          </text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="foot">
+      Popups are local to this file (no trackers, no external JS). You can customize the case list in the <span class="kbd">CASE_DB</span> object.
+    </div>
+
+    <!-- Modal -->
+    <dialog id="dlg" aria-label="Case study popup">
+      <div class="modal">
+        <div class="modal-h">
+          <div>
+            <p class="modal-title" id="dlgTitle">Title</p>
+            <p class="modal-sub" id="dlgSub">Subtitle</p>
+          </div>
+          <button class="close" id="dlgClose" type="button" aria-label="Close dialog">Close</button>
+        </div>
+        <div class="modal-b">
+          <div class="grid">
+            <div class="box">
+              <h4>What it means</h4>
+              <p id="dlgMeaning"></p>
+            </div>
+            <div class="box">
+              <h4>Why it fails without docs</h4>
+              <p id="dlgWhy"></p>
+            </div>
+            <div class="box">
+              <h4>Case studies</h4>
+              <ul id="dlgCases"></ul>
+            </div>
+            <div class="box">
+              <h4>Implementation cue</h4>
+              <p id="dlgCue"></p>
+              <div style="margin-top:10px;">
+                <span class="badge" id="dlgTag"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+  </div>
+
+  <script>
+    const CASE_DB = {
+      core_claim: {
+        title: "Core Claim",
+        sub: "Documentation as infrastructure (not narrative)",
+        meaning: "Records preserve the conditions under which judgment was made, so later actors can revise decisions without guessing intent.",
+        why: "When reasoning disappears, outcomes harden into ‘inevitabilities’ and successors reconstruct intent from surface artifacts.",
+        cases: [
+          "British civil service briefing continuity (records survive ministers).",
+          "Founder-led companies: coherence persists until turnover reveals tacit knowledge gaps.",
+          "Regulated industries: safety and compliance depend on durable rationale, not just procedures."
+        ],
+        cue: "Maintain a decision log that explicitly separates: known / assumed / guessed; alternatives considered; constraints; and the chosen trade-off.",
+        tag: "Spine"
+      },
+
+      fn_externalization: {
+        title: "Reasoning Externalization",
+        sub: "Make tacit judgment legible while it’s still forming",
+        meaning: "Writing changes thinking: it forces assumptions into language where they can be criticized, revised, and shared.",
+        why: "Post-hoc documentation tends to justify outcomes; it rarely preserves uncertainty, rejected alternatives, or the true decision boundary.",
+        cases: [
+          "Laboratory notebooks: value comes from preserving failed paths and methods, not just results.",
+          "Design reviews: when rationale is captured live, later revisions remain coherent.",
+          "Incident retrospectives that record decision context outperform ‘what happened’ summaries."
+        ],
+        cue: "Require a ‘Decision Rationale’ block wherever major choices occur (PRs, policy memos, specs). Keep it short, but mandatory.",
+        tag: "Function"
+      },
+
+      fn_temporal: {
+        title: "Temporal Bridging",
+        sub: "Keep decisions interpretable through turnover and transition",
+        meaning: "Documentation bridges handoffs so programs can evolve rather than swing or reset.",
+        why: "Without a durable rationale, successors evaluate inherited structures using new incentives and narratives, producing oscillation.",
+        cases: [
+          "Government transitions: policies implemented by discretion are hard to revise when rationales are private or missing.",
+          "Post-conflict transitions: Iraq (2003) de-Ba’athification removed institutional memory as well as personnel.",
+          "M&A integrations: structures persist while the assumptions that justified them vanish with leadership."
+        ],
+        cue: "Create handoff packets: ‘What we chose, why, and what would change our mind.’ Update quarterly, not yearly.",
+        tag: "Function"
+      },
+
+      fn_traceability: {
+        title: "Traceability",
+        sub: "Link outcomes to the decisions that produced them",
+        meaning: "Traceability is system memory: it makes dependencies visible so complex systems can be changed safely.",
+        why: "Complexity becomes brittle when it accumulates faster than understanding. Parts become ‘untouchable’ because their role is unknown.",
+        cases: [
+          "NASA post-Apollo: specs survived; design judgment often did not—leading to overengineering and redesign.",
+          "Boeing 737 lineage: layered assumptions over decades; system-level logic fragmented across teams.",
+          "Legacy software: code explains what, not why; architectural rationale disappears with original authors."
+        ],
+        cue: "Use a lightweight trace map: decision → constraint → component → test/metric. Keep links shallow but consistent.",
+        tag: "Function"
+      },
+
+      fn_accountability: {
+        title: "Accountability Without Dogma",
+        sub: "Responsibility without requiring infallibility",
+        meaning: "Records allow precise learning from failure; responsibility attaches to decisions and evidence, not to post-hoc narratives.",
+        why: "When reasoning is not visible, accountability collapses into blame diffusion, slogans, or moralized retrospection.",
+        cases: [
+          "Pentagon Papers: revealed divergence between internal assessment and public rationale.",
+          "Watergate: traceability of small decisions was more damning than any single act.",
+          "Truth & reconciliation processes: visibility enables specificity over vengeance."
+        ],
+        cue: "Institutionalize ‘assumption registers’ and ‘known unknowns’ sections. Publicly qualify where certainty is not earned.",
+        tag: "Function"
+      },
+
+      fail_hindsight: {
+        title: "Hindsight Distortion",
+        sub: "Outcomes look inevitable after they occur",
+        meaning: "Memory reconstructs past reasoning to fit present outcomes, flattening uncertainty and alternative paths.",
+        why: "Without contemporaneous records, later actors mistake coherence for correctness and lose the ability to learn precisely.",
+        cases: [
+          "Postmortems written weeks later shift from evidence to narrative.",
+          "Institutional lore replaces decision records over time.",
+          "Teams misattribute success to ‘vision’ rather than documented trade-offs."
+        ],
+        cue: "Capture rationale at decision time. Timestamp it. Keep it short. Treat it as evidence, not storytelling.",
+        tag: "Failure mode"
+      },
+
+      fail_oscillation: {
+        title: "Policy Oscillation",
+        sub: "Systems swing instead of evolving",
+        meaning: "Absent rationale, each new leadership cycle resets priorities, undoing prior work without engaging its constraints.",
+        why: "Successors inherit outcomes without reasons; revision becomes partisan alignment rather than constraint-aware improvement.",
+        cases: [
+          "Executive-policy swings across administrations.",
+          "Product strategy flips after leadership changes.",
+          "‘Reorg cycles’ that repeat because causes were never documented."
+        ],
+        cue: "Write ‘constraints that still bind’ and ‘assumptions that expired’ during every handoff.",
+        tag: "Failure mode"
+      },
+
+      fail_debt: {
+        title: "Technical Debt",
+        sub: "Lost reasoning becomes untouchable code and brittle systems",
+        meaning: "Debt accumulates when implementation outlives explanation. Teams avoid change because risk can’t be evaluated.",
+        why: "Comments describe what the system does, not why it was designed that way; dependencies become invisible.",
+        cases: [
+          "Legacy monoliths that can’t be refactored safely.",
+          "Infrastructure rules preserved as ritual after original context disappears.",
+          "Overly conservative safety margins due to unknown design intent."
+        ],
+        cue: "Add ‘why’ at architectural boundaries. Link every major constraint to a decision record and a test or metric.",
+        tag: "Failure mode"
+      },
+
+      fail_blame: {
+        title: "Blame Diffusion",
+        sub: "Responsibility becomes narrative, not analysis",
+        meaning: "When reasoning isn’t traceable, failure attribution drifts toward scapegoats, slogans, or ‘complexity’ as a fog.",
+        why: "No shared evidence trail exists to separate reasonable judgment from unexamined assumptions.",
+        cases: [
+          "M&A failures attributed to ‘culture’ instead of missing integration assumptions.",
+          "Public scandals where internal doubt was undocumented.",
+          "Safety incidents where the rationale for procedures was lost."
+        ],
+        cue: "Build an evidence trail: decision → rationale → owner → review point. Make it easy to audit, not perfect.",
+        tag: "Failure mode"
+      },
+
+      pr_live: {
+        title: "Principle: Live Documentation",
+        sub: "Write while reasoning is live (not post-hoc)",
+        meaning: "Leverage exists during decision formation. After the fact, writing tends to justify rather than shape.",
+        why: "Post-hoc records rarely preserve true uncertainty, alternatives, and boundary conditions.",
+        cases: [
+          "Engineering PR templates that require rationale before merge.",
+          "Policy memos drafted iteratively with explicit open questions.",
+          "Design logs that evolve alongside prototypes."
+        ],
+        cue: "Make documentation a gate: no major decision merges without a rationale block (even 5 lines).",
+        tag: "Principle"
+      },
+
+      pr_judgment: {
+        title: "Principle: Preserve Judgment",
+        sub: "Keep the ‘why’ (constraints + trade-offs), not just the ‘what’",
+        meaning: "Outputs age better than judgments unless judgments are recorded explicitly.",
+        why: "When ‘why’ disappears, outputs become sacred constraints; revision becomes dangerous guesswork.",
+        cases: [
+          "Architecture decision records (ADRs) outperform wiki sprawl.",
+          "Program charters that store trade-offs enable later refactors.",
+          "Runbooks with rationale prevent ritualized procedures."
+        ],
+        cue: "Standardize a minimal schema: Context / Options / Decision / Trade-off / What would change our mind.",
+        tag: "Principle"
+      },
+
+      pr_context: {
+        title: "Principle: Context Over Coherence",
+        sub: "Don’t sanitize uncertainty to sound confident",
+        meaning: "Coherent narratives erase the informational value of doubt; context preserves it for later reinterpretation.",
+        why: "Systems drift when uncertainty is hidden; successors can’t tell what was assumed versus known.",
+        cases: [
+          "Market bets that ‘made sense then’ but were never bounded.",
+          "Engineering decisions made for time pressure but later treated as best practice.",
+          "Policy choices made under emergency that become normal."
+        ],
+        cue: "Write the decision boundary: ‘We chose X because Y; under Z we would choose differently.’",
+        tag: "Principle"
+      },
+
+      pr_living: {
+        title: "Principle: Living Infrastructure",
+        sub: "Records must be used, revisited, and superseded without erasure",
+        meaning: "Documentation becomes infrastructure only when it is maintained—like code, policy, or physical assets.",
+        why: "Stale records become artifacts; teams stop trusting them; informal memory takes over again.",
+        cases: [
+          "Quarterly assumption reviews prevent strategic drift.",
+          "Retrospective updates that link failures to earlier rationale.",
+          "Sunsetting decisions explicitly reduces ‘haunted constraints.’"
+        ],
+        cue: "Schedule ‘assumption re-tests’ and mark old rationales as superseded (keep history).",
+        tag: "Principle"
+      }
+    };
+
+    const dlg = document.getElementById("dlg");
+    const dlgTitle = document.getElementById("dlgTitle");
+    const dlgSub = document.getElementById("dlgSub");
+    const dlgMeaning = document.getElementById("dlgMeaning");
+    const dlgWhy = document.getElementById("dlgWhy");
+    const dlgCases = document.getElementById("dlgCases");
+    const dlgCue = document.getElementById("dlgCue");
+    const dlgTag = document.getElementById("dlgTag");
+    const dlgClose = document.getElementById("dlgClose");
+
+    function openPopup(key){
+      const item = CASE_DB[key];
+      if(!item) return;
+      dlgTitle.textContent = item.title;
+      dlgSub.textContent = item.sub;
+      dlgMeaning.textContent = item.meaning;
+      dlgWhy.textContent = item.why;
+      dlgCue.textContent = item.cue;
+      dlgTag.textContent = item.tag;
+
+      dlgCases.innerHTML = "";
+      (item.cases || []).forEach(c => {
+        const li = document.createElement("li");
+        li.textContent = c;
+        dlgCases.appendChild(li);
+      });
+
+      if(!dlg.open) dlg.showModal();
+    }
+
+    // Click + keyboard activation
+    document.querySelectorAll(".node").forEach(node => {
+      node.addEventListener("click", () => openPopup(node.dataset.key));
+      node.addEventListener("keydown", (e) => {
+        if(e.key === "Enter" || e.key === " "){
+          e.preventDefault();
+          openPopup(node.dataset.key);
+        }
+      });
+    });
+
+    dlgClose.addEventListener("click", () => dlg.close());
+    dlg.addEventListener("click", (e) => {
+      // Click outside modal content closes
+      const rect = dlg.getBoundingClientRect();
+      const inDialog = (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom);
+      if(!inDialog) dlg.close();
+    });
+  </script>
+</body>
+</html>
