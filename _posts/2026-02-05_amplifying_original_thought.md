@@ -68,11 +68,11 @@ Large language models do not discover new knowledge. They do not form hypotheses
 
 What they do—exceptionally well—is position user input against a vast, compressed representation of prior human knowledge. When a person provides an idea, the model:
 
-decomposes it into latent components,
+- decomposes it into latent components,
 
-maps those components onto existing patterns,
+- maps those components onto existing patterns,
 
-and estimates their likelihood, coherence, and adjacency.
+- and estimates their likelihood, coherence, and adjacency.
 
 This is why LLMs feel “creative” while remaining fundamentally derivative. They are mirrors with context: they reflect your input, but surrounded by everything that has been said before.
 
