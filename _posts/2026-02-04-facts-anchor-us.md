@@ -7,6 +7,9 @@ published_at: 2026-02-04T11:00:00-08:00
 tags: [epistemology, verification, systems-thinking, media-systems, belief-formation]
 reading_time: 16
 ---
+*Interactive figure (view on site): Verification as Epistemic Infrastructure.*
+
+{% unless page.feed %}
 <div style="position:relative; width:100%; padding-top:78%;">
   <iframe
     src="/assets/2026-02-04-facts-anchor-us/epistemic-verification-clickable.html"
@@ -24,11 +27,14 @@ reading_time: 16
     title="Verification as Epistemic Infrastructure — Clickable Schema">
   </iframe>
 </div>
+{% endunless %}
 #### Figure 1. Verification as Epistemic Infrastructure.
 This schema shows verification as a system: feedback, friction, and correction that allow disagreement to converge instead of drift.
 
 
 ## Introduction
+*This essay uses numbered footnotes to anchor empirical claims.*
+
 Modern societies do not fail because people disagree. They fail when disagreement no longer occurs within a shared frame of reference—when people stop recognizing the same kinds of evidence as binding.
 
 This shift rarely appears as a rejection of reality. It presents as sincerity. Beliefs feel true. Narratives feel coherent. Moral confidence intensifies. What erodes is verification: the ability to check claims independently of identity, affiliation, or emotional resonance.[^1]
@@ -250,12 +256,16 @@ As shown in Figure 6, the generator translates verification behaviors into syste
 
 ### The Probability Generator (Conceptual Bridge)
 
+*Interactive figure (view on site): Belief Divergence Probability Generator.*
+
+{% unless page.feed %}
 <iframe
   src="/assets/2026-02-04-facts-anchor-us/probability-generator.html"
   style="width:100%; height:720px; border:0; border-radius:12px; overflow:hidden;"
   loading="lazy"
   title="Belief Divergence Probability Generator">
 </iframe>
+{% endunless %}
 #### Figure 6. Belief Divergence Probability Generator.
 This interactive model visualizes how small changes in verification behavior compound into large systemic effects.
 
