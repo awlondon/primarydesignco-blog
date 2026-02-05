@@ -73,7 +73,6 @@
       letter-spacing: 0.05em;
     }
     .value { font-size: 1.1rem; margin-top: 0.25rem; }
-
     .note { margin-top: 2rem; font-size: 0.85rem; color: #8f96a3; }
 
     /* Claim emphasis */
@@ -82,12 +81,13 @@
       margin-bottom: 0.75rem;
       border-radius: 6px;
       line-height: 1.45;
+      border-left: 3px solid transparent;
     }
     .claim.common { opacity: 0.60; }
     .claim.recombination { opacity: 0.88; }
     .claim.anomalous {
       opacity: 1;
-      border-left: 3px solid #4f7cff;
+      border-left-color: #4f7cff;
       background: rgba(79, 124, 255, 0.06);
     }
     .claim.canonical { opacity: 0.42; font-style: italic; }
@@ -95,15 +95,22 @@
     /* New: unanchored anomaly state */
     .claim.unanchored {
       opacity: 1;
-      border-left: 3px solid #b08cff;
+      border-left-color: #b08cff;
       background: rgba(176, 140, 255, 0.06);
     }
 
     /* New: low-coherence/noise */
     .claim.noise {
-      opacity: 0.65;
-      border-left: 3px solid #ff7a7a;
+      opacity: 0.75;
+      border-left-color: #ff7a7a;
       background: rgba(255, 122, 122, 0.06);
+    }
+
+    /* New: degenerate repetition / low-information */
+    .claim.degenerate {
+      opacity: 0.92;
+      border-left-color: #ffd166;
+      background: rgba(255, 209, 102, 0.07);
     }
 
     .claim-meta {
@@ -121,6 +128,12 @@
       border: 1px solid rgba(255, 122, 122, 0.25);
       color: #ffd0d0;
       font-size: 0.95rem;
+    }
+
+    .tiny {
+      font-size: 0.78rem;
+      color: #8f96a3;
+      margin-top: 0.35rem;
     }
   </style>
 </head>
@@ -152,6 +165,7 @@
           <option value="strict">Strict (rarer anomaly)</option>
           <option value="exploratory">Exploratory (more sensitivity)</option>
         </select>
+        <div class="tiny">ADE build: v3 (anchoring + coherence + information)</div>
       </div>
     </div>
 
@@ -167,8 +181,8 @@
       </div>
 
       <div class="metric">
-        <div class="label">Anchoring and coherence</div>
-        <div class="value" id="anchors"></div>
+        <div class="label">Anchoring, coherence, information</div>
+        <div class="value" id="axes"></div>
       </div>
 
       <div class="metric">
@@ -198,7 +212,7 @@
     political: { anomalous: 85, recombination: 65, common: 45 }
   };
 
-  // Domain anchoring lexicons (intentionally small + conservative)
+  // Small, conservative lexicons
   const DOMAIN_LEX = {
     general: [
       "model","system","economy","value","human","knowledge","idea","hypothesis","evidence","truth","bias"
@@ -220,7 +234,7 @@
   const STOPWORDS = new Set([
     "the","a","an","and","or","but","if","then","than","that","this","those","these","to","of","in","on","for","with",
     "as","by","at","from","is","are","was","were","be","been","being","it","its","they","their","we","our","you","your",
-    "not","rather","however","therefore","because","can","cannot","will","would","should","could","may","might"
+    "not","rather","however","therefore","because","can","cannot","will","would","should","could","may","might","please"
   ]);
 
   function showError(msg) {
@@ -228,14 +242,12 @@
     el.textContent = msg;
     el.style.display = "block";
   }
-
   function clearError() {
     const el = document.getElementById("error");
     el.textContent = "";
     el.style.display = "none";
   }
 
-  // Safari-safe sentence split
   function splitClaims(text) {
     return text
       .replace(/([.!?])/g, "$1|")
@@ -245,74 +257,114 @@
   }
 
   function tokenize(s) {
-    return s
-      .toLowerCase()
-      .split(/[^a-z0-9]+/g)
-      .filter(Boolean);
+    return s.toLowerCase().split(/[^a-z0-9]+/g).filter(Boolean);
   }
 
-  function computeCoherence(claimTokens) {
-    // Heuristic: coherent text has (a) reasonable stopword share, (b) not extreme word-length, (c) not excessive rare-looking jargon chains.
-    if (!claimTokens.length) return 0;
+  function computeCoherence(tokens) {
+    if (!tokens.length) return 0;
 
-    const stopCount = claimTokens.filter(w => STOPWORDS.has(w)).length;
-    const stopRatio = stopCount / claimTokens.length;
+    const stopCount = tokens.filter(w => STOPWORDS.has(w)).length;
+    const stopRatio = stopCount / tokens.length;
 
-    const avgLen = claimTokens.reduce((s,w)=>s+w.length,0) / claimTokens.length;
-    const longRatio = claimTokens.filter(w => w.length >= 12).length / claimTokens.length;
+    const avgLen = tokens.reduce((s,w)=>s+w.length,0) / tokens.length;
+    const longRatio = tokens.filter(w => w.length >= 12).length / tokens.length;
 
-    // Score components (bounded)
-    const stopScore = 1 - Math.min(Math.abs(stopRatio - 0.40) / 0.40, 1); // peak near 0.40
-    const lenScore = 1 - Math.min(Math.abs(avgLen - 5.0) / 5.0, 1);      // peak near 5 chars
-    const longPenalty = Math.min(longRatio / 0.45, 1);                   // too many long tokens => penalty
+    const stopScore = 1 - Math.min(Math.abs(stopRatio - 0.40) / 0.40, 1);
+    const lenScore  = 1 - Math.min(Math.abs(avgLen - 5.0) / 5.0, 1);
+    const longPenalty = Math.min(longRatio / 0.45, 1);
 
     const raw = 0.45 * stopScore + 0.45 * lenScore + 0.10 * (1 - longPenalty);
     return Math.round(Math.max(0, Math.min(raw, 1)) * 100);
   }
 
-  function computeAnchoring(claimTokens, domain) {
-    // Anchoring = domain lexicon hits + concrete referents (numbers/proper-ish) + explicit mechanisms/relations.
-    if (!claimTokens.length) return 0;
+  function computeAnchoring(tokens, domain, rawText) {
+    if (!tokens.length) return 0;
 
     const lex = DOMAIN_LEX[domain] || DOMAIN_LEX.general;
     let lexHits = 0;
-
-    for (const t of claimTokens) {
+    for (const t of tokens) {
       for (const k of lex) {
         if (t.startsWith(k)) { lexHits += 1; break; }
       }
     }
-    const lexScore = Math.min(lexHits / 6, 1); // 0..1
+    const lexScore = Math.min(lexHits / 6, 1);
 
-    const hasNumber = claimTokens.some(w => /\d/.test(w));
+    const hasNumber = tokens.some(w => /\d/.test(w));
     const concreteScore = hasNumber ? 0.15 : 0;
 
     const relationScore =
-      /because|therefore|implies|causes|leads|results|under|unless|rather|instead/i.test(claimTokens.join(" "))
+      /because|therefore|implies|causes|leads|results|under|unless|rather|instead/i.test(rawText)
         ? 0.20 : 0;
 
     const raw = 0.65 * lexScore + concreteScore + relationScore;
     return Math.round(Math.max(0, Math.min(raw, 1)) * 100);
   }
 
-  function computeAnomaly(claim, claimTokens, mode) {
-    // “Predictability” proxy: density + structure. This is not truth.
-    const unique = new Set(claimTokens).size;
+  // NEW: Information / anti-repetition
+  function computeInformation(tokens) {
+    if (!tokens.length) return 0;
 
-    const lengthScore = Math.min(claim.length / 220, 1);
+    // Unique ratio (variety)
+    const unique = new Set(tokens);
+    const uniqueRatio = unique.size / tokens.length; // 0..1
+
+    // Dominance (single token repeats too much)
+    const freq = new Map();
+    for (const t of tokens) freq.set(t, (freq.get(t) || 0) + 1);
+    const topCount = Math.max(...freq.values());
+    const dominance = topCount / tokens.length; // 0..1
+
+    // Bigram repetition ratio (phrase looping)
+    let bigrams = 0, repeatedBigrams = 0;
+    const seen = new Map();
+    for (let i = 0; i < tokens.length - 1; i++) {
+      const bg = tokens[i] + " " + tokens[i+1];
+      bigrams++;
+      seen.set(bg, (seen.get(bg) || 0) + 1);
+    }
+    for (const c of seen.values()) if (c > 1) repeatedBigrams += c;
+    const bigramRepeatRatio = bigrams ? (repeatedBigrams / bigrams) : 0; // 0..1
+
+    // Novelty slope: how quickly new tokens stop appearing
+    // Count unique growth across 10 segments; flat growth => repetition.
+    const segments = 10;
+    const segSize = Math.max(1, Math.floor(tokens.length / segments));
+    let u = new Set();
+    let growth = [];
+    for (let s = 0; s < segments; s++) {
+      const start = s * segSize;
+      const end = (s === segments - 1) ? tokens.length : Math.min(tokens.length, (s+1) * segSize);
+      for (let i = start; i < end; i++) u.add(tokens[i]);
+      growth.push(u.size);
+    }
+    // Normalize slope: last growth minus early growth
+    const slope = (growth[growth.length - 1] - growth[Math.min(2, growth.length - 1)]) / Math.max(1, tokens.length);
+    // slope near 0 => stagnation
+
+    // Combine into information score (higher = more informational)
+    // Penalize dominance & repeated bigrams; reward unique ratio and slope.
+    const variety = Math.min(uniqueRatio / 0.45, 1);         // ~0.45+ is “good variety”
+    const slopeScore = Math.min(slope / 0.03, 1);            // small but meaningful slopes
+    const dominancePenalty = Math.min(dominance / 0.45, 1);  // >0.45 top token is a problem
+    const bigramPenalty = Math.min(bigramRepeatRatio / 0.60, 1);
+
+    const raw = (0.50 * variety + 0.20 * slopeScore + 0.30 * (1 - dominancePenalty)) * (1 - 0.35 * bigramPenalty);
+    return Math.round(Math.max(0, Math.min(raw, 1)) * 100);
+  }
+
+  function computeAnomaly(rawText, tokens, mode) {
+    const unique = new Set(tokens).size;
+
+    const lengthScore = Math.min(rawText.length / 220, 1);
     const densityScore = Math.min(unique / 26, 1);
-    const structureScore = /because|therefore|if|but|however|rather than|implies|unless/i.test(claim) ? 0.15 : 0;
-    const punctuationScore = /[:;()]/.test(claim) ? 0.08 : 0;
+    const structureScore = /because|therefore|if|but|however|rather than|implies|unless/i.test(rawText) ? 0.15 : 0;
+    const punctuationScore = /[:;()]/.test(rawText) ? 0.08 : 0;
 
     let raw = 0.35 * lengthScore + 0.45 * densityScore + structureScore + punctuationScore;
-
-    // Mode: strict reduces anomaly inflation; exploratory increases sensitivity.
     raw = mode === "exploratory" ? raw * 1.06 : raw * 0.98;
 
     let score = Math.round(Math.min(Math.max(raw, 0), 1) * 100);
-
-    // Prevent punchy one-liners from becoming “anomalous”
-    if (claim.length < 120) score = Math.min(score, 75);
+    if (rawText.length < 120) score = Math.min(score, 75);
 
     const uncertainty = Math.round(10 + (1 - Math.min(raw, 1)) * 15);
     return { score, uncertainty };
@@ -320,21 +372,26 @@
 
   function classify(claim, domain, mode) {
     const tokens = tokenize(claim);
+
     const coherence = computeCoherence(tokens);
-    const anchoring = computeAnchoring(tokens, domain);
+    const anchoring = computeAnchoring(tokens, domain, claim);
+    const information = computeInformation(tokens);
     const { score, uncertainty } = computeAnomaly(claim, tokens, mode);
     const t = DOMAIN_THRESHOLDS[domain] || DOMAIN_THRESHOLDS.general;
 
-    // Interpretation logic across axes:
-    // - Low coherence => noise/low interpretability
-    // - Low anchoring + moderate/high anomaly => unanchored anomaly (pre-paradigmatic)
-    // - Otherwise use domain thresholds as before
     let category, cls, suggestion;
+
+    // New priority: degenerate repetition should be caught before "unanchored anomaly"
+    const degenerate = (information < 25) || (tokens.length > 40 && information < 35);
 
     if (coherence < 35) {
       category = "Low coherence / noise";
       cls = "noise";
       suggestion = "Clarify terms and causal structure. Reduce jargon density or define primitives.";
+    } else if (degenerate) {
+      category = "Degenerate repetition / low-information";
+      cls = "degenerate";
+      suggestion = "Reduce repetition and add new informational content (definitions, mechanism, constraints).";
     } else if (anchoring < 28 && score >= t.common) {
       category = "Unanchored anomaly";
       cls = "unanchored";
@@ -357,10 +414,7 @@
       suggestion = "Introduce a counterfactual or invert a core assumption.";
     }
 
-    return {
-      claim, score, uncertainty, anchoring, coherence,
-      category, cls, suggestion
-    };
+    return { claim, score, uncertainty, anchoring, coherence, information, category, cls, suggestion };
   }
 
   function interpretOverall(analyses, domain) {
@@ -370,15 +424,18 @@
     const avgUnc  = Math.round(analyses.reduce((s,a)=>s+a.uncertainty,0) / analyses.length);
     const avgAnch = Math.round(analyses.reduce((s,a)=>s+a.anchoring,0) / analyses.length);
     const avgCoh  = Math.round(analyses.reduce((s,a)=>s+a.coherence,0) / analyses.length);
+    const avgInfo = Math.round(analyses.reduce((s,a)=>s+a.information,0) / analyses.length);
 
-    // Overall interpretation should not call unanchored content “expected”.
     const anyNoise = analyses.some(a => a.category === "Low coherence / noise");
+    const anyDeg   = analyses.some(a => a.category === "Degenerate repetition / low-information");
     const anyUnanchored = analyses.some(a => a.category === "Unanchored anomaly");
     const anyStructural = analyses.some(a => a.category === "Structural deviation");
 
     let text;
     if (anyNoise && avgCoh < 45) {
       text = "Overall input is weakly interpretable (low coherence). Clarify primitives and causal links before scoring meaningfully.";
+    } else if (anyDeg || avgInfo < 30) {
+      text = "Overall input is low-information (high redundancy). Reduce repetition and add definitions, mechanisms, and constraints.";
     } else if (anyUnanchored && avgAnch < 35) {
       text = "Overall input contains novel but weakly anchored claims. Add definitions, mechanisms, and falsifiable hooks to make anomaly legible.";
     } else if (avgAnom >= t.anomalous || anyStructural) {
@@ -391,16 +448,14 @@
       text = "Overall input closely tracks canonical formulations within this domain lens.";
     }
 
-    return { avgAnom, avgUnc, avgAnch, avgCoh, text };
+    return { avgAnom, avgUnc, avgAnch, avgCoh, avgInfo, text };
   }
 
   function runADE() {
     clearError();
 
     const inputEl = document.getElementById("input");
-    if (!inputEl) { showError("Internal error: input element not found."); return; }
-
-    const text = (inputEl.value || "").trim();
+    const text = (inputEl && inputEl.value ? inputEl.value : "").trim();
     if (!text) return;
 
     const domainEl = document.getElementById("domain");
@@ -417,36 +472,35 @@
     document.getElementById("score").innerText =
       `${overall.avgAnom} / 100 (±${overall.avgUnc})`;
 
-    document.getElementById("anchors").innerText =
-      `Anchoring: ${overall.avgAnch} / 100 · Coherence: ${overall.avgCoh} / 100`;
+    document.getElementById("axes").innerText =
+      `Anchoring: ${overall.avgAnch} / 100 · Coherence: ${overall.avgCoh} / 100 · Information: ${overall.avgInfo} / 100`;
 
     document.getElementById("interpretation").innerText = overall.text;
 
-    document.getElementById("lineage").innerHTML = analyses
-      .map(a => `
-        <div class="claim ${a.cls}">
-          "${a.claim}"
-          <div class="claim-meta">
-            Anomaly: ${a.score} ± ${a.uncertainty} · Anchoring: ${a.anchoring} · Coherence: ${a.coherence}<br/>
-            ${a.category}<br/>
-            ↳ ${a.suggestion}
-          </div>
+    document.getElementById("lineage").innerHTML = analyses.map(a => `
+      <div class="claim ${a.cls}">
+        "${a.claim}"
+        <div class="claim-meta">
+          Anomaly: ${a.score} ± ${a.uncertainty} · Anchoring: ${a.anchoring} · Coherence: ${a.coherence} · Information: ${a.information}<br/>
+          ${a.category}<br/>
+          ↳ ${a.suggestion}
         </div>
-      `)
-      .join("");
+      </div>
+    `).join("");
 
     document.getElementById("output").style.display = "block";
   }
 
   document.addEventListener("DOMContentLoaded", function () {
     const btn = document.getElementById("evaluateBtn");
-    if (btn) btn.addEventListener("click", function () {
+    if (!btn) { showError("Internal error: Evaluate button not found."); return; }
+    btn.addEventListener("click", function () {
       try { runADE(); }
       catch (e) { showError("ADE runtime error: " + (e && e.message ? e.message : String(e))); }
     });
   });
 
-  // Expose for debugging (optional)
+  // Expose for debugging
   window.runADE = runADE;
 })();
 </script>
