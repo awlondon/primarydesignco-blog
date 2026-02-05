@@ -100,6 +100,11 @@
     color: #8f96a3;
     margin-top: 0.25rem;
   }
+  .claim.canonical {
+  opacity: 0.4;
+  font-style: italic;
+ }
+
 
   </style>
 </head>
@@ -157,18 +162,34 @@
     const score = Math.round(Math.min(raw, 1) * 100);
 
     const uncertainty = Math.round(10 + (1 - raw) * 15);
+    const cls =
+      a.category === "Structural deviation"
+        ? "anomalous"
+        : a.category === "Recombination of known ideas"
+        ? "recombination"
+        : a.category === "Highly canonical"
+        ? "canonical"
+        : "common";
+
 
     let category, suggestion;
 
-    if (score > 70) {
+    if (score >= 78) {
       category = "Structural deviation";
-      suggestion = "Try formalizing this deviation into a testable or falsifiable claim.";
-    } else if (score > 45) {
+      suggestion =
+        "This formulation is weakly predictable. Try formalizing it into a testable or falsifiable claim.";
+    } else if (score >= 58) {
       category = "Recombination of known ideas";
-      suggestion = "Identify which assumption is borrowed and which is new.";
-    } else {
+      suggestion =
+        "This appears to synthesize familiar components. Identify which assumption you are altering.";
+    } else if (score >= 38) {
       category = "Common framing";
-      suggestion = "Invert a core assumption or change the level of analysis.";
+      suggestion =
+        "This framing is competent but expected. Consider inverting a core assumption or shifting scale.";
+    } else {
+      category = "Highly canonical";
+      suggestion =
+        "This closely tracks standard formulations. Introduce a constraint or counterfactual.";
     }
 
     return {
