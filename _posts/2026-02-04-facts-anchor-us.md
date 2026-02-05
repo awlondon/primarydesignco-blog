@@ -94,7 +94,7 @@ The critical variable is verification. When verification norms are strong, disag
 
 The next section examines why belief lock-in occurs even among well-informed individuals, and how identity, emotion, and group dynamics conspire to make verification feel like betrayal rather than responsibility.
 
-## Belief Lock-In & Media Dynamics
+## Belief Lock-In & Media Dynamics {#belief-lock-in}
 Belief persistence is rarely about ignorance. It is about identity protection. Once beliefs bind to self-concept, evidence becomes a threat rather than an input.
 
 Motivated reasoning is asymmetric. Supporting evidence is accepted quickly; threatening evidence is scrutinized or reframed. Over time, belief revision feels like betrayal. Verification becomes adversarial.
@@ -118,7 +118,7 @@ This is why exposure to political targeting can have paradoxical effects. Awaren
 
 The issue is not intelligence. It is asymmetric application of verification standards.
 
-## Media Systems as Epistemic Weather
+## Media Systems as Epistemic Weather {#amplification-loops}
 
 Modern media systems do not primarily deliver information. They shape the conditions under which information is interpreted. Like weather, they influence behavior without requiring conscious attention.
 
@@ -145,7 +145,7 @@ This does not require malice. It emerges naturally when success is measured by r
 
 The result is a subtle inversion: facts are no longer the substrate upon which narratives are built; narratives become the filter through which facts are permitted entry.
 
-### Cost Asymmetry & Error Suppression
+### Cost Asymmetry & Error Suppression {#cost-asymmetry}
 
 Illusions scale because dissent is costly and error is delayed. Challenging shared narratives risks social or professional loss. Accepting them carries little immediate penalty.
 
@@ -213,7 +213,7 @@ The next section will move from diagnosis to agency—what verification looks li
 {% include ad.html %}
 
 
-## Verification as a Civic Practice
+## Verification as a Civic Practice {#verification-norms}
 Verification is not reserved for experts. It is a civic habit.
 
 Four norms matter more than any single fact:
