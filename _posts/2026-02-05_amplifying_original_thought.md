@@ -193,9 +193,79 @@ With an ADE, incentives shift toward:
 
 This is how AGI becomes compatible with a human creative economy rather than hostile to it.
 
-## Why Humans Don’t Become Irrelevant
+## Anomaly Detection Is Already Doing Real Work
 
-## Education Without Debt Traps
+The ADE is not speculative in its mechanics. Variants of anomaly detection already underpin some of the most productive uses of machine learning in science and engineering.
+
+Across domains, the pattern is consistent: models do not “invent” discoveries, but they reliably surface deviations worth human attention.
+
+In scientific discovery, anomaly detection has been used to flag unexpected patterns in protein folding, materials science, astrophysics, and genomics—often identifying candidate hypotheses that human researchers then validate or discard. In multimodal systems, combining text, images, and structured data improves this signal by allowing anomalies to be detected across representations rather than within a single modality.
+
+What matters for this essay is not the specific domain, but the epistemic role. In each case, the model:
+
+- evaluates inputs relative to an existing distribution,
+
+- highlights departures from expectation,
+
+- and hands control back to human judgment.
+
+The ADE simply applies this pattern to ideas themselves.
+
+## Early Signals: Humans Using Models to Accelerate Discovery
+
+A growing class of tools already uses LLMs and adjacent models not as originators, but as context engines for human-led innovation. One early signal in this direction is PhagePatch, which sits within a broader ecosystem of computational biology platforms using models to explore design spaces that would otherwise be intractable.
+
+In these workflows, the human contribution is not raw computation. It is hypothesis framing: choosing what to explore, what constraints to relax, and which anomalies are worth pursuing. The model accelerates evaluation, simulation, and comparison—but it does not decide what is interesting.
+
+This mirrors the ADE’s proposed role. The value is not that the system generates ideas autonomously, but that it makes human originality legible, comparable, and amplifiable.
+
+As these tools mature, the bottleneck shifts away from compute and toward high-quality human input. That is the economic hinge most discussions of AGI miss.
+
+## Education as an Institutional Artifact of a Pre-AGI World
+
+Education, as an institution, emerged under conditions of evaluation scarcity.
+
+When it was difficult to directly assess a person’s competence, originality, or reasoning ability, societies relied on proxy signals: degrees, institutional affiliation, and standardized credentials. These compressed large amounts of information into legible markers for employers, funders, and peers.
+
+This system was functional given its constraints. It is not inherently irrational.
+
+What AGI changes is the cost structure of evaluation.
+
+When models can:
+
+- analyze reasoning directly,
+
+- compare ideas against prior art,
+
+- and surface where a person’s thinking is derivative or anomalous,
+
+the need for coarse credentialing weakens. Not learning—but gatekeeping—becomes less central.
+
+In this context, education does not disappear. It decomposes:
+
+- learning remains essential,
+
+- mentorship remains valuable,
+
+- scholarship remains necessary,
+
+but debt-financed, time-bound credential monopolies lose their economic justification. They are revealed as institutional artifacts of a world where originality could not be cheaply sampled.
+
+The ADE makes this shift explicit. It evaluates thinking itself, rather than its institutional packaging.
+
+Why This Does Not Devalue Expertise
+
+A common objection is that direct evaluation systems flatten expertise. In practice, the opposite occurs.
+
+Experts benefit most from anomaly-sensitive systems because their ideas are more likely to:
+
+- operate near the frontier of known work,
+
+- introduce subtle but meaningful deviations,
+
+- and combine deep domain knowledge with creative risk.
+
+The ADE does not erase expertise. It makes it legible without ceremony.
 
 {% include ad.html %}
 
