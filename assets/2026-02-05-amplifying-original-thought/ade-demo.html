@@ -74,6 +74,33 @@
       font-size: 0.85rem;
       color: #8f96a3;
     }
+    .claim {
+    padding: 0.6rem 0.75rem;
+    margin-bottom: 0.75rem;
+    border-radius: 6px;
+    line-height: 1.45;
+  }
+  
+  .claim.common {
+    opacity: 0.55;
+  }
+  
+  .claim.recombination {
+    opacity: 0.85;
+  }
+  
+  .claim.anomalous {
+    opacity: 1;
+    border-left: 3px solid #4f7cff;
+    background: rgba(79, 124, 255, 0.06);
+  }
+  
+  .claim-meta {
+    font-size: 0.8rem;
+    color: #8f96a3;
+    margin-top: 0.25rem;
+  }
+
   </style>
 </head>
 <body>
@@ -176,14 +203,27 @@
         : avg > 45
         ? "Overall input contains partial originality."
         : "Overall input is highly predictable.";
-
+    
     document.getElementById("lineage").innerHTML = analyses
-      .map(a =>
-        `• "${a.claim}"<br/>
-         &nbsp;&nbsp;→ ${a.score} ± ${a.uncertainty} (${a.category})<br/>
-         &nbsp;&nbsp;↳ ${a.suggestion}`
-      )
-      .join("<br/><br/>");
+      .map(a => {
+        const cls =
+          a.category === "Structural deviation"
+            ? "anomalous"
+            : a.category === "Recombination of known ideas"
+            ? "recombination"
+            : "common";
+    
+        return `
+          <div class="claim ${cls}">
+            "${a.claim}"
+            <div class="claim-meta">
+              ${a.score} ± ${a.uncertainty} · ${a.category}<br/>
+              ↳ ${a.suggestion}
+            </div>
+          </div>
+        `;
+      })
+      .join("");
 
     document.getElementById("output").style.display = "block";
   }
