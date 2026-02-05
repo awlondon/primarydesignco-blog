@@ -253,7 +253,7 @@ but debt-financed, time-bound credential monopolies lose their economic justific
 
 The ADE makes this shift explicit. It evaluates thinking itself, rather than its institutional packaging.
 
-Why This Does Not Devalue Expertise
+## Why This Does Not Devalue Expertise
 
 A common objection is that direct evaluation systems flatten expertise. In practice, the opposite occurs.
 
@@ -269,8 +269,86 @@ The ADE does not erase expertise. It makes it legible without ceremony.
 
 {% include ad.html %}
 
-## Early Signals and Case Examples
+## When Originality Becomes a Compensable Signal
 
-## Conclusion: A Creative Cognition Economy
+Once originality is legible, compensation stops being speculative.
 
-## References
+The ADE converts human thought into a measurable signal—not by scoring truth or usefulness, but by estimating anomaly under constraint. That estimate can be priced because it correlates with downstream value: discoveries worth testing, designs worth prototyping, and arguments worth refining.
+
+This is the same logic used in other domains where option value dominates immediate payoff. Early-stage research, venture capital, and exploratory science all operate on the premise that most inputs fail, but a small fraction compound dramatically. Anomaly detection allows that logic to be applied to cognition itself.
+
+In practical terms, compensation can attach at multiple points:
+
+- Upstream bounties for anomalous hypotheses in targeted domains.
+
+- Royalty-like attribution when an original idea becomes a reusable template or tool.
+
+- Reputation-weighted incentives where consistently high anomaly scores increase expected future payouts.
+
+None of this requires AGI to be creative. It requires AGI to be selective.
+
+## Why Output-Based Economies Collapse Under AGI
+
+Most proposed “AI economies” fail because they reward volume.
+
+When models can generate text, code, and imagery cheaply, output loses price support. Systems that pay per artifact or per task inevitably race to zero. This is not a moral failure; it is a consequence of abundance.
+
+Originality behaves differently. As generative capacity increases, derivative output becomes cheaper, while non-derivative input becomes more valuable. The ADE exploits this asymmetry by filtering for signal rather than scale.
+
+This is why the human role does not disappear in an AGI economy. It inverts. Humans stop competing with machines on throughput and instead specialize in conceptual deviation, which machines cannot self-produce.
+
+## The Creative Cognition Economy
+
+Taken together, these mechanisms define a creative cognition economy:
+
+- Humans generate hypotheses, intuitions, and conceptual risks.
+
+- AGI evaluates those inputs for anomaly, context, and lineage.
+
+- High-signal ideas are amplified, tested, and reused.
+
+- Value flows back to the originators of the signal, not just the executors of output.
+
+This economy is not post-work. It is post-derivation.
+
+It does not require universal genius or constant creativity. It requires only that people are given space, tools, and incentives to think—and that thinking is evaluated directly rather than inferred from credentials or productivity theater.
+
+The ADE is not the economy itself. It is the interface that makes such an economy possible.
+
+## Conclusion: Humans as Anomaly Generators
+
+The mistake most AGI discourse makes is assuming that intelligence is exhausted by output.
+
+Large models compress, recombine, and contextualize what is already known. They do this at a scale and speed no human can match. That capability does not erase the human role—it clarifies it.
+
+Humans matter because they introduce conceptual discontinuities. They propose hypotheses that do not yet have a place in the manifold. They ask questions that existing distributions cannot predict. They supply anomaly.
+
+AGI, properly used, does not replace this function. It makes it visible.
+
+The Anomaly Detection Engine described in this essay is not a creative substitute. It is a recognition layer. It identifies where human thought is doing real work, explains why, and amplifies that signal downstream. In doing so, it inverts the familiar anxiety: the more powerful AGI becomes, the more valuable genuinely original human input grows.
+
+Education, credentials, and output-based labor systems were solutions to an older problem: how to infer thinking when evaluation was expensive. AGI changes that cost structure. What survives is learning and expertise. What fades is gatekeeping by proxy.
+
+The future economy implied here is not post-human and not post-thinking. It is post-derivative. Its scarce input is not labor hours or content volume, but non-predictable cognition under constraint.
+
+That is not something models discover on their own. It is something they are built to recognize—when humans provide it.
+
+## Contextual Recommendation
+
+For readers interested in how anomaly-sensitive systems can be operationalized—particularly in scientific and technical discovery—explore the work emerging from PhagePatch and its surrounding ecosystem. These efforts illustrate the broader pattern discussed here: human hypothesis framing paired with model-driven evaluation, simulation, and amplification.
+
+This is the direction in which creative cognition becomes legible, shareable, and ultimately compensable.
+
+## References (scaffold)
+
+(Final formatting and completeness in Pass 7 / Pass 8)
+
+Kunda, Z. (1990). “The Case for Motivated Reasoning.” Psychological Bulletin.
+
+Boden, M. A. (1998). “Creativity and Artificial Intelligence.” Artificial Intelligence.
+
+Smith, J. et al. (Year). Anomaly detection in multimodal systems. Journal / Conference.
+
+Autor, D. (Year). Skill bias, credentialing, and labor market signaling. Journal.
+
+Selected reports on skills-based hiring and credential inflation.
