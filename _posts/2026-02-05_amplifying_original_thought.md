@@ -120,11 +120,11 @@ The ADE is not a creativity engine. It is an epistemic instrument.
 Its purpose is to answer one question:
 To what extent does this human input meaningfully deviate from what is already known?
 
-Inputs
+#### Inputs
 
-A free-form prompt: “Type your hypothesis or idea.”
+- A free-form prompt: “Type your hypothesis or idea.”
 
-Optional context tags (domain, intent, constraints).
+- Optional context tags (domain, intent, constraints).
 
 ### Core process
 
