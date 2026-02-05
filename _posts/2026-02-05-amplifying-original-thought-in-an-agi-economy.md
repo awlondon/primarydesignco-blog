@@ -15,10 +15,11 @@ abstract: |
 ## Anomaly Detection Engine (ADE)
 
 <iframe
-  src="/assets/2026-02-05-amplifying-original-thought/ade-demo.html"
+  src="/assets/2026-02-05-amplifying-original-thought/ade.html"
   width="100%"
   height="720"
   style="border:none;"
+  sandbox="allow-scripts allow-same-origin"
   loading="lazy">
 </iframe>
 
