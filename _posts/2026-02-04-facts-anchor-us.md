@@ -4,7 +4,7 @@ title: "Facts Anchor Us to Reality; Illusions Unhinge Us"
 subtitle: "Why verification—not agreement—is the basis of shared reality"
 author: Alexander Warren London
 published_at: 2026-02-04T11:00:00-08:00
-tags: [epistemology, media-theory, social-psychology, systems-thinking]
+tags: [epistemology, verification, systems-thinking, media-systems, belief-formation]
 reading_time: 16
 ---
 <div style="position:relative; width:100%; padding-top:78%;">
@@ -36,6 +36,8 @@ This shift rarely appears as a rejection of reality. It presents as sincerity. B
 Facts are not sacred objects. They are coordination tools. They allow people who differ in values to reason about external constraints that do not negotiate. When verification norms hold, disagreement remains legible and revisable. When they collapse, belief becomes insulated from correction and society drifts into epistemic chaos—not because people stop caring, but because care is redirected toward identity affirmation.
 
 The central crisis is not misinformation itself, but the degradation of verification as a social norm. Without shared methods for checking claims, even true statements lose stabilizing power. The result is not pluralism, but incompatible realities. As shown in Figure 1, verification functions as epistemic infrastructure, not moral consensus.
+
+These dynamics are inseparable from [media systems](/tags/media-systems/) and ongoing patterns of [belief formation](/tags/belief-formation/).
 
 As shown in Figure 2, shared verification gently pulls disagreement toward convergence while emotional reinforcement accelerates divergence.
 
