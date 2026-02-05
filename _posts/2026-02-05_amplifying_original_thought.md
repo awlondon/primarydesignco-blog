@@ -101,11 +101,11 @@ Novelty concerns surface-level difference. A recombination of familiar ideas phr
 
 Anomaly concerns statistical and conceptual deviation within a structured space of prior knowledge. An anomalous idea is one that:
 
-does not closely match known formulations,
+- does not closely match known formulations,
 
-is not easily predicted from adjacent concepts,
+- is not easily predicted from adjacent concepts,
 
-yet remains internally coherent.
+- yet remains internally coherent.
 
 Anomaly is the scarce signal AGI can detect but not generate. It is also the signal most correlated with downstream discovery, innovation, and creative value.
 
@@ -126,21 +126,21 @@ A free-form prompt: “Type your hypothesis or idea.”
 
 Optional context tags (domain, intent, constraints).
 
-Core process
+### Core process
 
-Semantic decomposition
+#### Semantic decomposition
 The input is parsed into discrete claims, assumptions, and relational structures. Complex ideas are split so that partial originality can be detected.
 
-Manifold positioning
+#### Manifold positioning
 Each component is embedded against a large, multimodal knowledge representation: academic literature, technical patterns, historical arguments, and common heuristics.
 
-Predictability estimation
+#### Predictability estimation
 The system estimates how likely each component would be generated given existing distributions. High-likelihood components are flagged as derivative; low-likelihood but coherent components are flagged as anomalous.
 
-Lineage tracing
+#### Lineage tracing
 For derivative components, the system surfaces proximate sources: established theories, prior art, or canonical framings. These are not accusations; they are context.
 
-Aggregation and explanation
+#### Aggregation and explanation
 The ADE outputs:
 
 an overall anomaly score (with uncertainty),
