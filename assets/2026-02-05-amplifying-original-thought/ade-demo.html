@@ -159,10 +159,13 @@
   };
 
   function splitClaims(text) {
-    return text
-      .split(/(?<=[.!?])\s+/)
+    const sentences = text
+      .replace(/([.!?])/g, "$1|")
+      .split("|")
       .map(s => s.trim())
       .filter(Boolean);
+  
+    return sentences;
   }
 
   function analyzeClaim(claim, domain) {
