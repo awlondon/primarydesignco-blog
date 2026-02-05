@@ -31,9 +31,9 @@ This schema shows verification as a system: feedback, friction, and correction t
 ## Introduction
 Modern societies do not fail because people disagree. They fail when disagreement no longer occurs within a shared frame of reference—when people stop recognizing the same kinds of evidence as binding.
 
-This shift rarely appears as a rejection of reality. It presents as sincerity. Beliefs feel true. Narratives feel coherent. Moral confidence intensifies. What erodes is verification: the ability to check claims independently of identity, affiliation, or emotional resonance.
+This shift rarely appears as a rejection of reality. It presents as sincerity. Beliefs feel true. Narratives feel coherent. Moral confidence intensifies. What erodes is verification: the ability to check claims independently of identity, affiliation, or emotional resonance.[^1]
 
-Facts are not sacred objects. They are coordination tools. They allow people who differ in values to reason about external constraints that do not negotiate. When verification norms hold, disagreement remains legible and revisable. When they collapse, belief becomes insulated from correction and society drifts into epistemic chaos—not because people stop caring, but because care is redirected toward identity affirmation.
+Facts are not sacred objects. They are coordination tools. They allow people who differ in values to reason about external constraints that do not negotiate. When verification norms hold, disagreement remains legible and revisable. When they collapse, belief becomes insulated from correction and society drifts into epistemic chaos—not because people stop caring, but because care is redirected toward identity affirmation.[^2]
 
 The central crisis is not misinformation itself, but the degradation of verification as a social norm. Without shared methods for checking claims, even true statements lose stabilizing power. The result is not pluralism, but incompatible realities. As shown in Figure 1, verification functions as epistemic infrastructure, not moral consensus.
 
@@ -52,9 +52,9 @@ Public debate is often framed as a contest between truth and falsehood. That fra
 
 Facts matter because they anchor coordination. Traffic laws, engineering standards, and scientific claims derive authority from external checkability, not proclamation. When verification norms weaken, claims are judged less by evidence than by resonance—whether they fit identity, emotion, or group loyalty.
 
-Echo chambers are dangerous not because they filter information, but because they shift evaluation criteria. Repetition substitutes for verification. Familiarity is mistaken for reliability. Confidence becomes evidence.
+Echo chambers are dangerous not because they filter information, but because they shift evaluation criteria. Repetition substitutes for verification.[^3] Familiarity is mistaken for reliability. Confidence becomes evidence.
 
-This is not a problem of ignorance. Educated individuals are often more vulnerable because they are better at rationalizing motivated conclusions. From a systems perspective, this is a coordination failure: feedback loops amplify divergence, and disagreement hardens into identity boundaries.
+This is not a problem of ignorance. Educated individuals are often more vulnerable because they are better at rationalizing motivated conclusions.[^4] From a systems perspective, this is a coordination failure: feedback loops amplify divergence, and disagreement hardens into identity boundaries.
 
 The alternative is not enforced consensus, but recommitment to verification as a shared civic practice.
 
@@ -63,8 +63,8 @@ The alternative is not enforced consensus, but recommitment to verification as a
 ## The Epistemic System at a Glance
 
 - **Identity binds belief.** A workplace meeting where dissent risks exclusion shows how self-concept can override evidence.
-- **Media amplifies coherence.** A single emotionally charged share can outpace a careful correction.
-- **Cost asymmetry suppresses correction.** A public retraction rarely spreads as far as the original claim.
+- **Media amplifies coherence.** A single emotionally charged share can outpace a careful correction.[^14]
+- **Cost asymmetry suppresses correction.** A public retraction rarely spreads as far as the original claim.[^5]
 - **Verification introduces friction.** Pausing before sharing creates the delay that makes checking possible.
 - **Friction enables convergence over time.** Small corrections compound, slowly re-aligning disagreement with shared constraints.
 
@@ -76,7 +76,7 @@ The danger is not coordination itself, but severing feedback from reality.
 
 Shared illusions suppress correction. As long as conditions remain forgiving, they appear stable. When conditions change, collapse is abrupt and costly. Fractured realities surface conflict earlier. They are uncomfortable, but they preserve the possibility of correction.
 
-WMDs in Iraq illustrate the risk. The belief persisted not because dissent was absent, but because incentives aligned to marginalize falsification. Coordination succeeded by disabling verification. Correction came only after cost became irreversible.
+WMDs in Iraq illustrate the risk.[^6] The belief persisted not because dissent was absent, but because incentives aligned to marginalize falsification.[^7] Coordination succeeded by disabling verification. Correction came only after cost became irreversible.
 
 The real tradeoff is not harmony versus chaos. It is short-term coherence versus long-term adaptability.
 
@@ -92,11 +92,11 @@ The lesson is not partisan. It is structural. When belief coherence substitutes 
 
 ### Why Shared Illusions Feel Safer
 
-Shared illusions offer psychological relief. They reduce cognitive load. They align identity with belief. Social psychology shows that agreement within a group lowers perceived threat and increases confidence, regardless of accuracy. Certainty feels like competence.
+Shared illusions offer psychological relief. They reduce cognitive load. They align identity with belief. Social psychology shows that agreement within a group lowers perceived threat and increases confidence, regardless of accuracy.[^8] Certainty feels like competence.
 
 Fractured realities do the opposite. They demand ongoing evaluation. They force individuals to tolerate ambiguity and social friction. They expose belief to challenge, which feels destabilizing even when it is epistemically healthy.
 
-Modern media systems exploit this asymmetry. Algorithms reward engagement, not correction. Content that reinforces a shared narrative spreads faster than content that introduces uncertainty. The result is an environment where illusions scale efficiently, while verification struggles to compete.
+Modern media systems exploit this asymmetry. Algorithms reward engagement, not correction.[^9] Content that reinforces a shared narrative spreads faster than content that introduces uncertainty.[^10] The result is an environment where illusions scale efficiently, while verification struggles to compete.
 
 ### The Real Tradeoff
 
@@ -111,9 +111,9 @@ The next section shows how identity protection, media amplification, and incenti
 ## The Feedback System: Identity, Media, Incentives {#belief-lock-in}
 Belief persistence is rarely about ignorance. It is about identity protection. Once beliefs bind to self-concept, evidence feels like a threat rather than an input—think of a team meeting where dissent risks exclusion, or a family argument where changing your mind reads as disloyalty.
 
-Motivated reasoning is asymmetric. Supporting evidence is accepted quickly; threatening evidence is scrutinized or reframed. Over time, belief revision feels like betrayal. Verification becomes adversarial.
+Motivated reasoning is asymmetric.[^11] Supporting evidence is accepted quickly; threatening evidence is scrutinized or reframed. Over time, belief revision feels like betrayal. Verification becomes adversarial.
 
-As shown in Figure 3, these dynamics are self-reinforcing: confidence can increase even as external correction weakens.
+As shown in Figure 3, these dynamics are self-reinforcing: confidence can increase even as external correction weakens.[^12]
 
 ![Belief Lock-In Feedback Loop](/assets/2026-02-04-facts-anchor-us/diagram-belief-lock-in.svg)
 #### Figure 3. Belief Lock-In Feedback Loop.
@@ -121,7 +121,7 @@ As beliefs bind to identity, social reinforcement suppresses falsification. Conf
 
 ### Why Education Does Not Immunize Against This
 
-Higher education increases argumentative skill, not epistemic neutrality. Educated individuals are often better at constructing post-hoc rationalizations for preferred conclusions. They can cite sources selectively, contextualize inconvenient data away, and frame uncertainty as bias when it contradicts their position.
+Higher education increases argumentative skill, not epistemic neutrality.[^13] Educated individuals are often better at constructing post-hoc rationalizations for preferred conclusions. They can cite sources selectively, contextualize inconvenient data away, and frame uncertainty as bias when it contradicts their position.
 
 This is why exposure to political targeting can have paradoxical effects. Awareness of manipulation increases skepticism toward out-groups while reinforcing confidence in in-group narratives. “I know how this works” becomes a shield against self-scrutiny.
 
@@ -133,7 +133,7 @@ Modern media systems do not primarily deliver information. They shape the condit
 
 Algorithmic systems amplify content that generates engagement: outrage, affirmation, fear, moral clarity. A single emotionally charged share can outpace a careful correction. Over time, users are trained—implicitly—to associate intensity with relevance and repetition with reliability.
 
-Verification suffers under these conditions because it is slow, socially costly, and rarely rewarded in the short term. Correction does not go viral. Retractions feel anticlimactic. Ambiguity does not satisfy.
+Verification suffers under these conditions because it is slow, socially costly, and rarely rewarded in the short term. Correction does not go viral. Retractions feel anticlimactic.[^15] Ambiguity does not satisfy.
 
 As shown in Figure 4, when amplification outweighs verification, networks fragment into internally coherent but incompatible realities.
 
@@ -166,7 +166,7 @@ When societies suppress error signals—by dismissing inconvenient facts, attack
 
 This is why shared illusions are so dangerous. They feel stable precisely because they mute corrective feedback. By the time reality reasserts itself, adjustment is no longer incremental. It is abrupt.
 
-History repeatedly confirms this pattern. Financial bubbles persist not because warnings are absent, but because warnings are discounted. Institutional failures unfold not because no one noticed risk, but because noticing it carried no authority.
+History repeatedly confirms this pattern.[^16] Financial bubbles persist not because warnings are absent, but because warnings are discounted. Institutional failures unfold not because no one noticed risk, but because noticing it carried no authority.
 
 Epistemic collapse is rarely sudden. It is preceded by long periods in which reality is technically visible but functionally ignored.
 
@@ -282,6 +282,25 @@ Explore related projects and frameworks here:
 
 This essay treats verification not as a moral virtue, but as infrastructure: a system that allows disagreement, revision, and learning without collapse.
 
+## Notes
+
+[^1]: Kunda (1990); Haidt (2012).
+[^2]: Haidt (2012); Lewandowsky et al. (2012).
+[^3]: Lewandowsky et al. (2012); Sunstein (2017).
+[^4]: Kunda (1990); Lewandowsky et al. (2012).
+[^5]: Vosoughi, Roy, & Aral (2018).
+[^6]: U.S. Senate Select Committee on Intelligence (2004).
+[^7]: U.S. Senate Select Committee on Intelligence (2004); Oreskes & Conway (2010).
+[^8]: Haidt (2012).
+[^9]: Sunstein (2017); Pariser (2011).
+[^10]: Vosoughi, Roy, & Aral (2018).
+[^11]: Kunda (1990).
+[^12]: Lewandowsky et al. (2012).
+[^13]: Kunda (1990); Lewandowsky et al. (2012).
+[^14]: Vosoughi, Roy, & Aral (2018).
+[^15]: Lewandowsky et al. (2012).
+[^16]: Oreskes & Conway (2010); U.S. Senate Select Committee on Intelligence (2004).
+
 ## References
 
 Kahneman, D. (2011). *Thinking, Fast and Slow*. Farrar, Straus and Giroux.
@@ -302,3 +321,8 @@ Haidt, J. (2012). *The Righteous Mind*. Pantheon Books.
 Zuboff, S. (2019). *The Age of Surveillance Capitalism*. PublicAffairs.
 
 Oreskes, N., & Conway, E. M. (2010). *Merchants of Doubt*. Bloomsbury Press.
+
+
+Vosoughi, S., Roy, D., & Aral, S. (2018). “The Spread of True and False News Online.” *Science*, 359(6380), 1146–1151.
+
+U.S. Senate Select Committee on Intelligence. (2004). *Report on the U.S. Intelligence Community’s Prewar Intelligence Assessments on Iraq*.
