@@ -31,9 +31,9 @@ Large language models already generate far more than sentences. They routinely e
 
 This flattening is not an intelligence constraint. It is an interface choice.
 
-Across major platforms—:contentReference[oaicite:0]{index=0}, :contentReference[oaicite:1]{index=1}, :contentReference[oaicite:2]{index=2}, and :contentReference[oaicite:3]{index=3}—the same pattern appears. Models generate structured artifacts, but the surrounding UI treats them as prose. Even when code blocks or previews exist, they are typically non-interactive, stateless, or visually secondary to the text stream.
+Across major platforms—ChatGPT, Gemini, Claude, and Grok—the same pattern appears. Models generate structured artifacts, but the surrounding UI treats them as prose. Even when code blocks or previews exist, they are typically non-interactive, stateless, or visually secondary to the text stream.
 
-The result is a persistent mismatch between capability and experience. Users ask for systems, tools, or interfaces; the model responds with the raw materials; the platform discards their operational form. What remains is an explanation of a thing that could have existed, instead of the thing itself.
+The result is a persistent mismatch between capability and experience. Users ask for systems, tools, or interfaces; the model responds with the raw materials; the platform discards their operational form. What remains is an explanation of a thing that could have existed, rather than the thing itself.
 
 This matters because interaction quality is not determined by output accuracy alone. It is shaped by feedback, manipulability, and inspection. A response that can be *touched*—clicked, adjusted, rerun—conveys understanding in a way a paragraph never can.
 
@@ -73,13 +73,13 @@ Once code is treated as first-class output—executed rather than quoted—the c
 
 Major LLM platforms already acknowledge—implicitly—that text alone is an impoverished interface. Over the last year, each has introduced partial mechanisms for displaying generated artifacts, especially code. What differs is not model capability, but how far each platform allows those artifacts to behave like *interfaces* rather than excerpts.
 
-In :contentReference[oaicite:0]{index=0}, generated HTML, CSS, and JavaScript are typically presented inside fenced code blocks, occasionally accompanied by limited previews. While this supports inspection, it suppresses interaction. State resets on every turn, execution is visually de-emphasized, and the conversational loop remains anchored to text. The model may generate a working interface, but the platform treats it as documentation rather than a surface.^[1]
+In ChatGPT, generated HTML, CSS, and JavaScript are typically presented inside fenced code blocks, occasionally accompanied by limited previews. While this supports inspection, it suppresses interaction. State resets on every turn, execution is visually de-emphasized, and the conversational loop remains anchored to text. The model may generate a working interface, but the platform treats it as documentation rather than a surface.^[1]
 
-:contentReference[oaicite:1]{index=1} goes further by sometimes rendering generated UI elements inline, particularly for simple visualizations or widgets. This signals an important shift: the recognition that model output can be *shown*, not just read. However, these previews are tightly scoped, often ephemeral, and rarely designed for iterative manipulation across turns.^[2]
+Gemini goes further by sometimes rendering generated UI elements inline, particularly for simple visualizations or widgets. This signals an important shift: the recognition that model output can be *shown*, not just read. However, these previews are tightly scoped, often ephemeral, and rarely designed for iterative manipulation across turns.^[2]
 
-:contentReference[oaicite:2]{index=2} introduces a more explicit separation between explanation and artifact through its “Artifacts” panel. This is one of the clearest acknowledgments that generated code and documents deserve their own spatial context. Yet even here, execution is limited. Artifacts are inspectable, not alive. They do not naturally accumulate state, nor do they participate directly in the conversational feedback loop.^[3]
+Claude introduces a more explicit separation between explanation and artifact through its “Artifacts” panel. This is one of the clearest acknowledgments that generated code and documents deserve their own spatial context. Yet even here, execution is limited. Artifacts are inspectable, not alive. They do not naturally accumulate state, nor do they participate directly in the conversational feedback loop.^[3]
 
-:contentReference[oaicite:3]{index=3} experiments with rendering and real-time elements in a more fluid way, but primarily as demonstrations rather than durable interaction surfaces. The emphasis remains on speed and novelty, not on sustained, inspectable systems that evolve over a session.^[4]
+Grok experiments with rendering and real-time elements in a more fluid way, but primarily as demonstrations rather than durable interaction surfaces. The emphasis remains on speed and novelty, not on sustained, inspectable systems that evolve over a session.^[4]
 
 Across all of these platforms, the same pattern holds. The model can already generate interactive systems. The interface acknowledges this only partially, and then reins it back in. What users receive is a *representation* of an interface, not the interface itself.
 
@@ -164,6 +164,3 @@ Primary Design Co.’s work on documentation as design practice explores this pr
 ^[3]: Anthropic. “Introducing Artifacts.” *Anthropic Product Updates*, 2024. Describes Claude’s artifact panel, separation of generated documents/code from conversational text, and interaction constraints.
 
 ^[4]: xAI. “Grok: Product Overview.” *xAI Public Product Materials and Demonstrations*, 2023–2024. Describes Grok’s conversational model, real-time elements, and experimental UI affordances.
-
-
-(These will be cleaned and fu
