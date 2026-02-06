@@ -33,7 +33,7 @@ This flattening is not an intelligence constraint. It is an interface choice.
 
 Across major platforms—ChatGPT, Gemini, Claude, and Grok—the same pattern appears. Models generate structured artifacts, but the surrounding UI treats them as prose. Even when code blocks or previews exist, they are typically non-interactive, stateless, or visually secondary to the text stream.
 
-The result is a persistent mismatch between capability and experience. Users ask for systems, tools, or interfaces; the model responds with the raw materials; the platform discards their operational form. What remains is an explanation of a thing that could have existed, rather than the thing itself.
+The result is a persistent mismatch between capability and experience. Users ask for systems, tools, or interfaces; the model responds with the raw materials; the platform discards their operational form. What remains is an explanation of a thing that could have existed, not the thing itself.
 
 This matters because interaction quality is not determined by output accuracy alone. It is shaped by feedback, manipulability, and inspection. A response that can be *touched*—clicked, adjusted, rerun—conveys understanding in a way a paragraph never can.
 
@@ -43,7 +43,7 @@ This matters because interaction quality is not determined by output accuracy al
 
 The fastest way to close this gap does not require new models, plugins, or native platform features. It requires discipline at the prompt boundary.
 
-The core move is simple: ask the model to separate explanation from execution, and to return both in a predictable structure. One effective pattern is to instruct the model to emit two parallel artifacts—human-readable text and fully executable interface code—returned together in a machine-parseable form.
+The core move is simple: ask the model to separate explanation from execution, and to return both in a predictable structure. One effective pattern is to instruct the model to emit two parallel artifacts—human-readable text and fully executable interface code—returned in a machine-parseable form.
 
 A minimal version looks like this:
 
@@ -53,7 +53,7 @@ A minimal version looks like this:
 
 This wrapper does several important things at once. It prevents code from being interleaved with prose. It makes the response reliably extractable. And it establishes an expectation that the code is not illustrative, but operational.
 
-Nothing about this pattern is novel at the model level. Large language models already comply with structured output requests, already generate valid front-end code, and already reason about UI state. What changes is the *intent signal*: code is no longer an appendix to the answer. It is the answer’s executable surface.
+Nothing about this pattern is novel at the model level. Large language models already comply with structured output requests, generate valid front-end code, and reason about UI state. What changes is the *intent signal*: code is no longer an appendix to the answer. It is the answer’s executable surface.
 
 Crucially, this technique works today across existing LLMs. It does not depend on hidden APIs or experimental features. It is a user-side convention that treats the model as a co-author of live interfaces rather than a narrator describing them.
 
@@ -81,7 +81,7 @@ Claude introduces a more explicit separation between explanation and artifact th
 
 Grok experiments with rendering and real-time elements in a more fluid way, but primarily as demonstrations rather than durable interaction surfaces. The emphasis remains on speed and novelty, not on sustained, inspectable systems that evolve over a session.^[4]
 
-Across all of these platforms, the same pattern holds. The model can already generate interactive systems. The interface acknowledges this only partially, and then reins it back in. What users receive is a *representation* of an interface, not the interface itself.
+Across all of these platforms, the same pattern holds. The model can already generate interactive systems. The interface acknowledges this only partially, and then reins it back in. What users receive is a *representation* of an interface, not the interface.
 
 {% include ad.html %}
 
@@ -91,7 +91,7 @@ The difference between reading an interface and using one is not cosmetic. It is
 
 When generated code is executed immediately—when HTML is rendered, JavaScript runs, and CSS governs layout—the interaction acquires properties that text cannot provide: state persistence, feedback, and affordances. Buttons can be clicked. Sliders can be adjusted. Outputs can change without re-prompting the model. The system becomes something you *operate*, not something you interpret.
 
-This shift exposes a crucial insight: LLM conversations already contain the logic of tools. What they lack is a rendering loop that treats those tools as present rather than hypothetical. Real-time execution does not add intelligence; it removes friction.
+This exposes a crucial insight: LLM conversations already contain the logic of tools. What they lack is a rendering loop that treats those tools as present rather than hypothetical. Real-time execution does not add intelligence; it removes friction.
 
 Once this layer is in place, the role of text changes. Language becomes a steering mechanism—a way to specify constraints, modify behavior, or request extensions—while the primary interaction happens through the rendered artifact itself. The conversation stops being a transcript and starts behaving like a workbench.
 
@@ -117,7 +117,7 @@ It does not require multimodal models beyond what already exists. It does not re
 
 This makes the technique portable and resilient. It works in hosted platforms, local tools, and experimental UIs alike. More importantly, it shifts agency toward the user. Instead of waiting for platforms to expose richer interaction modes, users can construct them themselves by treating generated code as first-class output.
 
-The implication is subtle but important. Multimodal interaction is not something that will arrive all at once through official updates. It is already emerging, piecemeal, wherever execution is allowed to follow generation.
+Multimodal interaction is not something that will arrive all at once through official updates. It is already emerging wherever execution is allowed to follow generation.
 
 ## Limits, Risks, and Failure Modes
 
@@ -127,7 +127,7 @@ The most immediate risk is execution safety. Rendering arbitrary HTML, CSS, and 
 
 A second limitation is reliability. While LLMs are competent front-end code generators, they are not deterministic compilers. Generated interfaces may fail silently, partially render, or degrade over successive turns. As complexity increases, the likelihood of subtle bugs rises. This makes the approach best suited for exploratory tools, prototypes, and conceptual interfaces rather than production-critical systems.
 
-State management presents another constraint. Many conversational rendering loops reset execution context on each turn, either by design or for safety. Without explicit state serialization and rehydration, interactive artifacts can lose continuity. This places an additional design burden on the wrapper and rendering layer, not on the model itself.
+State management presents another constraint. Many conversational rendering loops reset execution context on each turn, either by design or for safety. Without explicit state serialization and rehydration, interactive artifacts can lose continuity. This places the design burden on the wrapper and rendering layer, not on the model itself.
 
 There is also a cognitive failure mode. When interfaces are generated too quickly or too fluidly, users may over-attribute stability or intentionality to what is, in practice, a probabilistic system. The more “alive” an interface feels, the more important it becomes to preserve inspectability and reversibility. Generated tools should remain legible, editable, and discardable.
 
@@ -145,7 +145,7 @@ This reframing resolves a long-standing tension in LLM use. Users are not actual
 
 Real-time rendering closes that loop. It allows conversations to accumulate structure, not just context. It turns responses into surfaces that can be tested, manipulated, and evolved. And it does so without waiting for platform roadmaps or model breakthroughs.
 
-The implication is straightforward. Multimodal interaction is already present in today’s systems. The remaining work is not generative. It is architectural.
+Multimodal interaction is already present in today’s systems. The remaining work is not generative. It is architectural.
 
 ## Contextual Recommendation
 
@@ -157,10 +157,19 @@ Primary Design Co.’s work on documentation as design practice explores this pr
 
 
 ## References
-^[1]: OpenAI. “ChatGPT: Code Interpreter and Advanced Data Analysis.” *OpenAI Product Documentation*, 2023–2024. Describes executable code generation, sandboxed execution, and limitations of persistent state in ChatGPT’s interface.
 
-^[2]: Google. “Introducing Gemini: A Multimodal AI Model.” *Google AI Blog*, December 2023. Documents Gemini’s multimodal reasoning capabilities, including code generation and inline visual rendering.
+^[1]: OpenAI. “Advanced Data Analysis in ChatGPT.” *OpenAI Product Documentation*, updated 2023–2024.  
+Describes ChatGPT’s code execution environment, sandboxing model, state reset behavior, and limitations of persistent execution across turns.  
+https://platform.openai.com/docs/advanced-data-analysis
 
-^[3]: Anthropic. “Introducing Artifacts.” *Anthropic Product Updates*, 2024. Describes Claude’s artifact panel, separation of generated documents/code from conversational text, and interaction constraints.
+^[2]: Google DeepMind. “Introducing Gemini: A Multimodal AI Model.” *Google AI Blog*, December 6, 2023.  
+Documents Gemini’s multimodal reasoning capabilities, including code generation, visual output, and inline rendering behavior.  
+https://blog.google/technology/ai/google-gemini-ai/
 
-^[4]: xAI. “Grok: Product Overview.” *xAI Public Product Materials and Demonstrations*, 2023–2024. Describes Grok’s conversational model, real-time elements, and experimental UI affordances.
+^[3]: Anthropic. “Introducing Artifacts.” *Anthropic Product Updates*, March 2024.  
+Explains Claude’s artifact system, separation of generated code/documents from chat text, and interaction constraints.  
+https://www.anthropic.com/news/introducing-artifacts
+
+^[4]: xAI. “Grok.” *xAI Product Overview and Public Demonstrations*, 2023–2024.  
+Describes Grok’s conversational model, real-time information emphasis, and experimental interface affordances.  
+https://x.ai/grok
