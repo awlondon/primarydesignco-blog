@@ -21,12 +21,6 @@ abstract: |
 <!-- Embedded live demo (top-of-article) -->
 [Open the live demo in a new window](https://awlondon.github.io/maya-dev-ui/){: target="_blank" rel="noopener noreferrer"}
 
-<iframe
-  src="https://awlondon.github.io/maya-dev-ui/"
-  style="width:100%; height:520px; border:1px solid #ddd; border-radius:8px;"
-  loading="lazy">
-</iframe>
-
 ## The Interface Bottleneck
 
 Large language models already generate far more than sentences. They routinely emit executable logic, interface layouts, stateful behavior, and visual structure. Yet most conversational platforms collapse these outputs into a single modality: static text.
