@@ -18,8 +18,7 @@ abstract: |
   inspectable, and extensible interaction surfaces.
 ---
 
-<!-- Embedded live demo (top-of-article) -->
-[Open the live demo in a new window](https://awlondon.github.io/maya-dev-ui/){: target="_blank" rel="noopener noreferrer"}
+
 
 ## The Interface Bottleneck
 
