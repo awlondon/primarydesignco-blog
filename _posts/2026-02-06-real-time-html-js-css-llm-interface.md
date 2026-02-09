@@ -18,12 +18,14 @@ abstract: |
   inspectable, and extensible interaction surfaces.
 ---
 
-<!-- Embedded live demo (top-of-article) -->
-<iframe
-  src="[https://dev.primarydesignco.com/](https://maya-dev-ui.pages.dev/)"
-  style="width:100%; height:520px; border:1px solid #ddd; border-radius:8px;"
-  loading="lazy">
-</iframe>
+<div style="position:relative; width:100%; padding-top:56.25%;">
+  <iframe
+    src="https://dev.primarydesignco.com"
+    style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
+    loading="lazy"
+  ></iframe>
+</div>
+
 
 
 ## The Interface Bottleneck
