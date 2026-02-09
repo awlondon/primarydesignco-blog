@@ -1,262 +1,325 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Elastic Predator Frog</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Elastic Predator Frog</title>
+    <style>
+        :root {
+            --frog-skin-start: #8bc34a;
+            --frog-skin-end: #517b27;
+            --frog-belly-start: #d4ecd0;
+            --frog-belly-end: #a9c6a2;
+            --feature-color: #1a2f0a;
+            --tongue-color-start: #ff5977;
+            --tongue-color-end: #a1002a;
+            --shadow-color: rgba(0,0,0,0.3);
+        }
 
-  <style>
-    :root {
-      --frog-skin: #78ab46;
-      --feature-color: #1a2f0a;
-      --tongue-color: #ff4d6d;
-    }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #16222a 0%, #3a6073 100%);
+            margin: 0;
+            overflow: hidden;
+            user-select: none;
+            font-family: system-ui, sans-serif;
+        }
 
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background-color: #1e272e;
-      font-family: system-ui, sans-serif;
-      user-select: none;
-      overflow: hidden;
-    }
+        .face-container {
+            width: 400px;
+            height: 400px;
+            perspective: 1000px;
+            cursor: crosshair;
+            transition: transform 0.1s ease-out;
+            filter: drop-shadow(0 6px 8px var(--shadow-color));
+        }
 
-    body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+        /* Frog Aesthetics */
+        .skin {
+            fill: url(#skin-gradient);
+            stroke: var(--feature-color);
+            stroke-width: 5;
+            filter: drop-shadow(0 1px 1px rgba(0,0,0,0.2));
+        }
+        .eye-orbit {
+            fill: url(#eye-gradient);
+            stroke: var(--feature-color);
+            stroke-width: 5;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.15));
+        }
+        .eye-white {
+            fill: #fefefe;
+            stroke: var(--feature-color);
+            stroke-width: 2.5;
+            filter: drop-shadow(0 0 1px rgba(0,0,0,0.05));
+        }
+        .pupil {
+            fill: var(--feature-color);
+            filter: drop-shadow(0 0 4px rgba(0,0,0,0.8));
+        }
+        .eyelid {
+            fill: url(#skin-gradient);
+            stroke: var(--feature-color);
+            stroke-width: 1.5;
+            transform: translateY(-45px);
+            transition: transform 0.1s;
+            filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
+            rx: 15;
+            ry: 15;
+            /* Make eyelids rounded, will fix with JS transform */
+        }
 
-    .face-container {
-      width: min(420px, 90vw);
-      height: min(420px, 90vw);
-      perspective: 1000px;
-      cursor: crosshair;
-      transition: transform 0.1s ease-out;
-    }
+        .mouth-line {
+            fill: none;
+            stroke: var(--feature-color);
+            stroke-width: 8;
+            stroke-linecap: round;
+            pointer-events: none;
+            filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3));
+        }
 
-    .skin, .eye-orbit {
-      fill: var(--frog-skin);
-      stroke: var(--feature-color);
-      stroke-width: 6;
-    }
+        /* Tongue & Pucker State */
+        #pucker-group {
+            visibility: hidden;
+            pointer-events: none;
+            /* Raise tongue group above eyes */
+        }
+        .pucker-hole {
+            fill: url(#pucker-gradient);
+            stroke: var(--feature-color);
+            stroke-width: 3;
+            filter: drop-shadow(0 1.5px 1.5px rgba(0,0,0,0.3));
+        }
 
-    .eye-white {
-      fill: #fff;
-      stroke: var(--feature-color);
-      stroke-width: 3;
-    }
+        #tongue-path {
+            fill: url(#tongue-gradient);
+            stroke: #680023;
+            stroke-width: 1.5;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 6px rgba(255, 77, 109, 0.8));
+        }
 
-    .pupil { fill: var(--feature-color); }
+        /* Jitter Animation for high tension */
+        @keyframes tongue-thrum {
+            0% {
+                transform: translate(0, 0);
+            }
+            25% {
+                transform: translate(1.5px, -1.5px);
+            }
+            50% {
+                transform: translate(-1.5px, 1.5px);
+            }
+            75% {
+                transform: translate(1.5px, 1.5px);
+            }
+            100% {
+                transform: translate(0, 0);
+            }
+        }
 
-    .eyelid {
-      fill: var(--frog-skin);
-      stroke: var(--feature-color);
-      stroke-width: 2;
-      transform: translateY(-45px);
-      transition: transform 0.1s;
-    }
+        .thrumming {
+            animation: tongue-thrum 0.05s infinite;
+        }
 
-    .mouth-line {
-      fill: none;
-      stroke: var(--feature-color);
-      stroke-width: 8;
-      stroke-linecap: round;
-      pointer-events: none;
-    }
+        .blinking {
+            animation: frog-blink 0.15s ease-in-out;
+        }
+        @keyframes frog-blink {
+            0%,
+            100% {
+                transform: translateY(-45px);
+                rx: 15;
+                ry: 15;
+            }
+            50% {
+                transform: translateY(0px);
+            }
+        }
 
-    #pucker-group {
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    .pucker-hole {
-      fill: #2d4a1d;
-      stroke: var(--feature-color);
-      stroke-width: 4;
-    }
-
-    #tongue-path {
-      fill: var(--tongue-color);
-      stroke: #800020;
-      stroke-width: 2;
-      stroke-linejoin: round;
-    }
-
-    @keyframes tongue-thrum {
-      0% { transform: translate(0,0); }
-      25% { transform: translate(1px,-1px); }
-      50% { transform: translate(-1px,1px); }
-      75% { transform: translate(1px,1px); }
-      100% { transform: translate(0,0); }
-    }
-
-    .thrumming { animation: tongue-thrum 0.05s infinite; }
-
-    .blinking { animation: frog-blink 0.15s ease-in-out; }
-
-    @keyframes frog-blink {
-      0%,100% { transform: translateY(-45px); }
-      50% { transform: translateY(0); }
-    }
-
-    .hint {
-      position: fixed;
-      bottom: 18px;
-      text-align: center;
-      width: 100%;
-      color: #ffffff66;
-      font-size: 0.7rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      pointer-events: none;
-    }
-  </style>
+        .hint {
+            position: absolute;
+            bottom: 30px;
+            color: #ffffff44;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+    </style>
 </head>
 <body>
+    <div class="face-container" id="face-box">
+        <svg viewBox="0 0 220 220" id="face-svg" style="overflow: visible" shape-rendering="geometricPrecision">
+            <defs>
+                <linearGradient id="skin-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="var(--frog-skin-start)" />
+                    <stop offset="100%" stop-color="var(--frog-skin-end)" />
+                </linearGradient>
+                <linearGradient id="eye-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#a0c971" />
+                    <stop offset="100%" stop-color="#476420" />
+                </linearGradient>
+                <linearGradient id="pucker-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#223713"/>
+                    <stop offset="100%" stop-color="#1e2b0f"/>
+                </linearGradient>
+                <linearGradient id="tongue-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="var(--tongue-color-start)" />
+                    <stop offset="100%" stop-color="var(--tongue-color-end)" />
+                </linearGradient>
+                <clipPath id="eye-mask">
+                    <circle cx="0" cy="0" r="22" />
+                </clipPath>
+            </defs>
 
-  <div class="face-container" id="face-box">
-    <svg viewBox="0 0 220 220" id="face-svg">
-      <defs>
-        <clipPath id="eye-mask">
-          <circle cx="0" cy="0" r="22" />
-        </clipPath>
-      </defs>
+            <circle class="eye-orbit" cx="65" cy="65" r="30" />
+            <circle class="eye-orbit" cx="155" cy="65" r="30" />
+            <ellipse class="skin" cx="110" cy="120" rx="95" ry="80" />
 
-      <circle class="eye-orbit" cx="65" cy="65" r="30" />
-      <circle class="eye-orbit" cx="155" cy="65" r="30" />
-      <ellipse class="skin" cx="110" cy="120" rx="95" ry="80" />
-      <path class="mouth-line" id="mouth-path" d="M 60 140 Q 110 150 160 140" />
+            <path class="mouth-line" id="mouth-path" d="M 60 140 Q 110 150 160 140" />
 
-      <g transform="translate(65,65)">
-        <circle class="eye-white" cx="0" cy="0" r="22" />
-        <g clip-path="url(#eye-mask)">
-          <ellipse class="pupil" id="pupil-l" cx="0" cy="0" rx="12" ry="7" />
-          <rect class="eyelid" id="lid-l" x="-30" y="-25" width="60" height="50" />
-        </g>
-      </g>
+            <g transform="translate(65, 65)">
+                <circle class="eye-white" cx="0" cy="0" r="22" />
+                <g clip-path="url(#eye-mask)">
+                    <ellipse class="pupil" id="pupil-l" cx="0" cy="0" rx="12" ry="7" />
+                    <rect class="eyelid" id="lid-l" x="-30" y="-25" width="60" height="50" rx="18" ry="18"/>
+                </g>
+            </g>
 
-      <g transform="translate(155,65)">
-        <circle class="eye-white" cx="0" cy="0" r="22" />
-        <g clip-path="url(#eye-mask)">
-          <ellipse class="pupil" id="pupil-r" cx="0" cy="0" rx="12" ry="7" />
-          <rect class="eyelid" id="lid-r" x="-30" y="-25" width="60" height="50" />
-        </g>
-      </g>
+            <g transform="translate(155, 65)">
+                <circle class="eye-white" cx="0" cy="0" r="22" />
+                <g clip-path="url(#eye-mask)">
+                    <ellipse class="pupil" id="pupil-r" cx="0" cy="0" rx="12" ry="7" />
+                    <rect class="eyelid" id="lid-r" x="-30" y="-25" width="60" height="50" rx="18" ry="18"/>
+                </g>
+            </g>
 
-      <g id="pucker-group">
-        <ellipse class="pucker-hole" cx="110" cy="145" rx="20" ry="15" />
-        <path id="tongue-path" d="M 100 145 L 120 145 L 110 145 Z" />
-      </g>
-    </svg>
-  </div>
+            <!-- Move pucker-group last to appear on top of eyes -->
+            <g id="pucker-group">
+                <ellipse class="pucker-hole" cx="110" cy="145" rx="20" ry="15" />
+                <path id="tongue-path" d="M 100 145 L 120 145 L 110 145 Z" />
+            </g>
+        </svg>
+    </div>
 
-  <div class="hint">Smile: Drag Mouth • Hunt: Double-Click & Hold</div>
+    <div class="hint">Smile: Drag Mouth • Hunt: Dbl-Click & Hold</div>
 
-  <script>
-    const faceBox = document.getElementById("face-box");
-    const svg = document.getElementById("face-svg");
-    const mouthPath = document.getElementById("mouth-path");
-    const puckerGroup = document.getElementById("pucker-group");
-    const tongue = document.getElementById("tongue-path");
-    const lids = [document.getElementById("lid-l"), document.getElementById("lid-r")];
-    const pupils = [document.getElementById("pupil-l"), document.getElementById("pupil-r")];
+    <script>
+        const faceBox = document.getElementById('face-box');
+        const svg = document.getElementById('face-svg');
+        const mouthPath = document.getElementById('mouth-path');
+        const puckerGroup = document.getElementById('pucker-group');
+        const tongue = document.getElementById('tongue-path');
+        const lids = [document.getElementById('lid-l'), document.getElementById('lid-r')];
+        const pupils = [document.getElementById('pupil-l'), document.getElementById('pupil-r')];
 
-    let isMouthDragging = false;
-    let isTongueActive = false;
-    let lastClickTime = 0;
-    let tongueStartTime = 0;
-    let startY = 0;
-    const MIN_SNAP_TIME = 220;
+        let isMouthDragging = false;
+        let isTongueActive = false;
+        let lastClickTime = 0;
+        let tongueStartTime = 0;
+        let startY = 0;
+        const MIN_SNAP_TIME = 220;
 
-    function getSVGCoords(e) {
-      const pt = svg.createSVGPoint();
-      pt.x = e.clientX;
-      pt.y = e.clientY;
-      return pt.matrixTransform(svg.getScreenCTM().inverse());
-    }
+        function getSVGCoords(e) {
+            const pt = svg.createSVGPoint();
+            pt.x = e.clientX;
+            pt.y = e.clientY;
+            return pt.matrixTransform(svg.getScreenCTM().inverse());
+        }
 
-    document.addEventListener("mousedown", (e) => {
-      const now = Date.now();
-      if (now - lastClickTime < 300) {
-        isTongueActive = true;
-        isMouthDragging = false;
-        tongueStartTime = now;
-        mouthPath.style.visibility = "hidden";
-        puckerGroup.style.visibility = "visible";
-        updateTongue(e);
-      } else {
-        isMouthDragging = true;
-        startY = e.clientY;
-        mouthPath.style.transition = "none";
-      }
-      lastClickTime = now;
-    });
+        document.addEventListener('mousedown', (e) => {
+            const now = Date.now();
 
-    document.addEventListener("mousemove", (e) => {
-      const rect = faceBox.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-
-      pupils.forEach(p => {
-        const dx = e.clientX - cx;
-        const dy = e.clientY - cy;
-        const a = Math.atan2(dy, dx);
-        const d = Math.min(10, Math.hypot(dx, dy) / 45);
-        p.setAttribute("transform", `translate(${Math.cos(a)*d}, ${Math.sin(a)*d})`);
-      });
-
-      if (isTongueActive) {
-        updateTongue(e);
-        lids.forEach(l => l.style.transform = "translateY(-22px)");
-      } else if (isMouthDragging) {
-        const amt = Math.max(0, Math.min(50, (e.clientY - startY) * 0.5));
-        mouthPath.setAttribute("d", `M 60 140 Q 110 ${150+amt} 160 140`);
-        lids.forEach(l => l.style.transform = `translateY(${-45 + amt*0.5}px)`);
-        faceBox.style.transform =
-          `rotateX(${(cy - e.clientY)/45}deg) rotateY(${(e.clientX - cx)/45}deg)`;
-      }
-    });
-
-    document.addEventListener("mouseup", () => {
-      if (isTongueActive) {
-        const delay = Math.max(0, MIN_SNAP_TIME - (Date.now() - tongueStartTime));
-        setTimeout(() => {
-          isTongueActive = false;
-          puckerGroup.style.visibility = "hidden";
-          mouthPath.style.visibility = "visible";
-          tongue.classList.remove("thrumming");
-          lids.forEach(l => l.style.transform = "translateY(-45px)");
-        }, delay);
-      }
-
-      if (isMouthDragging) {
-        isMouthDragging = false;
-        mouthPath.style.transition = "d 0.5s cubic-bezier(0.68,-0.55,0.27,1.55)";
-        mouthPath.setAttribute("d", "M 60 140 Q 110 150 160 140");
-        lids.forEach(l => l.style.transform = "translateY(-45px)");
-      }
-
-      faceBox.style.transform = "";
-    });
-
-    function updateTongue(e) {
-      const p = getSVGCoords(e);
-      tongue.setAttribute("d", `M 100 145 L 120 145 L ${p.x} ${p.y} Z`);
-      const dist = Math.hypot(p.x - 110, p.y - 145);
-      tongue.classList.toggle("thrumming", dist > 150);
-    }
-
-    setInterval(() => {
-      if (!isMouthDragging && !isTongueActive) {
-        lids.forEach(l => {
-          l.classList.add("blinking");
-          setTimeout(() => l.classList.remove("blinking"), 150);
+            // Double click logic
+            if (now - lastClickTime < 300) {
+                isTongueActive = true;
+                isMouthDragging = false;
+                tongueStartTime = now;
+                mouthPath.style.visibility = 'hidden';
+                puckerGroup.style.visibility = 'visible';
+                updateTongue(e);
+            } else {
+                isMouthDragging = true;
+                startY = e.clientY;
+                mouthPath.style.transition = 'none';
+            }
+            lastClickTime = now;
         });
-      }
-    }, 4500);
-  </script>
 
+        document.addEventListener('mousemove', (e) => {
+            const rect = faceBox.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            // Pupil Tracking
+            pupils.forEach((p) => {
+                const dx = e.clientX - centerX,
+                    dy = e.clientY - centerY;
+                const angle = Math.atan2(dy, dx),
+                    dist = Math.min(10, Math.hypot(dx, dy) / 45);
+                p.setAttribute('transform', `translate(${Math.cos(angle) * dist}, ${Math.sin(angle) * dist})`);
+            });
+
+            if (isTongueActive) {
+                updateTongue(e);
+                // Squint from effort
+                lids.forEach((l) => (l.style.transform = `translateY(-22px)`));
+            } else if (isMouthDragging) {
+                let amt = Math.max(0, Math.min(50, (e.clientY - startY) * 0.5));
+                mouthPath.setAttribute('d', `M 60 140 Q 110 ${150 + amt} 160 140`);
+                lids.forEach((l) => (l.style.transform = `translateY(${-45 + amt * 0.5}px)`));
+                // Parallax 3D tilt
+                faceBox.style.transform = `rotateX(${(centerY - e.clientY) / 45}deg) rotateY(${(e.clientX - centerX) / 45}deg)`;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isTongueActive) {
+                const duration = Date.now() - tongueStartTime;
+                const delay = Math.max(0, MIN_SNAP_TIME - duration);
+
+                setTimeout(() => {
+                    isTongueActive = false;
+                    puckerGroup.style.visibility = 'hidden';
+                    mouthPath.style.visibility = 'visible';
+                    tongue.classList.remove('thrumming');
+                    lids.forEach((l) => (l.style.transform = `translateY(-45px)`));
+                }, delay);
+            }
+            if (isMouthDragging) {
+                isMouthDragging = false;
+                mouthPath.style.transition = 'd 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
+                mouthPath.setAttribute('d', `M 60 140 Q 110 150 160 140`);
+                lids.forEach((l) => (l.style.transform = `translateY(-45px)`));
+            }
+            faceBox.style.transform = '';
+        });
+
+        function updateTongue(e) {
+            const svgP = getSVGCoords(e);
+            tongue.setAttribute('d', `M 100 145 L 120 145 L ${svgP.x} ${svgP.y} Z`);
+
+            // Calculate distance to mouth for vibration effect
+            const dist = Math.hypot(svgP.x - 110, svgP.y - 145);
+            if (dist > 150) {
+                tongue.classList.add('thrumming');
+            } else {
+                tongue.classList.remove('thrumming');
+            }
+        }
+
+        // Automatic frog blinks
+        setInterval(() => {
+            if (!isMouthDragging && !isTongueActive) {
+                lids.forEach((l) => {
+                    l.classList.add('blinking');
+                    setTimeout(() => l.classList.remove('blinking'), 150);
+                });
+            }
+        }, 4500);
+    </script>
 </body>
 </html>
