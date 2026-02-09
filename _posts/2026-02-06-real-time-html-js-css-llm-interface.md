@@ -18,19 +18,13 @@ abstract: |
   inspectable, and extensible interaction surfaces.
 ---
 
-<div style="
-  position: relative;
-  width: 100%;
-  padding-top: 56.25%;
-  margin-bottom: 120vh; /* adjust until text clears */
-">
+<div style="width:100%; aspect-ratio: 16 / 27; margin-bottom:2rem;">
   <iframe
     src="https://dev.primarydesignco.com"
-    style="position:absolute; top:0; left:0; width:100%; height:300%; border:0;"
+    style="width:100%; height:100%; border:0;"
     loading="lazy"
   ></iframe>
 </div>
-
 
 **Preview: Maya Dev Interface**
 
