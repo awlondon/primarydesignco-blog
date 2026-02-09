@@ -16,6 +16,13 @@ abstract: |
   features of development—even in the age of large language models.
 ---
 
+<iframe
+  src="/assets/2026-02-08-five-steps-forward-two-back/demo/index.html"
+  style="width:100%; height:520px; border:none; border-radius:12px;"
+  loading="lazy">
+</iframe>
+
+
 ## Opening: A sprint that worked—and didn’t
 
 Over the course of three days, I built a functioning SaaS version of the Maya Dev Interface. Not a mockup. Not a pitch deck. A working system with authentication, live code generation, interface rendering, and an interactive artifact produced and tested inside the tool itself. The elapsed time—roughly thirty hours—would traditionally imply weeks of work for a small team.
