@@ -26,11 +26,9 @@ abstract: |
   ></iframe>
 </div>
 
-*Preview: Maya Dev Interface*  
-👉 [dev.primarydesignco.com](https://dev.primarydesignco.com)
+**Preview: Maya Dev Interface**
 
-
-
+[Open dev.primarydesignco.com](https://dev.primarydesignco.com){:target="_blank" rel="noopener noreferrer"}
 
 ## The Interface Bottleneck
 
