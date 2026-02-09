@@ -35,6 +35,7 @@
             cursor: crosshair;
             transition: transform 0.1s ease-out;
             filter: drop-shadow(0 6px 8px var(--shadow-color));
+            position: relative;
         }
 
         /* Frog Aesthetics */
@@ -66,10 +67,9 @@
             stroke-width: 1.5;
             transform: translateY(-45px);
             transition: transform 0.1s;
-            filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
             rx: 15;
             ry: 15;
-            /* Make eyelids rounded, will fix with JS transform */
+            filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
         }
 
         .mouth-line {
@@ -79,13 +79,14 @@
             stroke-linecap: round;
             pointer-events: none;
             filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3));
+            transition: d 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
         }
 
         /* Tongue & Pucker State */
         #pucker-group {
             visibility: hidden;
             pointer-events: none;
-            /* Raise tongue group above eyes */
+            user-select: none;
         }
         .pucker-hole {
             fill: url(#pucker-gradient);
@@ -100,6 +101,7 @@
             stroke-width: 1.5;
             stroke-linejoin: round;
             filter: drop-shadow(0 0 6px rgba(255, 77, 109, 0.8));
+            transition: d 0.1s ease-out;
         }
 
         /* Jitter Animation for high tension */
@@ -142,17 +144,24 @@
 
         .hint {
             position: absolute;
-            bottom: 30px;
+            bottom: 25px;
             color: #ffffff44;
             font-size: 0.7rem;
             letter-spacing: 2px;
             text-transform: uppercase;
+            user-select: none;
+            font-weight: 600;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: monospace;
+            letter-spacing: 0.2em;
+            text-shadow: 0 0 5px #222a3311;
         }
     </style>
 </head>
 <body>
-    <div class="face-container" id="face-box">
-        <svg viewBox="0 0 220 220" id="face-svg" style="overflow: visible" shape-rendering="geometricPrecision">
+    <div class="face-container" id="face-box" aria-label="Interactive elastic frog face" role="img" tabindex="0">
+        <svg viewBox="0 0 220 220" id="face-svg" style="overflow: visible" shape-rendering="geometricPrecision" aria-hidden="true" focusable="false">
             <defs>
                 <linearGradient id="skin-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
                     <stop offset="0%" stop-color="var(--frog-skin-start)" />
@@ -185,7 +194,7 @@
                 <circle class="eye-white" cx="0" cy="0" r="22" />
                 <g clip-path="url(#eye-mask)">
                     <ellipse class="pupil" id="pupil-l" cx="0" cy="0" rx="12" ry="7" />
-                    <rect class="eyelid" id="lid-l" x="-30" y="-25" width="60" height="50" rx="18" ry="18"/>
+                    <rect class="eyelid" id="lid-l" x="-30" y="-25" width="60" height="50" rx="18" ry="18" />
                 </g>
             </g>
 
@@ -193,7 +202,7 @@
                 <circle class="eye-white" cx="0" cy="0" r="22" />
                 <g clip-path="url(#eye-mask)">
                     <ellipse class="pupil" id="pupil-r" cx="0" cy="0" rx="12" ry="7" />
-                    <rect class="eyelid" id="lid-r" x="-30" y="-25" width="60" height="50" rx="18" ry="18"/>
+                    <rect class="eyelid" id="lid-r" x="-30" y="-25" width="60" height="50" rx="18" ry="18" />
                 </g>
             </g>
 
@@ -205,7 +214,7 @@
         </svg>
     </div>
 
-    <div class="hint">Smile: Drag Mouth • Hunt: Dbl-Click & Hold</div>
+    <div class="hint" aria-live="polite">Smile: Drag Mouth • Hunt: Double-Click & Hold</div>
 
     <script>
         const faceBox = document.getElementById('face-box');
@@ -222,7 +231,9 @@
         let tongueStartTime = 0;
         let startY = 0;
         const MIN_SNAP_TIME = 220;
+        const MAX_MOUTH_AMT = 50;
 
+        // Convert mouse or touch event client coordinates to SVG coords
         function getSVGCoords(e) {
             const pt = svg.createSVGPoint();
             pt.x = e.clientX;
@@ -233,15 +244,17 @@
         document.addEventListener('mousedown', (e) => {
             const now = Date.now();
 
-            // Double click logic
             if (now - lastClickTime < 300) {
+                // Double click detected: activate tongue hunting mode
                 isTongueActive = true;
                 isMouthDragging = false;
                 tongueStartTime = now;
                 mouthPath.style.visibility = 'hidden';
                 puckerGroup.style.visibility = 'visible';
                 updateTongue(e);
+                e.preventDefault();
             } else {
+                // Otherwise start mouth dragging for smile deformation
                 isMouthDragging = true;
                 startY = e.clientY;
                 mouthPath.style.transition = 'none';
@@ -254,30 +267,33 @@
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
 
-            // Pupil Tracking
-            pupils.forEach((p) => {
-                const dx = e.clientX - centerX,
-                    dy = e.clientY - centerY;
-                const angle = Math.atan2(dy, dx),
-                    dist = Math.min(10, Math.hypot(dx, dy) / 45);
+            // Pupil tracking to follow cursor with a maximum offset of ~10 units
+            pupils.forEach(p => {
+                const dx = e.clientX - centerX;
+                const dy = e.clientY - centerY;
+                const angle = Math.atan2(dy, dx);
+                // Distance normalized; max 10: smooth small pupil movement
+                const dist = Math.min(10, Math.hypot(dx, dy) / 45);
                 p.setAttribute('transform', `translate(${Math.cos(angle) * dist}, ${Math.sin(angle) * dist})`);
             });
 
             if (isTongueActive) {
                 updateTongue(e);
-                // Squint from effort
-                lids.forEach((l) => (l.style.transform = `translateY(-22px)`));
+                // Squint eyes a bit to show effort hunting
+                lids.forEach(l => l.style.transform = `translateY(-22px)`);
             } else if (isMouthDragging) {
-                let amt = Math.max(0, Math.min(50, (e.clientY - startY) * 0.5));
+                // Move mouth curve downward, capped at max mouth amt
+                let amt = Math.max(0, Math.min(MAX_MOUTH_AMT, (e.clientY - startY) * 0.5));
                 mouthPath.setAttribute('d', `M 60 140 Q 110 ${150 + amt} 160 140`);
-                lids.forEach((l) => (l.style.transform = `translateY(${-45 + amt * 0.5}px)`));
-                // Parallax 3D tilt
+                lids.forEach(l => l.style.transform = `translateY(${-45 + amt * 0.5}px)`);
+                // 3D parallax tilt as user drags mouth
                 faceBox.style.transform = `rotateX(${(centerY - e.clientY) / 45}deg) rotateY(${(e.clientX - centerX) / 45}deg)`;
             }
         });
 
         document.addEventListener('mouseup', () => {
             if (isTongueActive) {
+                // Snap tongue back with minimum visible duration for effect
                 const duration = Date.now() - tongueStartTime;
                 const delay = Math.max(0, MIN_SNAP_TIME - duration);
 
@@ -286,23 +302,26 @@
                     puckerGroup.style.visibility = 'hidden';
                     mouthPath.style.visibility = 'visible';
                     tongue.classList.remove('thrumming');
-                    lids.forEach((l) => (l.style.transform = `translateY(-45px)`));
+                    lids.forEach(l => l.style.transform = `translateY(-45px)`);
                 }, delay);
             }
             if (isMouthDragging) {
                 isMouthDragging = false;
+                // Smooth reset of mouth and eyes
                 mouthPath.style.transition = 'd 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
                 mouthPath.setAttribute('d', `M 60 140 Q 110 150 160 140`);
-                lids.forEach((l) => (l.style.transform = `translateY(-45px)`));
+                lids.forEach(l => l.style.transform = `translateY(-45px)`);
             }
             faceBox.style.transform = '';
         });
 
         function updateTongue(e) {
             const svgP = getSVGCoords(e);
+            // Tongue base is mouth center approx x=110, y=145
+            // Make tongue path a triangle stretching to mouse pointer
             tongue.setAttribute('d', `M 100 145 L 120 145 L ${svgP.x} ${svgP.y} Z`);
 
-            // Calculate distance to mouth for vibration effect
+            // Calculate distance from mouth for thrumming vibration effect
             const dist = Math.hypot(svgP.x - 110, svgP.y - 145);
             if (dist > 150) {
                 tongue.classList.add('thrumming');
@@ -311,15 +330,59 @@
             }
         }
 
-        // Automatic frog blinks
+        // Automatically blink eyes periodically when idle
         setInterval(() => {
             if (!isMouthDragging && !isTongueActive) {
-                lids.forEach((l) => {
+                lids.forEach(l => {
                     l.classList.add('blinking');
                     setTimeout(() => l.classList.remove('blinking'), 150);
                 });
             }
         }, 4500);
+
+        // Accessibility: Allow keyboard mouth drag and tongue activation with Space and Enter
+        faceBox.addEventListener('keydown', (e) => {
+            const mouthY = 150;
+            if ((e.key === 'Enter' || e.key === ' ') && !isTongueActive) {
+                // Simulate tongue hunt activation: toggle on/off
+                if (!isTongueActive) {
+                    isTongueActive = true;
+                    mouthPath.style.visibility = 'hidden';
+                    puckerGroup.style.visibility = 'visible';
+                    tongue.setAttribute('d', `M 100 145 L 120 145 L 120 145 Z`);
+                    lids.forEach(l => l.style.transform = `translateY(-22px)`);
+                    e.preventDefault();
+                } else {
+                    isTongueActive = false;
+                    puckerGroup.style.visibility = 'hidden';
+                    mouthPath.style.visibility = 'visible';
+                    lids.forEach(l => l.style.transform = `translateY(-45px)`);
+                    e.preventDefault();
+                }
+            }
+            if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && !isTongueActive) {
+                // Mouth drag simulation with arrow keys, small increments
+                e.preventDefault();
+                const d = e.key === 'ArrowDown' ? 5 : -5;
+                let curD = mouthPath.getAttribute('d');
+                let m = curD.match(/Q 110 (\d+)/);
+                if (m) {
+                    let curY = +m[1];
+                    let newY = Math.min(150 + MAX_MOUTH_AMT, Math.max(150, curY + d));
+                    mouthPath.setAttribute('d', `M 60 140 Q 110 ${newY} 160 140`);
+                    let adj = (newY - 150) * 0.5;
+                    lids.forEach(l => l.style.transform = `translateY(${-45 + adj}px)`);
+                }
+            }
+            if (e.key === 'Escape' && isTongueActive) {
+                // Cancel tongue mode by Escape key
+                isTongueActive = false;
+                puckerGroup.style.visibility = 'hidden';
+                mouthPath.style.visibility = 'visible';
+                lids.forEach(l => l.style.transform = `translateY(-45px)`);
+                e.preventDefault();
+            }
+        });        
     </script>
 </body>
 </html>
