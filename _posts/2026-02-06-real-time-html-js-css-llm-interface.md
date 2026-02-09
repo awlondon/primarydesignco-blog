@@ -20,7 +20,7 @@ abstract: |
 
 <!-- Embedded live demo (top-of-article) -->
 <iframe
-  src="https://awlondon.github.io/maya-dev-ui/"
+  src="https://dev.primarydesignco.com"
   style="width:100%; height:520px; border:1px solid #ddd; border-radius:8px;"
   loading="lazy">
 </iframe>
