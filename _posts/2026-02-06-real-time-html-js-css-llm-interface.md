@@ -20,7 +20,7 @@ abstract: |
 
 <!-- Embedded live demo (top-of-article) -->
 <iframe
-  src="[https://dev.primarydesignco.com](https://maya-dev-ui.pages.dev/)"
+  src="https://maya-dev-ui.pages.dev/"
   style="width:100%; height:520px; border:1px solid #ddd; border-radius:8px;"
   loading="lazy">
 </iframe>
