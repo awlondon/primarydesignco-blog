@@ -1,0 +1,30 @@
+<svg width="800" height="400" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="400" fill="#0f1419" />
+
+  <!-- Axes -->
+
+  <line x1="80" y1="320" x2="720" y2="320" stroke="#888" stroke-width="2" />
+  <line x1="80" y1="80" x2="80" y2="320" stroke="#888" stroke-width="2" />
+
+  <!-- Axis labels -->
+
+<text x="400" y="360" fill="#aaa" font-size="14" text-anchor="middle">Time / Iterations</text> <text x="20" y="200" fill="#aaa" font-size="14" text-anchor="middle" transform="rotate(-90 20 200)">Coherence / Alignment</text>
+
+  <!-- Prompt convergence curve -->
+
+  <path d="M 80 300 C 180 180, 260 120, 360 110 C 420 105, 520 105, 620 105" fill="none" stroke="#4da3ff" stroke-width="3" />
+  <text x="630" y="110" fill="#4da3ff" font-size="13">Prompt quality</text>
+
+  <!-- System-state divergence curve -->
+
+  <path d="M 80 300 C 160 260, 220 200, 280 260 C 340 320, 400 180, 460 220 C 520 260, 600 140, 720 160" fill="none" stroke="#ff6b6b" stroke-width="3" />
+  <text x="630" y="165" fill="#ff6b6b" font-size="13">System coherence</text>
+
+  <!-- Legend -->
+
+  <rect x="520" y="40" width="240" height="60" rx="8" ry="8" fill="#1b222c" stroke="#333" />
+  <line x1="540" y1="65" x2="580" y2="65" stroke="#4da3ff" stroke-width="3" />
+  <text x="590" y="69" fill="#ccc" font-size="12">Prompt convergence</text>
+  <line x1="540" y1="85" x2="580" y2="85" stroke="#ff6b6b" stroke-width="3" />
+  <text x="590" y="89" fill="#ccc" font-size="12">System-state divergence</text>
+</svg>
