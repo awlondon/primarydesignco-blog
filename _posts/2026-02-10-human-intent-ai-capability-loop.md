@@ -1,74 +1,79 @@
----
 layout: post
-title: "The Human–AI Development Loop"
-subtitle: "Why intent, not capability, defines the future of software"
+title: "Human Intent ⇄ AI Capability"
+subtitle: "Why the future of development is negotiated, not automated"
 author: Alexander Warren London
 contributors:
   - Alexander Warren London
-published_at: 2026-02-11T09:00:00-08:00
-tags:
-  - ai-development
-  - human-in-the-loop
-  - design-systems
-  - pdco
+published_at: 2026-02-10T08:00:00-08:00
+tags: [ai-development, systems-design, human-in-the-loop, dev-studio]
 reading_time: 18
 abstract: |
-  Most discussions of AI development fixate on model capability. This essay argues that capability is no longer the scarce resource—intent is. Using the PDCo Dev Studio as a concrete case, it shows how meaningful progress emerges from a tight feedback loop between human judgment and machine execution, mediated by a live interface rather than static prompts.
+  AI systems are not replacing human developers; they are inverting the labor relationship.
+  This essay argues that productive AI systems emerge from a tight negotiation loop in which
+  humans retain authority over intent, ethics, and stopping conditions, while models operate
+  as high-throughput capability engines exploring implementation space.
 ---
 
-## Thesis
+Most discussions about AI-assisted development fixate on output quality: faster code, better suggestions, fewer bugs. This framing misses the more important shift. What is changing is not speed alone, but *who holds authority* over what gets built.
 
-AI systems do not replace developers by becoming more capable; they change development by collapsing execution cost to near zero. When execution becomes cheap, the limiting factor shifts to *human intent*: judgment, ethics, taste, and the ability to decide what should exist and when to stop.
+In practice, modern AI systems are not autonomous creators. They are elastic execution substrates. They generate relentlessly, expand state space without fatigue, and happily explore dead ends. What they do not possess—and cannot reliably generate—is intent: a stable sense of purpose, ethics, proportion, or when something has gone too far.
 
-The PDCo Dev Studio formalizes this shift by treating the interface itself as a negotiation surface between intent and capability, rather than a prompt box feeding an autonomous system.
+That authority remains human. And increasingly, it is exercised not through writing every line of code, but through steering, constraining, rejecting, and re-anchoring meaning as systems evolve in real time.
 
-{% include ad.html %}
+The result is a new development pattern: a continuous negotiation loop between human intent and AI capability.
 
-## The Mistake: Treating Capability as the Bottleneck
+---
 
-Most AI tooling assumes progress comes from increasing model capability—larger context windows, deeper reasoning chains, or greater autonomy. This framing misidentifies the constraint.
-
-As models improve, the dominant failure mode is no longer *can the system do this*, but *should it*, *in what way*, and *under which constraints*. Capability without a stable authority layer does not produce leverage; it produces amplification.
-
-This is why prompt-only workflows feel brittle. Intent is externalized into ad hoc language, corrections are ephemeral, and there is no persistent mechanism for evaluation, memory, or ethical calibration. Each iteration restarts the negotiation from scratch.
-
-{% include ad.html %}
-
-## The PDCo Dev Studio as a Counterexample
-
-The PDCo Dev Studio is a live environment where the user can:
-
-- converse with the model,
-- edit code directly,
-- execute changes immediately,
-- observe behavior in real time.
-
-The key design choice is not the underlying model. It is the collapse of iteration latency. Human evaluation and AI execution occur within the same surface, allowing judgment to be applied continuously rather than retroactively.
-
-This produces a different development posture: the human is not issuing instructions and waiting for results, but steering a system already in motion.
-
-### Embedded environment
-
-<div style="position:relative; width:100%; padding-top:56.25%;">
+<div style="position:relative; width:100%; padding-top:56.25%; margin:2rem 0;">
   <iframe
-    src="https://dev.primarydesignco.com"
-    style="position:absolute; top:0; left:0; width:100%; height:300%; border:0;"
+    src="/assets/2026-02-10-human-intent-ai-capability-loop/demo/index.html"
+    style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
     loading="lazy"
+    title="Human Intent ⇄ AI Capability Demo: Cat Matrix"
   ></iframe>
 </div>
 
-**PDCo Dev Studio — live environment**  
-[Open in new window](https://dev.primarydesignco.com){:target="_blank" rel="noopener noreferrer"}
+*Interactive demo: a live system whose behavior is continuously shaped through human intervention rather than autonomous optimization.*
+
+---
+
+## I. From Automation Anxiety to Authority Shift
+
+The popular narrative frames AI as a replacement technology: something that absorbs tasks until human involvement disappears. Historically, this story is wrong. Every major tooling shift reallocates labor rather than erasing it.
+
+What changes is *where authority sits*. As execution becomes cheaper, judgment becomes more valuable.
+
+This section will examine why “AI replacing developers” is the wrong question, and why intent—not output—is now the scarce resource.
+
 {% include ad.html %}
 
-## The Human Intent ⇄ AI Capability Loop
-At the core of the Studio is a stable division of labor.
+---
 
-Humans supply intent: goals, values, constraints, taste, and stopping rules.
-AI systems supply capability: rapid implementation, variation, and execution.
+## II. Human Intent as a System Component
 
-The interface couples these roles into a continuous loop.
+Intent is often mischaracterized as a good prompt. In reality, intent is a dynamic constraint system: ethics, taste, realism, social boundaries, and stopping conditions applied continuously over time.
 
+This section will argue that intent cannot be statically encoded without collapsing under edge cases, and why persistent human presence remains structurally necessary.
+
+---
+
+## III. AI Capability as Elastic Execution
+
+AI systems excel at breadth. They explore implementation space aggressively, surface variants humans would not enumerate, and operate without fatigue or attachment to prior decisions.
+
+This section will clarify why overproduction is not a flaw but a feature—and why it requires external governance to remain productive.
+
+{% include ad.html %}
+
+---
+
+## IV. The Negotiation Layer: Why Interface Design Matters
+
+Chat-only interaction obscures the real loop. Without shared state, live execution, and immediate feedback, intent and capability drift apart.
+
+This section introduces the interface as the coupling mechanism that keeps the system coherent.
+
+```mermaid
 flowchart LR
     H[Human Intent<br/><sub>Authority Layer</sub>]
     A[AI Capability<br/><sub>Execution Layer</sub>]
@@ -84,40 +89,46 @@ flowchart LR
     classDef ai fill:#e8f0ff,stroke:#2b4fff,stroke-width:1px;
     classDef interface fill:#fff6e5,stroke:#ff9900,stroke-width:1px;
 
-    H:::human
-    A:::ai
-    I:::interface
-## Novelty does not originate inside either pole. It emerges in the oscillation between them.
+    class H human;
+    class A ai;
+    class I interface;
+{% include ad.html %}
+
+V. Case Study: The Cat Matrix Terminal
+What began as a trivial ASCII output experiment evolved into a complex interactive system with ethics, consent, boredom, hunger, memory, and social behavior.
+
+This section will walk through how:
+
+the AI repeatedly expanded possibility space, and
+
+the human repeatedly re-anchored meaning and limits.
+
+The result was not autonomy, but playability.
+
+VI. Failure Modes When the Loop Breaks
+When AI dominates, systems drift into incoherence and novelty without purpose.
+When humans micromanage, capability collapses under friction.
+
+This section maps common failure modes and why productive systems live in tension rather than equilibrium.
 
 {% include ad.html %}
 
-Why This Loop Produces Better Software
-This structure explains several otherwise puzzling observations:
+VII. PDCo Dev Studio as a Formalization of the Loop
+The PDCo Dev Studio is not “ChatGPT plus code execution.” It is an explicit architecture for intent–capability negotiation: chat, live code editing, and execution unified into a single surface.
 
-More capable models often feel less usable because intent is under-specified.
-Small interface changes produce disproportionate gains because they tighten the loop.
-Ethical and aesthetic judgments do not disappear with scale; they become more important.
+This section positions the Studio as infrastructure for this new division of labor.
 
-When intent is explicit and continuously enforced, AI output converges. When intent is implicit or absent, capability expansion amplifies error.
+VIII. Implications for Design, Engineering, and Trust
+As AI systems scale, authorship becomes ambiguous and verification becomes essential. Documentation, traceability, and auditability grow in importance rather than fading away.
+
+This section explores what this shift means for teams, education, and trust in AI-mediated systems.
 
 {% include ad.html %}
 
-## Implications for AI Tooling
-If this model is correct, several conclusions follow.
+Conclusion
+AI does not eliminate human agency. It concentrates it.
 
-Autonomy-first AI is a dead end for serious work.
-Interfaces matter more than model choice.
-The future developer looks less like a code typist and more like a systems editor.
+The future of development is not autonomous intelligence on one side or total human control on the other. It is a negotiated loop where humans govern meaning and machines supply capacity—continuously, visibly, and in tension.
 
-The PDCo Dev Studio is not a novelty demo. It is a prototype for how human authority scales in an era of abundant machine capability.
-
-## Contextual Recommendation
-For a related discussion on traceability, continuity, and long-horizon coherence, see On Documentation as Design Practice at primarydesignco.com. The same intent–capability asymmetry governs knowledge systems as it does software.
-
-## References
-(To be added in Pass 6, following PDCo house citation standards.)
-
-
----
-
-When ready, say **“Next”** and I’ll execute **Pass 2** (opening section + first deep case integration).
+References
+(To be populated in Pass 6 following the Primary Design Co. house citation standard.)
