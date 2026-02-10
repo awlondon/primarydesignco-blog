@@ -1,3 +1,4 @@
+---
 layout: post
 title: "Human Intent ⇄ AI Capability"
 subtitle: "Why the future of development is negotiated, not automated"
