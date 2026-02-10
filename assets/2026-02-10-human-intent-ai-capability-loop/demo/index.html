@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Cat Terminal v2.3 (Standalone)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #050505;
+            overflow: hidden;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            user-select: none;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        /* CRT Scanline Overlay */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.2) 50%,
+                rgba(0,0,0,0.2)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Vignette & Glow */
+        .crt-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(16, 255, 16, 0.05) 0%, rgba(0,0,0,0.6) 90%);
+            pointer-events: none;
+            z-index: 11;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+        }
+
+        .ui-layer {
+            position: absolute;
+            bottom: 60px;
+            right: 20px;
+            color: #0f0;
+            opacity: 0.5;
+            font-size: 12px;
+            z-index: 12;
+            text-shadow: 0 0 5px #0f0;
+            pointer-events: none;
+            text-align: right;
+        }
+
+        /* Terminal Input Styling */
+        .terminal-input-wrapper {
+            position: absolute;
+            bottom: 10px;
+            left: 20px;
+            right: 20px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            font-family: 'Fira Code', monospace;
+            font-size: 16px;
+            color: #0f0;
+            z-index: 20;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #0f0;
+            padding: 0 10px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+            transition: border-color 0.3s, color 0.3s;
+        }
+
+        .prompt {
+            margin-right: 10px;
+            font-weight: bold;
+            text-shadow: 0 0 5px #0f0;
+            white-space: nowrap;
+            transition: color 0.3s, text-shadow 0.3s;
+        }
+
+        #cmd-input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-family: 'Fira Code', monospace;
+            font-size: 16px;
+            flex-grow: 1;
+            outline: none;
+            caret-color: #0f0;
+        }
+
+        #cmd-input::placeholder {
+            color: rgba(0, 255, 0, 0.3);
+        }
+        
+        #mic-status {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="scanlines"></div>
+    <div class="crt-glow"></div>
+    <div class="ui-layer">
+        CTRL+DRAG: CORRAL // CLICK-DRAG: SNUGGLE<br>
+        R-CLICK: LASER // 'T': TREAT // 'M': MIC <span id="mic-status">[OFF]</span>
+    </div>
+    
+    <div class="terminal-input-wrapper">
+        <span class="prompt">root@cybercat:~$</span>
+        <input type="text" id="cmd-input" placeholder="Commands: 'feed', 'name', 'mood party', 'theme #f0f'">
+    </div>
+
+    <canvas id="terminal"></canvas>
+
+    <script>
+        const canvas = document.getElementById('terminal');
+        const ctx = canvas.getContext('2d');
+        const cmdInput = document.getElementById('cmd-input');
+        const micStatusSpan = document.getElementById('mic-status');
+
+        let width, height;
+        let cats = [];
+        let particles = [];
+        let treats = [];
+        let globalScrollY = 0;
+        let totalWorldHeight = 0;
+        
+        // Interaction State
+        let lastInteractionTime = performance.now();
+        
+        // Matrix Rain State
+        let rainDrops = [];
+        
+        // Configuration
+        let config = {
+            fontSize: 14,
+            fontFamily: '"Fira Code", monospace',
+            baseColor: '#0f0',
+            activeColor: '#aff', 
+            singColor: '#f0f', 
+            warnColor: '#ff3333',
+            dragColor: '#ffaa00',
+            selectColor: '#ff69b4', 
+            treatColor: '#00ffff',
+            laserColor: '#ff0000',
+            paddingX: 20,
+            paddingY: 15,
+            pitchBase: 1.0
+        };
+        
+        const defaultNames = [
+            "Glitch", "Pixel", "Root", "Sudo", "Echo", "Ping", "Hash", "Byte", 
+            "Nano", "Tera", "Kilo", "Mega", "Giga", "Flux", "Wire", "Node", 
+            "Link", "Data", "Cache", "Bug", "Patch", "Void", "Null", "Zero", 
+            "One", "Cyber", "Tech", "Mech", "Net", "Web", "Cloud", "Daemon", 
+            "Kernel", "Shell", "Bash", "Script", "Code", "Binary", "Hex", "Ascii"
+        ];
+
+        const offlineDreams = ["Electric Mice", "Infinite RAM", "The Red Dot", "Fish.exe", "Warm Laptop", "Syntax Error"];
+        const offlineSpeech = ["Meow.", "System: Online.", "Searching for bugs...", "I require treats.", "Prrrrt?", "Hack the planet."];
+        
+        function updateTheme(color) {
+            if (!color) return;
+            config.baseColor = color;
+            
+            const uiLayer = document.querySelector('.ui-layer');
+            const inputWrapper = document.querySelector('.terminal-input-wrapper');
+            const prompt = document.querySelector('.prompt');
+
+            uiLayer.style.color = color;
+            uiLayer.style.textShadow = `0 0 5px ${color}`;
+            
+            inputWrapper.style.borderColor = color;
+            inputWrapper.style.boxShadow = `0 0 10px ${color}33`; 
+            
+            prompt.style.color = color;
+            prompt.style.textShadow = `0 0 5px ${color}`;
+            
+            cmdInput.style.caretColor = color;
+        }
+
+        // Selection State
+        let isSelecting = false;
+        let selectionStart = { x: 0, y: 0 };
+        let selectionCenter = { x: 0, y: 0 }; 
+        let selectionRadius = 0;
+        let selectionMode = 'center'; 
+
+        // Laser State
+        let isLaserOn = false;
+        
+        // Microphone State
+        let isMicOn = false;
+        let micVolume = 0;
+        let micAnalyser = null;
+        let micDataArray = null;
+        let speechRecognition = null;
+
+        // --- PERSISTENCE (SAVE/LOAD) ---
+        // Wrapped in try/catch to prevent crashes on local file system (file://)
+        function saveGame() {
+            try {
+                const data = {
+                    cats: cats.map(c => ({
+                        name: c.name,
+                        affinity: c.affinity,
+                        type: c.type,
+                        x: c.x,
+                        y: c.y,
+                        satiety: c.satiety
+                    })),
+                    config: config
+                };
+                localStorage.setItem('cyberCatSave', JSON.stringify(data));
+            } catch (e) {
+                // Silently fail if localStorage is not available (e.g., file:// protocol)
+            }
+        }
+
+        function loadGame() {
+            try {
+                const saved = localStorage.getItem('cyberCatSave');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    if (data.config) {
+                        config = { ...config, ...data.config };
+                        updateTheme(config.baseColor);
+                    }
+                    return data.cats;
+                }
+            } catch (e) {
+                // Silently fail if localStorage is not available
+            }
+            return null;
+        }
+
+        // Save loop (Every 5 seconds)
+        setInterval(saveGame, 5000);
+
+        // --- LOCAL COMMAND SYSTEM ---
+        
+        function parseLocalCommand(userText) {
+            if (!userText.trim()) return;
+            
+            lastInteractionTime = performance.now();
+            
+            const parts = userText.trim().toLowerCase().split(/\s+/);
+            const cmd = parts[0];
+            const arg = parts[1];
+
+            // Simple logic mapping
+            if (cmd.includes('feed') || cmd === 'treat') {
+                const count = parseInt(arg) || 5;
+                executeCommand({ action: 'spawn_treats', value: count });
+            } else if (cmd.includes('name')) {
+                executeCommand({ action: 'assign_names' });
+            } else if (cmd === 'theme') {
+                executeCommand({ action: 'change_theme', value: arg || '#0f0' });
+            } else if (cmd === 'mood') {
+                executeCommand({ action: 'set_mood', value: arg || 'zen' });
+            } else if (cmd === 'laser') {
+                executeCommand({ action: 'toggle_laser', value: arg !== 'off' });
+            } else if (cmd === 'dream') {
+                executeCommand({ action: 'reveal_dreams' });
+            } else if (cmd === 'say') {
+                // Echo logic
+                const speech = parts.slice(1).join(' ') || "Meow.";
+                executeCommand({ action: 'cat_speech', value: speech });
+            } else if (cmd === 'clear') {
+                // Clear input
+            } else {
+                // Default fallback chatter
+                executeCommand({ action: 'cat_speech', value: "Command not recognized." });
+            }
+
+            cmdInput.value = '';
+        }
+
+        function executeCommand(cmd) {
+            console.log("Executing:", cmd);
+            switch(cmd.action) {
+                case 'spawn_treats':
+                    const count = Math.min(Math.max(cmd.value || 1, 1), 50);
+                    for(let i=0; i<count; i++) {
+                        const rx = Math.random() * width;
+                        const ry = (Math.random() * height) - globalScrollY; 
+                        treats.push(new Treat(rx, ry));
+                    }
+                    playMeow(1.5, 'chirp');
+                    break;
+                    
+                case 'change_theme':
+                    updateTheme(cmd.value || '#0f0');
+                    playMeow(0.5, 'chirp');
+                    break;
+                    
+                case 'cat_speech':
+                    // Assign speech to random visible cats
+                    let speechCount = 0;
+                    cats.forEach(cat => {
+                        const pos = cat.getRenderPosition();
+                        if (!cat.isSleeping && pos.y > 0 && pos.y < height && Math.random() < 0.3 && speechCount < 5) {
+                            cat.speak(cmd.value || offlineSpeech[Math.floor(Math.random() * offlineSpeech.length)]);
+                            speechCount++;
+                        }
+                    });
+                    playMeow(1.2, 'normal');
+                    break;
+
+                case 'reveal_dreams':
+                    const sleepers = cats.filter(c => c.isSleeping);
+                    sleepers.forEach((cat) => {
+                        const dreamText = offlineDreams[Math.floor(Math.random() * offlineDreams.length)];
+                        cat.dream(dreamText);
+                    });
+                    playMeow(0.6, 'normal'); 
+                    break;
+
+                case 'assign_names':
+                    let nameIdx = 0;
+                    // Shuffle cats to random assignment
+                    cats.sort(() => Math.random() - 0.5).forEach(cat => {
+                        if (!cat.name) {
+                            cat.name = defaultNames[Math.floor(Math.random() * defaultNames.length)];
+                            cat.triggerEmote('*ID*', config.treatColor);
+                        }
+                    });
+                    playMeow(1.0, 'chirp');
+                    saveGame();
+                    break;
+
+                case 'set_mood':
+                    const mood = cmd.value || 'zen';
+                    if (mood === 'spooky') {
+                        updateTheme('#9933ff');
+                        config.pitchBase = 0.6;
+                        cats.forEach(c => { if(Math.random()<0.5) c.state = 'shock'; });
+                        playMeow(0.4, 'screech');
+                    } else if (mood === 'party') {
+                        updateTheme('#ff00ff');
+                        config.pitchBase = 1.5;
+                        cats.forEach(c => { c.state = 'sing'; c.singingUntil = performance.now() + 5000; });
+                        playMeow(1.5, 'chirp');
+                    } else if (mood === 'zen') {
+                        updateTheme('#00ffaa');
+                        config.pitchBase = 0.8;
+                        cats.forEach(c => { c.isSleeping = true; c.state = 'sleep'; });
+                    } else if (mood === 'chaos') {
+                        updateTheme('#ff3333');
+                        config.pitchBase = 0.5;
+                        isLaserOn = true;
+                    }
+                    break;
+                    
+                case 'toggle_laser':
+                    isLaserOn = !!cmd.value;
+                    break;
+            }
+        }
+
+        cmdInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                parseLocalCommand(cmdInput.value);
+            }
+        });
+
+        // --- AUDIO ENGINE ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        let purrNode = null;
+        let purrGain = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+        
+        // --- MICROPHONE SETUP ---
+        async function setupMicrophone() {
+            if (isMicOn) return; // Already on
+            
+            try {
+                if (!audioCtx) initAudio();
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const micSource = audioCtx.createMediaStreamSource(stream);
+                micAnalyser = audioCtx.createAnalyser();
+                micAnalyser.fftSize = 256;
+                micSource.connect(micAnalyser);
+                micDataArray = new Uint8Array(micAnalyser.frequencyBinCount);
+                
+                // Initialize Speech Recognition if supported
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    speechRecognition = new SpeechRecognition();
+                    speechRecognition.continuous = true;
+                    speechRecognition.interimResults = false;
+                    speechRecognition.lang = 'en-US';
+
+                    speechRecognition.onresult = (event) => {
+                        const last = event.results.length - 1;
+                        const transcript = event.results[last][0].transcript.trim().toLowerCase();
+                        
+                        cats.forEach(cat => {
+                            if (cat.name && transcript.includes(cat.name.toLowerCase())) {
+                                cat.hearName();
+                            }
+                        });
+                    };
+                    
+                    speechRecognition.start();
+                }
+
+                isMicOn = true;
+                micStatusSpan.innerText = "[ON]";
+                micStatusSpan.style.color = "#fff";
+                playMeow(1.5, 'chirp');
+                lastInteractionTime = performance.now();
+            } catch (err) {
+                console.error("Microphone denied:", err);
+                micStatusSpan.innerText = "[DENIED]";
+                micStatusSpan.style.color = config.warnColor;
+            }
+        }
+
+        function playMeow(pitchMod = 1.0, type = 'normal') {
+            if (!audioCtx) initAudio();
+            
+            // Apply Global Mood Pitch Modifier
+            pitchMod *= (config.pitchBase || 1.0);
+            
+            const now = audioCtx.currentTime;
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'hiss') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.linearRampToValueAtTime(100, now + 0.2);
+                filter.type = 'highpass';
+                filter.frequency.value = 1000;
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } else if (type === 'screech') {
+                osc.type = 'sawtooth'; 
+                const modulator = audioCtx.createOscillator();
+                const modGain = audioCtx.createGain();
+                
+                modulator.type = 'square';
+                modulator.frequency.value = 350 * pitchMod * 0.43; 
+                modGain.gain.value = 600; 
+
+                modulator.connect(modGain);
+                modGain.connect(osc.frequency); 
+                
+                const baseFreq = 800 * pitchMod;
+                osc.frequency.setValueAtTime(baseFreq, now);
+                osc.frequency.linearRampToValueAtTime(baseFreq * 0.9, now + 0.1); 
+                osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.4, now + 0.6);
+
+                filter.type = 'lowpass';
+                filter.frequency.value = 3000;
+
+                gain.gain.setValueAtTime(0.35, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+                
+                modulator.start(now);
+                modulator.stop(now + 0.6);
+                osc.start(now);
+                osc.stop(now + 0.6);
+            } else if (type === 'chirp') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800 * pitchMod, now);
+                osc.frequency.linearRampToValueAtTime(1200 * pitchMod, now + 0.1);
+                osc.frequency.linearRampToValueAtTime(800 * pitchMod, now + 0.2);
+                
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.2);
+                
+                osc.start(now);
+                osc.stop(now + 0.2);
+            } else if (type === 'crunch') {
+                const bufferSize = audioCtx.sampleRate * 0.1;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+                
+                const noiseFilter = audioCtx.createBiquadFilter();
+                noiseFilter.type = 'lowpass';
+                noiseFilter.frequency.value = 1000;
+
+                noise.connect(noiseFilter);
+                noiseFilter.connect(gain);
+                
+                gain.gain.setValueAtTime(0.5, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                
+                noise.start(now);
+            } else {
+                osc.type = 'sawtooth'; 
+                const duration = 0.4 + Math.random() * 0.2;
+                const baseFreq = 350 * pitchMod; 
+                
+                osc.frequency.setValueAtTime(baseFreq, now);
+                osc.frequency.linearRampToValueAtTime(baseFreq * 1.25, now + 0.1); 
+                osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.7, now + duration); 
+
+                filter.type = 'bandpass';
+                filter.Q.value = 1.0; 
+                filter.frequency.setValueAtTime(baseFreq * 1.5, now); 
+                filter.frequency.linearRampToValueAtTime(baseFreq * 4.0, now + 0.15); 
+                filter.frequency.linearRampToValueAtTime(baseFreq * 1.5, now + duration); 
+
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(0.1, now + 0.05); 
+                gain.gain.exponentialRampToValueAtTime(0.001, now + duration); 
+
+                osc.start(now);
+                osc.stop(now + duration);
+            }
+        }
+
+        function setGlobalPurr(isActive) {
+            if (!audioCtx) return;
+            const targetGain = isActive ? 0.05 : 0;
+            if (!purrNode) {
+                const bufferSize = audioCtx.sampleRate * 2; 
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                let lastOut = 0;
+                for (let i = 0; i < bufferSize; i++) {
+                    const white = Math.random() * 2 - 1;
+                    data[i] = (lastOut + (0.02 * white)) / 1.02;
+                    lastOut = data[i];
+                    data[i] *= 3.5; 
+                }
+                purrNode = audioCtx.createBufferSource();
+                purrNode.buffer = buffer;
+                purrNode.loop = true;
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 80; 
+
+                const lfo = audioCtx.createOscillator();
+                lfo.type = 'sine';
+                lfo.frequency.value = 25; 
+
+                const lfoGain = audioCtx.createGain();
+                lfoGain.gain.value = 500; 
+
+                purrGain = audioCtx.createGain();
+                purrGain.gain.value = 0;
+
+                lfo.connect(lfoGain);
+                lfoGain.connect(filter.frequency); 
+                purrNode.connect(filter);
+                filter.connect(purrGain);
+                purrGain.connect(audioCtx.destination);
+                purrNode.start();
+                lfo.start();
+            }
+            purrGain.gain.setTargetAtTime(targetGain, audioCtx.currentTime, 0.1);
+        }
+
+        // --- VISUALS & LOGIC ---
+
+        const catArt = {
+            ears:  " /\\_/\\ ",
+            earsSleep: " /v_v\\ ", // Relaxed folded ears for sleep
+            body:  " > ^ < ",
+            faces: {
+                idle:    "( o.o )",
+                blink:   "( -.- )",
+                left:    "( <.< )",
+                right:   "( >.> )",
+                sleep:   "( u.u )",
+                shock:   "( O.O )",
+                sing:    "( ^.^ )",
+                happy:   "( ^w^ )",
+                grumpy:  "( ò.ó )",
+                deadpan: "( _._ )",
+                screech: "( ≧Д≦ )",
+                drag:    "( ; A ; )",
+                dragFast:"( > A < )",
+                chase:   "( @.@ )",
+                eat:     "( nom )",
+                swarm:   "( ◉_◉ )",
+                hear:    "( ? )",
+                yawn:    "( =O= )",
+                sneeze:  "( >~< )",
+                confused:"( o.O )",
+                love:    "( ♥_♥ )"
+            }
+        };
+
+        const mouse = { x: -1000, y: -1000, vx: 0, vy: 0, lastX: -1000, lastY: -1000 };
+        let draggedCat = null;
+        let dragOffset = { x: 0, y: 0 };
+        let isViewDragging = false;
+
+        class Particle {
+            constructor(x, y, char, color) {
+                this.x = x;
+                this.y = y;
+                this.char = char;
+                this.color = color;
+                this.life = 1.0;
+                this.dy = -0.5 - Math.random() * 1.5; 
+                this.dx = (Math.random() - 0.5) * 2.0; 
+            }
+            update() {
+                this.y += this.dy;
+                this.x += this.dx;
+                this.life -= 0.02;
+            }
+            draw(ctx) {
+                ctx.globalAlpha = Math.max(0, this.life);
+                ctx.fillStyle = this.color;
+                ctx.fillText(this.char, this.x, this.y);
+                ctx.globalAlpha = 1.0;
+            }
+        }
+
+        class Treat {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y; // World Y
+                this.active = true;
+                this.char = "<><";
+            }
+            
+            getRenderPosition() {
+                let renderY = ((this.y + globalScrollY) % totalWorldHeight + totalWorldHeight) % totalWorldHeight;
+                return { x: this.x, y: renderY };
+            }
+
+            draw(ctx) {
+                const pos = this.getRenderPosition();
+                ctx.fillStyle = config.treatColor;
+                ctx.shadowBlur = 5;
+                ctx.shadowColor = config.treatColor;
+                ctx.fillText(this.char, pos.x, pos.y);
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        class Cat {
+            constructor(x, y, gridX, gridY) {
+                this.x = x; 
+                this.y = y; 
+                this.gridX = gridX;
+                this.gridY = gridY;
+                
+                // Personality
+                const rand = Math.random();
+                if (rand < 0.2) this.type = 'grumpy';
+                else if (rand < 0.5) this.type = 'lazy';
+                else this.type = 'friendly';
+
+                this.state = 'idle';
+                this.nextBlink = Math.random() * 3000 + 1000;
+                this.isSleeping = this.type === 'lazy' ? (Math.random() < 0.7) : (Math.random() < 0.1);
+                
+                this.singingUntil = 0;
+                this.purring = false;
+                this.shaking = 0; 
+                this.hoverStart = 0;
+                this.isDragged = false;
+
+                // Bundle State
+                this.isBundled = false;
+                this.bundleReleaseTime = 0;
+                this.wanderDest = null;
+                
+                // Identity & Speech
+                this.speech = null;
+                this.speechTimer = 0;
+                this.dreamText = null; 
+                this.name = null;
+                this.nameGlow = 0; 
+                
+                // Affinity & Interaction
+                this.affinity = 0; 
+                this.approachingUser = false;
+                
+                // Idle Action Timer
+                this.idleActionEnd = 0;
+
+                // Hunger
+                this.lastFedTime = performance.now() + Math.random() * 30000; 
+                this.nextHungryComplaint = 0;
+                this.satiety = 0;
+            }
+
+            speak(text) {
+                this.speech = text;
+                this.speechTimer = performance.now() + 6000; // Speak for 6s
+                this.state = 'sing';
+                this.singingUntil = performance.now() + 2000;
+            }
+            
+            dream(text) {
+                this.dreamText = text;
+                this.speechTimer = performance.now() + 10000; // Dreams last longer
+            }
+            
+            hearName() {
+                // Base chance 20% + 8% per affinity level
+                let baseChance = 0.2;
+                if (this.type === 'friendly') baseChance += 0.2;
+                if (this.type === 'grumpy') baseChance -= 0.1;
+                
+                const chance = baseChance + (this.affinity * 0.08);
+                this.nameGlow = Math.max(0.3, Math.min(chance * 2.5, 2.0));
+
+                if (Math.random() < chance) {
+                    this.triggerEmote('?', '#fff');
+                    this.state = 'hear';
+                    this.isSleeping = false;
+                    this.isBundled = false;
+                    this.approachingUser = true;
+                    this.wanderDest = null; 
+                    playMeow(1.5, 'chirp');
+                } else {
+                    this.triggerEmote('...', '#888');
+                }
+            }
+
+            getRenderPosition() {
+                if (this.isDragged) {
+                    return { x: this.x, y: this.y };
+                }
+                let renderY = ((this.y + globalScrollY) % totalWorldHeight + totalWorldHeight) % totalWorldHeight;
+                return { x: this.x, y: renderY };
+            }
+
+            update(timestamp) {
+                // Speech/Dream timer
+                if ((this.speech || this.dreamText) && timestamp > this.speechTimer) {
+                    this.speech = null;
+                    this.dreamText = null;
+                }
+                
+                if (this.nameGlow > 0) {
+                    this.nameGlow -= 0.02;
+                    if (this.nameGlow < 0) this.nameGlow = 0;
+                }
+                
+                // Decay Satiety
+                if (this.satiety > 0) this.satiety -= 0.0002;
+
+                const pos = this.getRenderPosition();
+                const renderX = pos.x;
+                const renderY = pos.y;
+                
+                if (this.state === 'happy' || this.purring) {
+                    this.affinity = Math.min(this.affinity + 0.005, 10);
+                }
+
+                // --- HUNGER LOGIC ---
+                if (timestamp - this.lastFedTime > 45000) { 
+                    if (timestamp > this.nextHungryComplaint) {
+                        // Wake up if sleeping
+                        if (this.isSleeping) {
+                            this.isSleeping = false;
+                            this.dreamText = null;
+                            this.state = 'idle';
+                        }
+
+                        const r = Math.random();
+                        if (r < 0.3) {
+                            this.speak("Feed me?");
+                            playMeow(1.1, 'normal'); 
+                        } else if (r < 0.6) {
+                            this.triggerEmote('Fish?', config.warnColor);
+                            playMeow(0.9, 'normal'); 
+                        } else {
+                            this.state = 'grumpy';
+                            this.idleActionEnd = timestamp + 2000;
+                            this.triggerEmote('Hungry!', config.warnColor);
+                            playMeow(0.6, 'normal'); 
+                        }
+                        
+                        this.nextHungryComplaint = timestamp + 10000 + Math.random() * 15000;
+                    }
+                }
+
+                // Bundle / Leakage Logic
+                if (this.isBundled) {
+                    if (!this.isSleeping) {
+                        this.isBundled = false;
+                        this.affinity = Math.min(this.affinity + 0.5, 10);
+                    } else if (timestamp > this.bundleReleaseTime) {
+                        this.isBundled = false;
+                        this.isSleeping = false;
+                        this.purring = false;
+                        this.triggerEmote('?', '#fff');
+                        
+                        const angle = Math.random() * Math.PI * 2;
+                        const dist = 50 + Math.random() * 100;
+                        this.wanderDest = {
+                            x: this.x + Math.cos(angle) * dist,
+                            y: this.y + Math.sin(angle) * dist
+                        };
+                    }
+                }
+
+                if (this.isDragged) {
+                    const speed = Math.sqrt(mouse.vx * mouse.vx + mouse.vy * mouse.vy);
+                    if (speed > 20) {
+                         this.state = 'dragFast';
+                         this.shaking = 4;
+                    } else {
+                        this.state = 'drag';
+                        this.shaking = 1;
+                    }
+                    this.purring = false;
+                    return; 
+                }
+
+                if (timestamp < this.singingUntil) {
+                    if (this.state !== 'screech') this.state = 'sing';
+                    this.shaking = this.state === 'screech' ? 8 : 2; 
+                    return;
+                }
+                
+                // --- MOVEMENT LOGIC ---
+                
+                let targetX = null;
+                let targetY = null; 
+                let chaseSpeed = 0;
+                let stateOverride = null;
+                
+                // 0. Mic Swarm
+                if (micVolume > 50) { 
+                    targetX = mouse.x - 30;
+                    targetY = mouse.y - 20;
+                    chaseSpeed = 8 + (micVolume / 15); 
+                    stateOverride = 'swarm';
+                    this.isSleeping = false;
+                    this.shaking = 2;
+                    this.approachingUser = false;
+                    this.dreamText = null; 
+                    
+                    const angle = performance.now() * 0.01 + (this.x * 0.1);
+                    const orbitRadius = 50 + Math.random() * 50;
+                    targetX += Math.cos(angle) * orbitRadius;
+                    targetY += Math.sin(angle) * orbitRadius;
+                }
+                
+                // 0.5 Approach User
+                else if (this.approachingUser) {
+                    targetX = width / 2;
+                    targetY = height - 50; 
+                    chaseSpeed = 3 + (this.affinity * 0.2); 
+                    stateOverride = 'hear';
+                    
+                    const dx = targetX - renderX;
+                    const dy = targetY - renderY;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (dist < 50) {
+                        this.approachingUser = false;
+                        this.state = 'love'; 
+                        this.idleActionEnd = timestamp + 3000;
+                        this.purring = true;
+                        this.triggerEmote('♥', '#ff69b4');
+                    }
+                }
+
+                // 1. Check for Treats
+                if (!stateOverride) {
+                    let nearestTreat = null;
+                    let minTreatDist = 300; 
+
+                    treats.forEach(t => {
+                        const tPos = t.getRenderPosition();
+                        const dist = Math.sqrt((renderX - tPos.x)**2 + (renderY - tPos.y)**2);
+                        if (dist < minTreatDist) {
+                            minTreatDist = dist;
+                            nearestTreat = { treat: t, x: tPos.x, y: tPos.y, dist: dist };
+                        }
+                    });
+
+                    if (nearestTreat) {
+                        if (nearestTreat.dist < 20) {
+                            nearestTreat.treat.active = false;
+                            this.triggerEat();
+                            return; 
+                        } else {
+                            targetX = nearestTreat.x;
+                            targetY = nearestTreat.y;
+                            chaseSpeed = 4;
+                            stateOverride = 'chase';
+                            this.isSleeping = false;
+                            this.dreamText = null;
+                        }
+                    } 
+                }
+                
+                // 2. Check for Laser
+                if (!stateOverride && isLaserOn) {
+                    const dx = mouse.x - (renderX + 30);
+                    const dy = mouse.y - (renderY + 20);
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist < 400) { 
+                        targetX = mouse.x - 30; 
+                        targetY = mouse.y - 20;
+                        chaseSpeed = 8; 
+                        stateOverride = 'chase';
+                        this.isSleeping = false;
+                        this.dreamText = null;
+                        if (dist < 30) this.shaking = 3; 
+                    }
+                }
+                
+                // 2.5. Idle Meandering (New)
+                // If cat is idle, awake, and user hasn't interacted for 3 seconds
+                if (!stateOverride && !this.wanderDest && !this.isSleeping && this.state === 'idle' && timestamp - lastInteractionTime > 3000) {
+                     // 0.2% chance per frame to start walking (meandering)
+                     if (Math.random() < 0.002) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const dist = 50 + Math.random() * 200;
+                        this.wanderDest = {
+                            x: this.x + Math.cos(angle) * dist,
+                            y: this.y + Math.sin(angle) * dist
+                        };
+                     }
+                }
+
+                // 3. Wander
+                if (!stateOverride && this.wanderDest) {
+                    const destX = this.wanderDest.x;
+                    const destY = this.wanderDest.y;
+                    const dx = destX - this.x;
+                    const dy = destY - this.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (dist < 5) {
+                        this.wanderDest = null;
+                    } else {
+                        const moveX = (dx / dist) * 1.5;
+                        const moveY = (dy / dist) * 1.5;
+                        this.x += moveX;
+                        this.y += moveY;
+                        this.state = 'idle';
+                    }
+                    targetX = null; 
+                }
+
+                if (targetX !== null) {
+                    const dx = targetX - renderX; 
+                    const dy = targetY - renderY;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist > 5) {
+                        const moveX = (dx / dist) * chaseSpeed;
+                        const moveY = (dy / dist) * chaseSpeed;
+                        this.x += moveX;
+                        this.y += moveY;
+                        if (stateOverride) this.state = stateOverride;
+                        return; 
+                    }
+                }
+
+                const dx = mouse.x - (renderX + 30);
+                const dy = mouse.y - (renderY + 20);
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const mouseSpeed = Math.sqrt(mouse.vx * mouse.vx + mouse.vy * mouse.vy); 
+
+                if (dist < 60) {
+                    if (this.hoverStart === 0) this.hoverStart = timestamp;
+                } else {
+                    this.hoverStart = 0;
+                }
+
+                if (this.shaking === 0 && this.isSleeping && this.purring) {
+                    // Keep purring
+                } else {
+                    this.purring = false;
+                }
+                
+                this.shaking = 0;
+
+                if (this.isSleeping) {
+                    this.state = 'sleep';
+                    if (Math.random() < 0.02) particles.push(new Particle(renderX + 40, renderY, 'z', '#444'));
+                    
+                    if (dist < 50 && mouseSpeed > 10) {
+                        this.isSleeping = false; 
+                        this.dreamText = null;
+                        this.state = 'shock';
+                        this.triggerEmote('!', config.warnColor);
+                    } else if (dist < 30 && mouseSpeed < 2 && this.type !== 'lazy') {
+                        this.isSleeping = false; 
+                        this.dreamText = null;
+                    } else if (this.hoverStart !== 0 && (timestamp - this.hoverStart) > 3000) {
+                        this.isSleeping = false; 
+                        this.dreamText = null;
+                    }
+                    return;
+                }
+
+                if (dist < 100) {
+                    const isPleased = (this.hoverStart !== 0 && (timestamp - this.hoverStart) > 3000);
+
+                    if (mouseSpeed > 30) {
+                        this.state = 'shock';
+                        this.shaking = 5;
+                        if (Math.random() < 0.1) this.triggerEmote('!', config.warnColor);
+                        if (this.type === 'grumpy' && Math.random() < 0.05) playMeow(0.5, 'hiss');
+                    } 
+                    else if (mouseSpeed < 5 && dist < 60) {
+                        this.state = 'happy';
+                        this.purring = true;
+                        this.shaking = 1; 
+                        
+                        if (this.type === 'grumpy') {
+                            if (isPleased) {
+                                this.state = 'happy'; 
+                                if (Math.random() < 0.05) this.triggerEmote('♥', '#ff69b4');
+                            } else {
+                                this.state = 'grumpy'; 
+                                if (Math.random() < 0.02) this.triggerEmote('?', config.warnColor);
+                            }
+                        } else {
+                            if (Math.random() < 0.05) this.triggerEmote('♥', '#ff69b4');
+                        }
+                    } 
+                    else {
+                        // Idle Animations
+                        if (['yawn', 'sneeze', 'confused', 'love'].includes(this.state)) {
+                            if (timestamp > this.idleActionEnd) {
+                                this.state = 'idle'; 
+                            }
+                        } else {
+                            if (Math.abs(dx) > Math.abs(dy)) {
+                                this.state = dx > 0 ? 'right' : 'left';
+                            } else {
+                                this.state = 'idle';
+                            }
+                            
+                            // Random Sleep Logic (Boosted by Satiety)
+                            let sleepChance = 0.0005;
+                            if (this.satiety > 4) sleepChance = 0.05; // High chance if full
+                            
+                            if (!this.wanderDest && Math.random() < sleepChance) this.isSleeping = true;
+                            
+                            if (this.state === 'idle' && !this.isSleeping && !this.wanderDest && Math.random() < 0.005) { 
+                                const r = Math.random();
+                                if (r < 0.4) {
+                                    this.state = 'yawn';
+                                    this.idleActionEnd = timestamp + 1500;
+                                } else if (r < 0.6) {
+                                    this.state = 'sneeze';
+                                    this.idleActionEnd = timestamp + 300;
+                                    this.shaking = 3;
+                                    if(Math.random() < 0.5) this.triggerEmote('chu!', '#fff');
+                                } else if (r < 0.8) {
+                                    this.state = 'confused';
+                                    this.idleActionEnd = timestamp + 1500;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    this.state = 'idle';
+                    if (!this.wanderDest && Math.random() < 0.0005) this.isSleeping = true;
+                }
+
+                if (this.state === 'idle') {
+                    if (timestamp > this.nextBlink) {
+                        this.state = 'blink';
+                        if (timestamp > this.nextBlink + 200) { 
+                            this.nextBlink = timestamp + Math.random() * 4000 + 2000;
+                            this.state = 'idle';
+                        }
+                    }
+                }
+            }
+
+            triggerEat() {
+                playMeow(1.0, 'crunch');
+                this.state = 'happy';
+                this.singingUntil = performance.now() + 1000;
+                this.purring = true;
+                this.shaking = 1;
+                this.affinity = Math.min(this.affinity + 1.0, 10);
+                
+                // Update Hunger/Satiety
+                this.lastFedTime = performance.now();
+                this.satiety++;
+
+                this.triggerEmote('yum', '#00ffff');
+                this.triggerEmote('♥', '#ff69b4');
+                
+                // Food Coma Check
+                if (this.satiety > 4) { 
+                     this.triggerEmote('Full', '#ffaa00');
+                     // Force sleep after the happy animation
+                     this.isSleeping = true; // Will take effect next update loop after singingUntil
+                     this.triggerEmote('zZz', '#aaaaaa');
+                }
+            }
+
+            triggerEmote(char, color) {
+                const pos = this.getRenderPosition();
+                particles.push(new Particle(pos.x + 30, pos.y - 10, char, color));
+            }
+
+            triggerSing(timestamp) {
+                this.singingUntil = timestamp + 400; 
+                this.isSleeping = false;
+                this.dreamText = null;
+                
+                const isPleased = (this.hoverStart !== 0 && (timestamp - this.hoverStart) > 3000);
+
+                if (isPleased) {
+                    this.state = 'happy';
+                    playMeow(1.2 + Math.random() * 0.3, 'normal'); 
+                    this.triggerEmote('♥', '#ff69b4');
+                    this.triggerEmote('^_^', '#ff69b4');
+                    return; 
+                }
+                
+                let soundType = 'normal';
+                let pitch = 0.9 + Math.random() * 0.4;
+                
+                if (this.type === 'grumpy') {
+                    const r = Math.random();
+                    if (r < 0.4) soundType = 'screech';
+                    else if (r < 0.7) soundType = 'hiss';
+                    else soundType = 'normal';
+                } else {
+                    if (Math.random() < 0.05) soundType = 'screech';
+                }
+
+                if (soundType === 'screech') {
+                    this.state = 'screech';
+                    playMeow(pitch, 'screech');
+                    this.triggerEmote('!!!', '#ff0000');
+                } else if (soundType === 'hiss') {
+                    this.state = 'grumpy';
+                    playMeow(pitch, 'hiss');
+                    this.triggerEmote('hiss', '#aaaaaa');
+                } else {
+                    this.state = 'sing';
+                    playMeow(pitch, 'normal');
+                    this.triggerEmote('♪', config.singColor);
+                }
+            }
+            
+            triggerDoubleTap() {
+                this.isSleeping = false;
+                this.dreamText = null;
+                this.state = 'happy';
+                this.singingUntil = performance.now() + 600;
+                this.hoverStart = performance.now() - 5000; 
+                this.affinity = Math.min(this.affinity + 2.0, 10);
+                
+                playMeow(1.5, 'chirp');
+                playMeow(1.0, 'normal');
+                
+                for(let i=0; i<8; i++) {
+                    this.triggerEmote('♥', '#ff00ff');
+                    this.triggerEmote('★', '#ffff00');
+                }
+            }
+
+            draw(ctx) {
+                const pos = this.getRenderPosition();
+                const drawX = pos.x;
+                const drawY = pos.y;
+                
+                // Name Tag
+                if (this.name) {
+                    ctx.font = 'bold 10px "Fira Code", monospace';
+                    const nameWidth = ctx.measureText(this.name).width;
+                    
+                    if (this.nameGlow > 0.05) {
+                        ctx.shadowBlur = this.nameGlow * 10;
+                        ctx.shadowColor = config.treatColor; 
+                        ctx.fillStyle = "#ffffff";
+                    } else {
+                        ctx.shadowBlur = 0;
+                        ctx.fillStyle = config.baseColor;
+                    }
+                    
+                    ctx.fillText(this.name, drawX + 35 - nameWidth/2, drawY - 10);
+                    ctx.shadowBlur = 0; 
+                    ctx.font = `${config.fontSize}px ${config.fontFamily}`;
+                }
+
+                // Render Content (Speech OR Dream)
+                const contentText = this.speech || this.dreamText;
+                
+                if (contentText) {
+                    ctx.font = '10px "Fira Code", monospace';
+                    const textWidth = ctx.measureText(contentText).width;
+                    const padding = 6;
+                    
+                    ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                    // Dreams get a different color border (cyan) vs Speech (green/base)
+                    ctx.strokeStyle = this.dreamText ? '#00ffff' : config.baseColor;
+                    ctx.lineWidth = 1;
+                    
+                    const bX = drawX + 35 - textWidth/2 - padding;
+                    const bY = drawY - 35 - padding;
+                    
+                    // Bubble shape
+                    ctx.fillRect(bX, bY, textWidth + padding*2, 20);
+                    ctx.strokeRect(bX, bY, textWidth + padding*2, 20);
+                    
+                    // Thought bubbles get little circles
+                    if (this.dreamText) {
+                        ctx.beginPath();
+                        ctx.arc(drawX + 45, drawY - 8, 3, 0, Math.PI*2);
+                        ctx.arc(drawX + 50, drawY - 15, 5, 0, Math.PI*2);
+                        ctx.stroke();
+                    }
+                    
+                    // Text
+                    ctx.fillStyle = this.dreamText ? '#00ffff' : config.baseColor;
+                    ctx.fillText(contentText, bX + padding, bY + 13);
+                    
+                    ctx.font = `${config.fontSize}px ${config.fontFamily}`;
+                }
+                
+                // Affinity Aura (New Visual)
+                if (this.affinity > 5) {
+                    const intensity = (this.affinity - 5) / 5; // 0.0 to 1.0
+                    ctx.shadowBlur = intensity * 15;
+                    ctx.shadowColor = config.selectColor;
+                }
+
+                // Selection Highlight
+                if (isSelecting && !this.isDragged) {
+                    const cx = drawX + 30;
+                    const cy = drawY + 20;
+                    const dist = Math.sqrt((cx - selectionCenter.x)**2 + (cy - selectionCenter.y)**2);
+                    if (dist < selectionRadius) {
+                        ctx.strokeStyle = config.selectColor;
+                        ctx.lineWidth = 1;
+                        ctx.setLineDash([2, 2]);
+                        ctx.strokeRect(drawX - 5, drawY - 5, 70, 50);
+                        ctx.setLineDash([]);
+                    }
+                }
+
+                let color = config.baseColor;
+                if (this.isDragged) color = config.dragColor;
+                else if (this.state === 'sing' || this.state === 'happy') color = config.singColor;
+                else if (this.state === 'shock' || this.state === 'screech' || this.state === 'dragFast' || this.state === 'chase' || this.state === 'swarm') color = config.warnColor;
+                else if (this.purring && this.type !== 'grumpy') color = config.activeColor;
+                
+                ctx.fillStyle = color;
+                
+                if (this.state === 'shock' || this.state === 'sing' || this.purring || this.state === 'screech' || this.isDragged || this.state === 'happy' || this.state === 'chase' || this.state === 'swarm') {
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = color;
+                } 
+                
+                // Re-apply correct shadow for drawing the cat body
+                if (this.affinity > 5 && !ctx.shadowBlur) {
+                     const intensity = (this.affinity - 5) / 5; 
+                     ctx.shadowBlur = intensity * 15;
+                     ctx.shadowColor = config.selectColor;
+                }
+
+                let shakeX = 0;
+                let shakeY = 0;
+                if (this.shaking > 0) {
+                    shakeX = (Math.random() - 0.5) * this.shaking;
+                    shakeY = (Math.random() - 0.5) * this.shaking;
+                }
+
+                // DRAW EARS (Visual feedback for Sleep State)
+                let earsStr = catArt.ears;
+                if (this.isSleeping) {
+                    earsStr = catArt.earsSleep;
+                }
+                ctx.fillText(earsStr, drawX + shakeX, drawY + shakeY);
+                
+                let faceStr = catArt.faces.idle;
+                if (this.state in catArt.faces) {
+                    faceStr = catArt.faces[this.state];
+                }
+                ctx.fillText(faceStr, drawX + shakeX, drawY + config.fontSize + shakeY);
+                ctx.fillText(catArt.body, drawX + shakeX, drawY + (config.fontSize * 2) + shakeY);
+                
+                ctx.shadowBlur = 0; // Reset for next items
+            }
+        }
+
+        function init() {
+            resize();
+            window.addEventListener('resize', resize);
+            
+            // --- INPUT EVENT LISTENERS ---
+            
+            window.addEventListener('contextmenu', e => e.preventDefault()); 
+            
+            window.addEventListener('keydown', e => {
+                lastInteractionTime = performance.now();
+                if (document.activeElement === cmdInput) return; // Ignore if typing in terminal
+                if (e.key.toLowerCase() === 't') {
+                    const worldY = mouse.y - globalScrollY; 
+                    treats.push(new Treat(mouse.x - 20, worldY - 10));
+                    playMeow(1.5, 'chirp');
+                }
+                if (e.key.toLowerCase() === 'm') {
+                    setupMicrophone();
+                }
+            });
+
+            window.addEventListener('mousemove', e => {
+                lastInteractionTime = performance.now();
+                const now = performance.now();
+                const dx = e.clientX - mouse.lastX;
+                const dy = e.clientY - mouse.lastY;
+                mouse.vx = dx; 
+                mouse.vy = dy;
+                mouse.lastX = mouse.x = e.clientX;
+                mouse.lastY = mouse.y = e.clientY;
+
+                if (!audioCtx) initAudio();
+
+                if (isViewDragging) {
+                    globalScrollY += dy;
+                    if (globalScrollY < 0) globalScrollY += totalWorldHeight * 1000;
+                    globalScrollY = globalScrollY % totalWorldHeight;
+                }
+                
+                if (draggedCat) {
+                    draggedCat.x = e.clientX - dragOffset.x;
+                    draggedCat.y = e.clientY - dragOffset.y;
+                }
+
+                if (isSelecting) {
+                    if (selectionMode === 'center') {
+                        const selDx = e.clientX - selectionStart.x;
+                        const selDy = e.clientY - selectionStart.y;
+                        selectionRadius = Math.sqrt(selDx*selDx + selDy*selDy);
+                        selectionCenter = selectionStart;
+                    } else {
+                        const currentX = e.clientX;
+                        const currentY = e.clientY;
+                        selectionCenter = {
+                            x: (selectionStart.x + currentX) / 2,
+                            y: (selectionStart.y + currentY) / 2
+                        };
+                        const dx = currentX - selectionStart.x;
+                        const dy = currentY - selectionStart.y;
+                        selectionRadius = Math.sqrt(dx*dx + dy*dy) / 2;
+                    }
+                }
+            });
+            
+            window.addEventListener('mousedown', e => {
+                lastInteractionTime = performance.now();
+                // Ignore input clicks
+                if (e.target === cmdInput) return;
+
+                initAudio();
+                
+                if (e.button === 1) {
+                    e.preventDefault(); 
+                    isViewDragging = true;
+                    return;
+                }
+
+                if (e.button === 2) {
+                    isLaserOn = true;
+                    return;
+                }
+
+                if (e.button !== 0) return; 
+
+                let clickedCat = null;
+                let minDist = 50; 
+                
+                cats.forEach(cat => {
+                    const pos = cat.getRenderPosition();
+                    const cx = pos.x + 30; 
+                    const cy = pos.y + 20;
+                    const dist = Math.sqrt(Math.pow(e.clientX - cx, 2) + Math.pow(e.clientY - cy, 2));
+                    if (dist < minDist) {
+                        minDist = dist;
+                        clickedCat = cat;
+                    }
+                });
+
+                if (clickedCat) {
+                    draggedCat = clickedCat;
+                    draggedCat.isDragged = true;
+                    const pos = draggedCat.getRenderPosition();
+                    dragOffset.x = e.clientX - pos.x;
+                    dragOffset.y = e.clientY - pos.y;
+                    draggedCat.x = pos.x;
+                    draggedCat.y = pos.y;
+                    playMeow(0.6, 'normal');
+                } else {
+                    isSelecting = true;
+                    selectionStart = { x: e.clientX, y: e.clientY };
+                    selectionCenter = { ...selectionStart };
+                    selectionRadius = 0;
+                    selectionMode = e.ctrlKey ? 'diameter' : 'center';
+                }
+            });
+            
+            window.addEventListener('mouseup', e => {
+                if (e.button === 1) {
+                    isViewDragging = false;
+                }
+                
+                if (e.button === 2) {
+                    isLaserOn = false;
+                }
+
+                if (draggedCat) {
+                    draggedCat.isDragged = false;
+                    draggedCat.y = draggedCat.y - globalScrollY;
+                    draggedCat.triggerSing(performance.now());
+                    draggedCat = null;
+                } else if (isSelecting) {
+                    isSelecting = false;
+                    
+                    if (selectionRadius < 10) {
+                        playMeow(0.5);
+                    } else {
+                        playMeow(1.2, 'chirp'); 
+                        
+                        cats.forEach(cat => {
+                            const pos = cat.getRenderPosition();
+                            const cx = pos.x + 30; 
+                            const cy = pos.y + 20;
+                            const dist = Math.sqrt((cx - selectionCenter.x)**2 + (cy - selectionCenter.y)**2);
+
+                            if (dist < selectionRadius) {
+                                const snuggleX = (Math.random() - 0.5) * 50;
+                                const snuggleY = (Math.random() - 0.5) * 30;
+                                
+                                cat.x = selectionCenter.x + snuggleX - 30;
+                                cat.y = (selectionCenter.y + snuggleY - 20) - globalScrollY;
+                                
+                                cat.state = 'sleep';
+                                cat.isSleeping = true;
+                                cat.purring = true;
+                                cat.shaking = 0;
+                                cat.singingUntil = 0; 
+                                
+                                cat.isBundled = true;
+                                cat.bundleReleaseTime = performance.now() + 10000 + Math.random() * 20000;
+                                
+                                cat.triggerEmote('♥', '#ff69b4');
+                                if(Math.random() < 0.5) cat.triggerEmote('z', '#aaaaaa');
+                            }
+                        });
+                    }
+                    selectionStart = null;
+                    selectionRadius = 0;
+                }
+            });
+            
+            window.addEventListener('dblclick', e => {
+                 lastInteractionTime = performance.now();
+                 let clickedCat = null;
+                let minDist = 50; 
+                
+                cats.forEach(cat => {
+                    const pos = cat.getRenderPosition();
+                    const cx = pos.x + 30; 
+                    const cy = pos.y + 20;
+                    const dist = Math.sqrt(Math.pow(e.clientX - cx, 2) + Math.pow(e.clientY - cy, 2));
+                    if (dist < minDist) {
+                        minDist = dist;
+                        clickedCat = cat;
+                    }
+                });
+                
+                if (clickedCat) {
+                    clickedCat.triggerDoubleTap();
+                }
+            });
+            
+            window.addEventListener('wheel', e => {
+                lastInteractionTime = performance.now();
+                globalScrollY -= e.deltaY * 0.5; 
+                if (globalScrollY < 0) globalScrollY += totalWorldHeight * 1000;
+                globalScrollY = globalScrollY % totalWorldHeight;
+            }, { passive: true });
+
+            requestAnimationFrame(animate);
+        }
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            
+            ctx.font = `${config.fontSize}px ${config.fontFamily}`;
+            ctx.textBaseline = 'top';
+
+            const textMetrics = ctx.measureText(catArt.ears);
+            const catWidth = textMetrics.width + config.paddingX;
+            const catHeight = (config.fontSize * 3) + config.paddingY;
+
+            const cols = Math.floor(width / catWidth);
+            const rows = Math.floor(height / catHeight) + 2; 
+            
+            totalWorldHeight = rows * catHeight;
+            
+            // Initialize Matrix Rain
+            const rainCols = Math.floor(width / 14); // 14px roughly char width
+            rainDrops = Array(rainCols).fill(1).map(() => Math.random() * height * -1);
+
+            // Try loading saved cats
+            const savedCats = loadGame();
+            
+            if (savedCats && savedCats.length > 0) {
+                // Map saved data back to Cat objects
+                cats = [];
+                savedCats.forEach(sc => {
+                    const c = new Cat(sc.x, sc.y, 0, 0); // gridX/Y irrelevant after initial load
+                    c.name = sc.name;
+                    c.affinity = sc.affinity || 0;
+                    c.type = sc.type || 'friendly';
+                    c.satiety = sc.satiety || 0; // Restore satiety
+                    cats.push(c);
+                });
+            } else {
+                // Clean initialization
+                cats = [];
+                const startX = (width - (cols * catWidth)) / 2;
+                const startY = (height - (rows * catHeight)) / 2;
+
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const x = startX + c * catWidth;
+                        const y = startY + r * catHeight;
+                        cats.push(new Cat(x, y, c, r));
+                    }
+                }
+                // Assign initial names to 20%
+                const count = Math.floor(cats.length * 0.2);
+                const shuffled = [...cats].sort(() => Math.random() - 0.5);
+                for(let i=0; i<count; i++) {
+                    shuffled[i].name = defaultNames[Math.floor(Math.random() * defaultNames.length)];
+                }
+            }
+        }
+
+        function animate(timestamp) {
+            // Draw Background (Matrix Rain)
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.3)'; // Fade effect
+            ctx.fillRect(0, 0, width, height);
+            
+            ctx.font = '12px "Fira Code", monospace';
+            ctx.fillStyle = '#0f0'; // Matrix green constant
+            
+            for(let i=0; i<rainDrops.length; i++) {
+                const char = String.fromCharCode(0x30A0 + Math.random() * 96); // Katakana
+                const x = i * 14;
+                const y = rainDrops[i] * 14;
+                
+                // Draw lighter head of the drop
+                ctx.globalAlpha = 0.5;
+                if (Math.random() > 0.975) {
+                     ctx.fillStyle = '#fff'; // Sparkle
+                } else {
+                     ctx.fillStyle = '#003300'; // Dark trail
+                }
+                
+                // Only draw if within reasonable view to save perf
+                if (y > 0 && y < height) {
+                    ctx.fillText(char, x, y);
+                }
+                
+                if (y > height && Math.random() > 0.975) {
+                    rainDrops[i] = 0;
+                }
+                rainDrops[i]++;
+                ctx.globalAlpha = 1.0; // Reset
+            }
+            
+            ctx.font = `${config.fontSize}px ${config.fontFamily}`;
+            
+            // Analyze Mic Volume
+            if (isMicOn && micAnalyser) {
+                micAnalyser.getByteFrequencyData(micDataArray);
+                let sum = 0;
+                for(let i = 0; i < micDataArray.length; i++) {
+                    sum += micDataArray[i];
+                }
+                micVolume = sum / micDataArray.length;
+            }
+            
+            // Draw Laser Pointer
+            if (isLaserOn) {
+                ctx.beginPath();
+                ctx.arc(mouse.x, mouse.y, 5, 0, Math.PI * 2);
+                ctx.fillStyle = config.laserColor;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = config.laserColor;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            // Draw Selection Circle
+            if (isSelecting && selectionCenter) {
+                ctx.beginPath();
+                ctx.arc(selectionCenter.x, selectionCenter.y, selectionRadius, 0, Math.PI * 2);
+                ctx.strokeStyle = '#ff69b4';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = 'rgba(255, 105, 180, 0.05)';
+                ctx.fill();
+            }
+            
+            // Draw Treats
+            treats = treats.filter(t => t.active);
+            treats.forEach(t => t.draw(ctx));
+
+            let anyCatPurring = false;
+
+            // Draw Cats
+            cats.forEach(cat => {
+                cat.update(timestamp);
+                const pos = cat.getRenderPosition();
+                if (pos.y > -100 && pos.y < height + 100) {
+                    cat.draw(ctx);
+                }
+                
+                if (cat.purring) anyCatPurring = true;
+            });
+
+            if (anyCatPurring) setGlobalPurr(true);
+            else setGlobalPurr(false);
+
+            particles = particles.filter(p => p.life > 0);
+            particles.forEach(p => {
+                p.update();
+                p.draw(ctx);
+            });
+
+            mouse.vx *= 0.8;
+            mouse.vy *= 0.8;
+
+            requestAnimationFrame(animate);
+        }
+
+        init();
+
+    </script>
+</body>
+</html>
