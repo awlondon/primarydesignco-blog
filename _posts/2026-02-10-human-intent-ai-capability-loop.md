@@ -119,24 +119,9 @@ This is the central claim: the future of AI development is not better prompts, b
 
 {% include ad.html %}
 
-flowchart LR
-    H["Human Intent<br/><sub>Authority Layer</sub>"]
-    A["AI Capability<br/><sub>Execution Layer</sub>"]
-    I["Interactive Interface<br/><sub>Dev Studio / Negotiation Surface</sub>"]
+![](/assets/2026-02-10-human-intent-ai-capability-loop/human-intent-ai-capability-loop.svg)
 
-    H -->|Constraints · Direction · Evaluation| I
-    I -->|Implementation · Variants · Affordances| H
-
-    I -->|Execution Requests| A
-    A -->|Working Outputs · New Possibilities| I
-
-    classDef human fill:#f5f5f5,stroke:#333,stroke-width:1px;
-    classDef ai fill:#e8f0ff,stroke:#2b4fff,stroke-width:1px;
-    classDef interface fill:#fff6e5,stroke:#ff9900,stroke-width:1px;
-
-    class H human;
-    class A ai;
-    class I interface;
+*Figure: The Human Intent ⇄ AI Capability loop. Novelty emerges at the interface, not inside either pole alone.*
 
     
 {% include ad.html %}
