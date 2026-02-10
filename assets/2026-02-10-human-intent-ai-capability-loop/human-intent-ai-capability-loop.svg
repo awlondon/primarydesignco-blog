@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="960" height="420" viewBox="0 0 960 420"
+<svg width="980" height="440" viewBox="0 0 980 440"
      xmlns="http://www.w3.org/2000/svg"
      role="img"
      aria-labelledby="title desc">
 
   <title id="title">Human Intent ⇄ AI Capability Loop</title>
   <desc id="desc">
-    A negotiated development loop where human authority governs meaning
-    and AI capability supplies execution, mediated by an interactive interface.
+    Human intent governs meaning and limits. AI capability supplies execution and scale.
+    The interactive interface mediates continuous negotiation between them.
   </desc>
 
   <defs>
@@ -15,18 +15,22 @@
             refX="6" refY="3" orient="auto">
       <path d="M0,0 L6,3 L0,6 Z" fill="#333"/>
     </marker>
+
+    <linearGradient id="interfaceGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff3df"/>
+      <stop offset="100%" stop-color="#fffaf0"/>
+    </linearGradient>
   </defs>
 
-  <!-- Background -->
-  <rect width="960" height="420" fill="#ffffff"/>
+  <rect width="980" height="440" fill="#ffffff"/>
 
   <!-- HUMAN INTENT -->
-  <rect x="40" y="130" width="260" height="160" rx="12"
-        fill="#f5f5f5" stroke="#333"/>
+  <rect x="40" y="140" width="260" height="160" rx="14"
+        fill="#f7f7f7" stroke="#333"/>
 
-  <!-- Target Icon -->
-  <circle cx="90" cy="175" r="14" fill="none" stroke="#333" stroke-width="2"/>
-  <circle cx="90" cy="175" r="6" fill="#333"/>
+  <!-- Human icon -->
+  <circle cx="70" cy="165" r="10" fill="none" stroke="#333" stroke-width="2"/>
+  <circle cx="70" cy="165" r="4" fill="#333"/>
 
   <text x="170" y="165" text-anchor="middle"
         font-family="system-ui, sans-serif"
@@ -36,88 +40,98 @@
 
   <text x="170" y="190" text-anchor="middle"
         font-family="system-ui, sans-serif"
-        font-size="13" fill="#555">
+        font-size="12" fill="#555">
     Authority · Ethics · Stop Conditions
   </text>
 
-  <!-- INTERFACE -->
-  <rect x="350" y="100" width="260" height="220" rx="14"
-        fill="#fff6e5" stroke="#ff9900"/>
+  <!-- INTERFACE (MEMBRANE) -->
+  <rect x="360" y="90" width="260" height="260" rx="18"
+        fill="url(#interfaceGrad)" stroke="#ff9900" stroke-width="2"/>
 
-  <!-- Sliders Icon -->
-  <line x1="380" y1="145" x2="420" y2="145" stroke="#ff9900" stroke-width="2"/>
+  <!-- Inner dashed boundary -->
+  <rect x="374" y="104" width="232" height="232" rx="14"
+        fill="none" stroke="#ff9900" stroke-dasharray="4 4"/>
+
+  <!-- Interface icon -->
+  <line x1="390" y1="145" x2="420" y2="145" stroke="#ff9900" stroke-width="2"/>
   <circle cx="405" cy="145" r="4" fill="#ff9900"/>
-  <line x1="380" y1="165" x2="420" y2="165" stroke="#ff9900" stroke-width="2"/>
-  <circle cx="392" cy="165" r="4" fill="#ff9900"/>
-  <line x1="380" y1="185" x2="420" y2="185" stroke="#ff9900" stroke-width="2"/>
+  <line x1="390" y1="165" x2="420" y2="165" stroke="#ff9900" stroke-width="2"/>
+  <circle cx="395" cy="165" r="4" fill="#ff9900"/>
+  <line x1="390" y1="185" x2="420" y2="185" stroke="#ff9900" stroke-width="2"/>
   <circle cx="415" cy="185" r="4" fill="#ff9900"/>
 
-  <text x="480" y="160" text-anchor="middle"
+  <text x="490" y="160" text-anchor="middle"
         font-family="system-ui, sans-serif"
         font-size="18" font-weight="600">
     Interactive Interface
   </text>
 
-  <text x="480" y="185" text-anchor="middle"
+  <text x="490" y="185" text-anchor="middle"
         font-family="system-ui, sans-serif"
-        font-size="13" fill="#555">
+        font-size="12" fill="#555">
     Dev Studio · Negotiation Surface
   </text>
 
-  <text x="480" y="220" text-anchor="middle"
+  <text x="490" y="225" text-anchor="middle"
         font-family="system-ui, sans-serif"
-        font-size="12" fill="#333">
-    Live Execution · Shared State · Intervention
+        font-size="12">
+    Live Execution · Shared State
+  </text>
+
+  <text x="490" y="245" text-anchor="middle"
+        font-family="system-ui, sans-serif"
+        font-size="12">
+    Continuous Intervention
   </text>
 
   <!-- AI CAPABILITY -->
-  <rect x="660" y="130" width="260" height="160" rx="12"
-        fill="#e8f0ff" stroke="#2b4fff"/>
+  <rect x="680" y="140" width="260" height="160" rx="14"
+        fill="#edf3ff" stroke="#2b4fff"/>
 
-  <!-- Gear Icon -->
-  <circle cx="710" cy="175" r="12" fill="none" stroke="#2b4fff" stroke-width="2"/>
-  <circle cx="710" cy="175" r="4" fill="#2b4fff"/>
+  <!-- AI icon -->
+  <circle cx="710" cy="165" r="10" fill="none" stroke="#2b4fff" stroke-width="2"/>
+  <circle cx="710" cy="165" r="4" fill="#2b4fff"/>
 
-  <text x="790" y="165" text-anchor="middle"
+  <text x="810" y="165" text-anchor="middle"
         font-family="system-ui, sans-serif"
         font-size="18" font-weight="600">
     AI Capability
   </text>
 
-  <text x="790" y="190" text-anchor="middle"
+  <text x="810" y="190" text-anchor="middle"
         font-family="system-ui, sans-serif"
-        font-size="13" fill="#555">
+        font-size="12" fill="#555">
     Execution · Variants · Scale
   </text>
 
   <!-- ARROWS -->
-  <line x1="300" y1="185" x2="350" y2="185"
-        stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
-  <text x="325" y="170" text-anchor="middle"
+  <line x1="300" y1="180" x2="360" y2="180"
+        stroke="#333" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="330" y="165" text-anchor="middle"
         font-family="system-ui, sans-serif"
         font-size="12">
     Constrain / Direct
   </text>
 
-  <line x1="350" y1="230" x2="300" y2="230"
-        stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
-  <text x="325" y="255" text-anchor="middle"
+  <line x1="360" y1="240" x2="300" y2="240"
+        stroke="#555" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="330" y="260" text-anchor="middle"
         font-family="system-ui, sans-serif"
         font-size="12">
     Affordances
   </text>
 
-  <line x1="610" y1="185" x2="660" y2="185"
-        stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
-  <text x="635" y="170" text-anchor="middle"
+  <line x1="620" y1="180" x2="680" y2="180"
+        stroke="#333" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="650" y="165" text-anchor="middle"
         font-family="system-ui, sans-serif"
         font-size="12">
     Execute
   </text>
 
-  <line x1="660" y1="230" x2="610" y2="230"
-        stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
-  <text x="635" y="255" text-anchor="middle"
+  <line x1="680" y1="240" x2="620" y2="240"
+        stroke="#555" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="650" y="260" text-anchor="middle"
         font-family="system-ui, sans-serif"
         font-size="12">
     Outputs
