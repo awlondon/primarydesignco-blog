@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyber Cat Terminal v2.3 (Standalone)</title>
+    <title>Cyber Cat Terminal v3.1 (Box Update)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
 
@@ -65,6 +65,7 @@
             text-shadow: 0 0 5px #0f0;
             pointer-events: none;
             text-align: right;
+            line-height: 1.5;
         }
 
         /* Terminal Input Styling */
@@ -113,6 +114,24 @@
         #mic-status {
             font-weight: bold;
         }
+
+        /* Glitch Animation Class */
+        .system-reset-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #0f0;
+            font-size: 48px;
+            font-weight: bold;
+            background: #000;
+            padding: 20px;
+            border: 2px solid #0f0;
+            z-index: 100;
+            display: none;
+            text-align: center;
+            box-shadow: 0 0 20px #0f0;
+        }
     </style>
 </head>
 <body>
@@ -121,12 +140,18 @@
     <div class="crt-glow"></div>
     <div class="ui-layer">
         CTRL+DRAG: CORRAL // CLICK-DRAG: SNUGGLE<br>
-        R-CLICK: LASER // 'T': TREAT // 'M': MIC <span id="mic-status">[OFF]</span>
+        R-CLICK: LASER // 'T': TREAT // 'B': BOX // 'R': RESET<br>
+        'M': MIC <span id="mic-status">[OFF]</span>
     </div>
     
     <div class="terminal-input-wrapper">
         <span class="prompt">root@cybercat:~$</span>
         <input type="text" id="cmd-input" placeholder="Commands: 'feed', 'name', 'mood party', 'theme #f0f'">
+    </div>
+
+    <div id="reset-overlay" class="system-reset-overlay">
+        SYSTEM NULLIFICATION<br>
+        <span style="font-size: 20px;">RESTORING DEFAULT GRID...</span>
     </div>
 
     <canvas id="terminal"></canvas>
@@ -136,13 +161,16 @@
         const ctx = canvas.getContext('2d');
         const cmdInput = document.getElementById('cmd-input');
         const micStatusSpan = document.getElementById('mic-status');
+        const resetOverlay = document.getElementById('reset-overlay');
 
         let width, height;
         let cats = [];
         let particles = [];
         let treats = [];
+        let boxes = []; // Array to store Cardboard Boxes
         let globalScrollY = 0;
         let totalWorldHeight = 0;
+        let globalGlitchIntensity = 0;
         
         // Interaction State
         let lastInteractionTime = performance.now();
@@ -162,6 +190,7 @@
             selectColor: '#ff69b4', 
             treatColor: '#00ffff',
             laserColor: '#ff0000',
+            boxColor: '#cd853f', // Peru/Cardboard color
             paddingX: 20,
             paddingY: 15,
             pitchBase: 1.0
@@ -175,7 +204,7 @@
             "Kernel", "Shell", "Bash", "Script", "Code", "Binary", "Hex", "Ascii"
         ];
 
-        const offlineDreams = ["Electric Mice", "Infinite RAM", "The Red Dot", "Fish.exe", "Warm Laptop", "Syntax Error"];
+        const offlineDreams = ["Electric Mice", "Infinite RAM", "The Red Dot", "Fish.exe", "Warm Laptop", "Syntax Error", "If I Fits", "Box.js"];
         const offlineSpeech = ["Meow.", "System: Online.", "Searching for bugs...", "I require treats.", "Prrrrt?", "Hack the planet."];
         
         function updateTheme(color) {
@@ -196,6 +225,9 @@
             prompt.style.textShadow = `0 0 5px ${color}`;
             
             cmdInput.style.caretColor = color;
+            resetOverlay.style.color = color;
+            resetOverlay.style.borderColor = color;
+            resetOverlay.style.boxShadow = `0 0 20px ${color}`;
         }
 
         // Selection State
@@ -216,7 +248,6 @@
         let speechRecognition = null;
 
         // --- PERSISTENCE (SAVE/LOAD) ---
-        // Wrapped in try/catch to prevent crashes on local file system (file://)
         function saveGame() {
             try {
                 const data = {
@@ -226,11 +257,13 @@
                         type: c.type,
                         x: c.x,
                         y: c.y,
-                        satiety: c.satiety
+                        satiety: c.satiety,
+                        gridX: c.gridX,
+                        gridY: c.gridY
                     })),
                     config: config
                 };
-                localStorage.setItem('cyberCatSave', JSON.stringify(data));
+                localStorage.setItem('cyberCatSave_v3.1', JSON.stringify(data));
             } catch (e) {
                 // Silently fail if localStorage is not available (e.g., file:// protocol)
             }
@@ -238,7 +271,7 @@
 
         function loadGame() {
             try {
-                const saved = localStorage.getItem('cyberCatSave');
+                const saved = localStorage.getItem('cyberCatSave_v3.1');
                 if (saved) {
                     const data = JSON.parse(saved);
                     if (data.config) {
@@ -267,7 +300,6 @@
             const cmd = parts[0];
             const arg = parts[1];
 
-            // Simple logic mapping
             if (cmd.includes('feed') || cmd === 'treat') {
                 const count = parseInt(arg) || 5;
                 executeCommand({ action: 'spawn_treats', value: count });
@@ -281,14 +313,19 @@
                 executeCommand({ action: 'toggle_laser', value: arg !== 'off' });
             } else if (cmd === 'dream') {
                 executeCommand({ action: 'reveal_dreams' });
+            } else if (cmd === 'reset') {
+                triggerSystemReset();
+            } else if (cmd === 'box') {
+                 // Spawn a box at center screen
+                 const worldY = (height/2) - globalScrollY;
+                 boxes.push(new Box(width/2, worldY));
+                 playMeow(0.5, 'crunch');
             } else if (cmd === 'say') {
-                // Echo logic
                 const speech = parts.slice(1).join(' ') || "Meow.";
                 executeCommand({ action: 'cat_speech', value: speech });
             } else if (cmd === 'clear') {
                 // Clear input
             } else {
-                // Default fallback chatter
                 executeCommand({ action: 'cat_speech', value: "Command not recognized." });
             }
 
@@ -296,7 +333,6 @@
         }
 
         function executeCommand(cmd) {
-            console.log("Executing:", cmd);
             switch(cmd.action) {
                 case 'spawn_treats':
                     const count = Math.min(Math.max(cmd.value || 1, 1), 50);
@@ -314,7 +350,6 @@
                     break;
                     
                 case 'cat_speech':
-                    // Assign speech to random visible cats
                     let speechCount = 0;
                     cats.forEach(cat => {
                         const pos = cat.getRenderPosition();
@@ -336,8 +371,6 @@
                     break;
 
                 case 'assign_names':
-                    let nameIdx = 0;
-                    // Shuffle cats to random assignment
                     cats.sort(() => Math.random() - 0.5).forEach(cat => {
                         if (!cat.name) {
                             cat.name = defaultNames[Math.floor(Math.random() * defaultNames.length)];
@@ -397,6 +430,41 @@
                 audioCtx.resume();
             }
         }
+
+        // --- SYSTEM RESET FUNCTIONALITY ---
+        function triggerSystemReset() {
+            initAudio();
+            
+            // 1. Visual Glitch
+            globalGlitchIntensity = 20; // Lasts for 20 frames
+            resetOverlay.style.display = 'block';
+            setTimeout(() => { resetOverlay.style.display = 'none'; }, 500);
+
+            // 2. Audio Glitch
+            playMeow(0.2, 'glitch');
+            setTimeout(() => playMeow(0.5, 'chirp'), 300);
+
+            // 3. Reset Variables
+            treats = [];
+            particles = [];
+            boxes = []; // Destroy all boxes
+            globalScrollY = 0;
+            isLaserOn = false;
+
+            // 4. Nullify Cats (Reset to Grid)
+            spawnCats(true); 
+
+            // 5. Clear Save
+            try {
+                localStorage.removeItem('cyberCatSave_v3.1');
+                saveGame();
+            } catch(e){}
+
+            // 6. Reset Config Defaults
+            config.pitchBase = 1.0;
+            
+            console.log("SYSTEM NULLIFICATION COMPLETE");
+        }
         
         // --- MICROPHONE SETUP ---
         async function setupMicrophone() {
@@ -448,7 +516,6 @@
         function playMeow(pitchMod = 1.0, type = 'normal') {
             if (!audioCtx) initAudio();
             
-            // Apply Global Mood Pitch Modifier
             pitchMod *= (config.pitchBase || 1.0);
             
             const now = audioCtx.currentTime;
@@ -461,7 +528,23 @@
             filter.connect(gain);
             gain.connect(audioCtx.destination);
 
-            if (type === 'hiss') {
+            if (type === 'glitch') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(100, now);
+                osc.frequency.linearRampToValueAtTime(800, now + 0.05);
+                osc.frequency.setValueAtTime(200, now + 0.05);
+                osc.frequency.linearRampToValueAtTime(1200, now + 0.1);
+                
+                filter.type = 'highpass';
+                filter.frequency.value = 500;
+                
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                
+                osc.start(now);
+                osc.stop(now + 0.3);
+
+            } else if (type === 'hiss') {
                 osc.type = 'sawtooth';
                 osc.frequency.setValueAtTime(800, now);
                 osc.frequency.linearRampToValueAtTime(100, now + 0.2);
@@ -510,6 +593,7 @@
                 osc.start(now);
                 osc.stop(now + 0.2);
             } else if (type === 'crunch') {
+                // Cardboard/Paper sound
                 const bufferSize = audioCtx.sampleRate * 0.1;
                 const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
                 const data = buffer.getChannelData(0);
@@ -520,13 +604,13 @@
                 noise.buffer = buffer;
                 
                 const noiseFilter = audioCtx.createBiquadFilter();
-                noiseFilter.type = 'lowpass';
-                noiseFilter.frequency.value = 1000;
+                noiseFilter.type = 'bandpass';
+                noiseFilter.frequency.value = 500;
 
                 noise.connect(noiseFilter);
                 noiseFilter.connect(gain);
                 
-                gain.gain.setValueAtTime(0.5, now);
+                gain.gain.setValueAtTime(0.4, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
                 
                 noise.start(now);
@@ -609,6 +693,7 @@
                 left:    "( <.< )",
                 right:   "( >.> )",
                 sleep:   "( u.u )",
+                liquid:  "( liq )",
                 shock:   "( O.O )",
                 sing:    "( ^.^ )",
                 happy:   "( ^w^ )",
@@ -652,6 +737,53 @@
                 ctx.globalAlpha = Math.max(0, this.life);
                 ctx.fillStyle = this.color;
                 ctx.fillText(this.char, this.x, this.y);
+                ctx.globalAlpha = 1.0;
+            }
+        }
+        
+        class Box {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.occupiedBy = null; 
+                this.life = 1500; // Boxes decay over time (~25 seconds @ 60fps)
+            }
+
+            getRenderPosition() {
+                let renderY = ((this.y + globalScrollY) % totalWorldHeight + totalWorldHeight) % totalWorldHeight;
+                return { x: this.x, y: renderY };
+            }
+
+            update() {
+                if (!this.occupiedBy) this.life -= 1.0;
+            }
+
+            draw(ctx) {
+                const pos = this.getRenderPosition();
+                
+                // Don't draw if off screen
+                if (pos.y < -50 || pos.y > height + 50) return;
+
+                ctx.fillStyle = config.boxColor;
+                ctx.font = '16px "Fira Code", monospace';
+                
+                // Blinking effect when life is low
+                if (this.life < 200 && Math.floor(this.life / 10) % 2 === 0) {
+                     ctx.globalAlpha = 0.5;
+                }
+                
+                // Draw ASCII Box
+                // Offset to center it somewhat around the coordinate
+                ctx.fillText("|‾‾‾‾‾‾|", pos.x - 30, pos.y - 10);
+                ctx.fillText("|______|", pos.x - 30, pos.y + 15);
+                
+                if (this.occupiedBy) {
+                    ctx.fillStyle = config.treatColor;
+                    ctx.font = '10px "Fira Code", monospace';
+                    ctx.fillText("OCCUPIED", pos.x - 22, pos.y + 25);
+                    ctx.font = `${config.fontSize}px ${config.fontFamily}`;
+                }
+                
                 ctx.globalAlpha = 1.0;
             }
         }
@@ -701,6 +833,9 @@
                 this.shaking = 0; 
                 this.hoverStart = 0;
                 this.isDragged = false;
+
+                // Box State
+                this.occupiedBox = null;
 
                 // Bundle State
                 this.isBundled = false;
@@ -790,6 +925,68 @@
                 
                 if (this.state === 'happy' || this.purring) {
                     this.affinity = Math.min(this.affinity + 0.005, 10);
+                }
+                
+                // --- NEW: BOID SEPARATION (Don't stack on friends) ---
+                // Only if not sleeping, not in a box, and not being dragged
+                if (!this.isSleeping && !this.isBundled && !this.occupiedBox && !this.isDragged) {
+                    cats.forEach(otherCat => {
+                        if (otherCat !== this && !otherCat.isSleeping && !otherCat.occupiedBox) {
+                            const dx = this.x - otherCat.x;
+                            const dy = this.y - otherCat.y;
+                            const dist = Math.sqrt(dx*dx + dy*dy);
+                            if (dist < 40 && dist > 0) {
+                                // Push away
+                                this.x += (dx / dist) * 0.5;
+                                this.y += (dy / dist) * 0.5;
+                            }
+                        }
+                    });
+                }
+
+                // --- NEW: BOX TRAP LOGIC ---
+                if (this.occupiedBox) {
+                    // Stick to box
+                    this.x = this.occupiedBox.x;
+                    this.y = this.occupiedBox.y;
+                    this.state = 'liquid'; // Liquid cat mode
+                    this.isSleeping = true;
+                    this.purring = true;
+                    this.affinity = Math.min(this.affinity + 0.01, 10); // Boxes make cats happy
+                    
+                    // If box dies or cat is dragged
+                    if (this.occupiedBox.life <= 0 || this.isDragged) {
+                        if (this.occupiedBox) this.occupiedBox.occupiedBy = null;
+                        this.occupiedBox = null;
+                        this.isSleeping = false;
+                        this.state = 'shock';
+                        this.triggerEmote('Pop!', '#fff');
+                    }
+                    return; // Stop processing movement
+                }
+                
+                // Scan for empty boxes
+                if (!this.isSleeping && !this.isDragged && Math.random() < 0.05) {
+                    const nearestBox = boxes.find(b => !b.occupiedBy && Math.sqrt((this.x - b.x)**2 + (this.y - b.y)**2) < 150);
+                    if (nearestBox) {
+                        // Move towards box
+                        const dx = nearestBox.x - this.x;
+                        const dy = nearestBox.y - this.y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        
+                        if (dist < 10) {
+                            // Enter box
+                            this.occupiedBox = nearestBox;
+                            nearestBox.occupiedBy = this;
+                            this.triggerEmote('Fits!', '#0f0');
+                            playMeow(0.8, 'crunch'); // Satisfaction sound
+                        } else {
+                            this.x += (dx/dist) * 2;
+                            this.y += (dy/dist) * 2;
+                            this.state = dx > 0 ? 'right' : 'left';
+                            return; // Busy walking to box
+                        }
+                    }
                 }
 
                 // --- HUNGER LOGIC ---
@@ -953,15 +1150,15 @@
                 // 2.5. Idle Meandering (New)
                 // If cat is idle, awake, and user hasn't interacted for 3 seconds
                 if (!stateOverride && !this.wanderDest && !this.isSleeping && this.state === 'idle' && timestamp - lastInteractionTime > 3000) {
-                     // 0.2% chance per frame to start walking (meandering)
-                     if (Math.random() < 0.002) {
+                      // 0.2% chance per frame to start walking (meandering)
+                      if (Math.random() < 0.002) {
                         const angle = Math.random() * Math.PI * 2;
                         const dist = 50 + Math.random() * 200;
                         this.wanderDest = {
                             x: this.x + Math.cos(angle) * dist,
                             y: this.y + Math.sin(angle) * dist
                         };
-                     }
+                      }
                 }
 
                 // 3. Wander
@@ -1019,15 +1216,19 @@
                 this.shaking = 0;
 
                 if (this.isSleeping) {
-                    this.state = 'sleep';
+                    this.state = this.occupiedBox ? 'liquid' : 'sleep'; // Check if liquid
+                    
                     if (Math.random() < 0.02) particles.push(new Particle(renderX + 40, renderY, 'z', '#444'));
                     
-                    if (dist < 50 && mouseSpeed > 10) {
+                    // Box protection: Harder to wake up if in a box
+                    const wakeDist = this.occupiedBox ? 20 : 50;
+
+                    if (dist < wakeDist && mouseSpeed > 10) {
                         this.isSleeping = false; 
                         this.dreamText = null;
                         this.state = 'shock';
                         this.triggerEmote('!', config.warnColor);
-                    } else if (dist < 30 && mouseSpeed < 2 && this.type !== 'lazy') {
+                    } else if (dist < wakeDist && mouseSpeed < 2 && this.type !== 'lazy') {
                         this.isSleeping = false; 
                         this.dreamText = null;
                     } else if (this.hoverStart !== 0 && (timestamp - this.hoverStart) > 3000) {
@@ -1132,10 +1333,10 @@
                 
                 // Food Coma Check
                 if (this.satiety > 4) { 
-                     this.triggerEmote('Full', '#ffaa00');
-                     // Force sleep after the happy animation
-                     this.isSleeping = true; // Will take effect next update loop after singingUntil
-                     this.triggerEmote('zZz', '#aaaaaa');
+                      this.triggerEmote('Full', '#ffaa00');
+                      // Force sleep after the happy animation
+                      this.isSleeping = true; // Will take effect next update loop after singingUntil
+                      this.triggerEmote('zZz', '#aaaaaa');
                 }
             }
 
@@ -1262,7 +1463,7 @@
                     ctx.font = `${config.fontSize}px ${config.fontFamily}`;
                 }
                 
-                // Affinity Aura (New Visual)
+                // Affinity Aura
                 if (this.affinity > 5) {
                     const intensity = (this.affinity - 5) / 5; // 0.0 to 1.0
                     ctx.shadowBlur = intensity * 15;
@@ -1312,7 +1513,7 @@
 
                 // DRAW EARS (Visual feedback for Sleep State)
                 let earsStr = catArt.ears;
-                if (this.isSleeping) {
+                if (this.isSleeping && !this.occupiedBox) {
                     earsStr = catArt.earsSleep;
                 }
                 ctx.fillText(earsStr, drawX + shakeX, drawY + shakeY);
@@ -1328,8 +1529,73 @@
             }
         }
 
+        // --- SPAWN LOGIC (Modified for Reset) ---
+        function spawnCats(forceFresh = false) {
+             ctx.font = `${config.fontSize}px ${config.fontFamily}`;
+             const textMetrics = ctx.measureText(catArt.ears);
+             const catWidth = textMetrics.width + config.paddingX;
+             const catHeight = (config.fontSize * 3) + config.paddingY;
+
+             const cols = Math.floor(width / catWidth);
+             const rows = Math.floor(height / catHeight) + 2; 
+             
+             totalWorldHeight = rows * catHeight;
+             
+             // Try loading saved cats if not forcing a fresh reset
+             let savedCats = null;
+             if (!forceFresh) {
+                 savedCats = loadGame();
+             }
+             
+             if (savedCats && savedCats.length > 0) {
+                 // Map saved data back to Cat objects
+                 cats = [];
+                 savedCats.forEach(sc => {
+                     // Check if cat is valid within current world
+                     const c = new Cat(sc.x, sc.y, sc.gridX, sc.gridY); 
+                     c.name = sc.name;
+                     c.affinity = sc.affinity || 0;
+                     c.type = sc.type || 'friendly';
+                     c.satiety = sc.satiety || 0; 
+                     cats.push(c);
+                 });
+             } else {
+                 // Clean initialization
+                 cats = [];
+                 const startX = (width - (cols * catWidth)) / 2;
+                 const startY = (height - (rows * catHeight)) / 2;
+
+                 for (let r = 0; r < rows; r++) {
+                     for (let c = 0; c < cols; c++) {
+                         const x = startX + c * catWidth;
+                         const y = startY + r * catHeight;
+                         cats.push(new Cat(x, y, c, r));
+                     }
+                 }
+                 
+                 // Assign initial names to 20% ONLY if not forcing fresh (reset means 0 names)
+                 if (!forceFresh) {
+                     const count = Math.floor(cats.length * 0.2);
+                     const shuffled = [...cats].sort(() => Math.random() - 0.5);
+                     for(let i=0; i<count; i++) {
+                         shuffled[i].name = defaultNames[Math.floor(Math.random() * defaultNames.length)];
+                     }
+                 }
+             }
+        }
+
         function init() {
-            resize();
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            
+            spawnCats(false);
+            
+            // Initialize Matrix Rain
+            const rainCols = Math.floor(width / 14); 
+            rainDrops = Array(rainCols).fill(1).map(() => Math.random() * height * -1);
+
             window.addEventListener('resize', resize);
             
             // --- INPUT EVENT LISTENERS ---
@@ -1339,13 +1605,22 @@
             window.addEventListener('keydown', e => {
                 lastInteractionTime = performance.now();
                 if (document.activeElement === cmdInput) return; // Ignore if typing in terminal
+                
                 if (e.key.toLowerCase() === 't') {
                     const worldY = mouse.y - globalScrollY; 
                     treats.push(new Treat(mouse.x - 20, worldY - 10));
                     playMeow(1.5, 'chirp');
                 }
+                if (e.key.toLowerCase() === 'b') {
+                    const worldY = mouse.y - globalScrollY; 
+                    boxes.push(new Box(mouse.x, worldY));
+                    playMeow(0.5, 'crunch');
+                }
                 if (e.key.toLowerCase() === 'm') {
                     setupMicrophone();
+                }
+                if (e.key.toLowerCase() === 'r') {
+                    triggerSystemReset();
                 }
             });
 
@@ -1429,6 +1704,9 @@
                 if (clickedCat) {
                     draggedCat = clickedCat;
                     draggedCat.isDragged = true;
+                    // Exit box if dragged
+                    draggedCat.occupiedBox = null; 
+                    
                     const pos = draggedCat.getRenderPosition();
                     dragOffset.x = e.clientX - pos.x;
                     dragOffset.y = e.clientY - pos.y;
@@ -1538,56 +1816,29 @@
             ctx.font = `${config.fontSize}px ${config.fontFamily}`;
             ctx.textBaseline = 'top';
 
-            const textMetrics = ctx.measureText(catArt.ears);
-            const catWidth = textMetrics.width + config.paddingX;
-            const catHeight = (config.fontSize * 3) + config.paddingY;
-
-            const cols = Math.floor(width / catWidth);
-            const rows = Math.floor(height / catHeight) + 2; 
-            
-            totalWorldHeight = rows * catHeight;
-            
-            // Initialize Matrix Rain
-            const rainCols = Math.floor(width / 14); // 14px roughly char width
-            rainDrops = Array(rainCols).fill(1).map(() => Math.random() * height * -1);
-
-            // Try loading saved cats
-            const savedCats = loadGame();
-            
-            if (savedCats && savedCats.length > 0) {
-                // Map saved data back to Cat objects
-                cats = [];
-                savedCats.forEach(sc => {
-                    const c = new Cat(sc.x, sc.y, 0, 0); // gridX/Y irrelevant after initial load
-                    c.name = sc.name;
-                    c.affinity = sc.affinity || 0;
-                    c.type = sc.type || 'friendly';
-                    c.satiety = sc.satiety || 0; // Restore satiety
-                    cats.push(c);
-                });
-            } else {
-                // Clean initialization
-                cats = [];
-                const startX = (width - (cols * catWidth)) / 2;
-                const startY = (height - (rows * catHeight)) / 2;
-
-                for (let r = 0; r < rows; r++) {
-                    for (let c = 0; c < cols; c++) {
-                        const x = startX + c * catWidth;
-                        const y = startY + r * catHeight;
-                        cats.push(new Cat(x, y, c, r));
-                    }
-                }
-                // Assign initial names to 20%
-                const count = Math.floor(cats.length * 0.2);
-                const shuffled = [...cats].sort(() => Math.random() - 0.5);
-                for(let i=0; i<count; i++) {
-                    shuffled[i].name = defaultNames[Math.floor(Math.random() * defaultNames.length)];
-                }
+            // Re-initialize Matrix Rain columns
+            const rainCols = Math.floor(width / 14);
+            if (rainDrops.length < rainCols) {
+                const diff = rainCols - rainDrops.length;
+                for(let i=0; i<diff; i++) rainDrops.push(Math.random() * height * -1);
             }
         }
 
         function animate(timestamp) {
+            
+            // Glitch Effect Check
+            if (globalGlitchIntensity > 0) {
+                globalGlitchIntensity--;
+                ctx.save();
+                const shiftX = (Math.random() - 0.5) * 10;
+                const shiftY = (Math.random() - 0.5) * 5;
+                ctx.translate(shiftX, shiftY);
+                if (Math.random() < 0.2) {
+                    ctx.fillStyle = `rgba(${Math.random()*255}, ${Math.random()*255}, 0, 0.1)`;
+                    ctx.fillRect(0,0,width,height);
+                }
+            }
+            
             // Draw Background (Matrix Rain)
             ctx.fillStyle = 'rgba(5, 5, 5, 0.3)'; // Fade effect
             ctx.fillRect(0, 0, width, height);
@@ -1613,10 +1864,14 @@
                     ctx.fillText(char, x, y);
                 }
                 
+                // Varied speed
+                let speed = 1;
+                if (i % 3 === 0) speed = 1.5;
+                
                 if (y > height && Math.random() > 0.975) {
                     rainDrops[i] = 0;
                 }
-                rainDrops[i]++;
+                rainDrops[i] += speed;
                 ctx.globalAlpha = 1.0; // Reset
             }
             
@@ -1660,6 +1915,13 @@
             treats = treats.filter(t => t.active);
             treats.forEach(t => t.draw(ctx));
 
+            // Draw Boxes (Behind Cats)
+            boxes = boxes.filter(b => b.life > 0);
+            boxes.forEach(b => {
+                b.update();
+                b.draw(ctx);
+            });
+
             let anyCatPurring = false;
 
             // Draw Cats
@@ -1684,6 +1946,10 @@
 
             mouse.vx *= 0.8;
             mouse.vy *= 0.8;
+
+            if (globalGlitchIntensity >= 0) {
+                 ctx.restore(); // Undo glitch translate
+            }
 
             requestAnimationFrame(animate);
         }
