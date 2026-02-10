@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Human-in-the-Loop Rather Than AI Is Always Right"
+title: "Human-in-the-Loop Rather Than the AI Is Always Right"
 subtitle: "Selective intervention, alignment-critical cycles, and the future of human agency"
 author: Alexander Warren London
 contributors:
