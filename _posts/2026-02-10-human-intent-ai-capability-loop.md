@@ -120,9 +120,9 @@ This is the central claim: the future of AI development is not better prompts, b
 {% include ad.html %}
 
 flowchart LR
-    H[Human Intent<br/><sub>Authority Layer</sub>]
-    A[AI Capability<br/><sub>Execution Layer</sub>]
-    I[Interactive Interface<br/><sub>Dev Studio / Negotiation Surface</sub>]
+    H["Human Intent<br/><sub>Authority Layer</sub>"]
+    A["AI Capability<br/><sub>Execution Layer</sub>"]
+    I["Interactive Interface<br/><sub>Dev Studio / Negotiation Surface</sub>"]
 
     H -->|Constraints · Direction · Evaluation| I
     I -->|Implementation · Variants · Affordances| H
@@ -137,6 +137,8 @@ flowchart LR
     class H human;
     class A ai;
     class I interface;
+
+    
 {% include ad.html %}
 
 ## V. Case Study: The Cat Matrix Terminal
