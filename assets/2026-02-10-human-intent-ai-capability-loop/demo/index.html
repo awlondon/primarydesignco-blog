@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyber Cat Terminal v3.1 (Box Update)</title>
+    <title>Cyber Cat Terminal v3.2 (Hunter Update)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
 
@@ -139,9 +139,9 @@
     <div class="scanlines"></div>
     <div class="crt-glow"></div>
     <div class="ui-layer">
-        CTRL+DRAG: CORRAL // CLICK-DRAG: SNUGGLE<br>
-        R-CLICK: LASER // 'T': TREAT // 'B': BOX // 'R': RESET<br>
-        'M': MIC <span id="mic-status">[OFF]</span>
+        CTRL+DRAG: CORRAL // RUB CURSOR: PET<br>
+        R-CLICK: LASER // 'T': TREAT // 'B': BOX // 'G': MOUSE<br>
+        'M': MIC <span id="mic-status">[OFF]</span> // 'R': RESET
     </div>
     
     <div class="terminal-input-wrapper">
@@ -167,7 +167,8 @@
         let cats = [];
         let particles = [];
         let treats = [];
-        let boxes = []; // Array to store Cardboard Boxes
+        let boxes = []; 
+        let glitchMice = []; // New Entity
         let globalScrollY = 0;
         let totalWorldHeight = 0;
         let globalGlitchIntensity = 0;
@@ -190,7 +191,8 @@
             selectColor: '#ff69b4', 
             treatColor: '#00ffff',
             laserColor: '#ff0000',
-            boxColor: '#cd853f', // Peru/Cardboard color
+            boxColor: '#cd853f', 
+            mouseColor: '#ff00ff', // Glitch mouse color
             paddingX: 20,
             paddingY: 15,
             pitchBase: 1.0
@@ -247,7 +249,7 @@
         let micDataArray = null;
         let speechRecognition = null;
 
-        // --- PERSISTENCE (SAVE/LOAD) ---
+        // --- PERSISTENCE ---
         function saveGame() {
             try {
                 const data = {
@@ -263,15 +265,13 @@
                     })),
                     config: config
                 };
-                localStorage.setItem('cyberCatSave_v3.1', JSON.stringify(data));
-            } catch (e) {
-                // Silently fail if localStorage is not available (e.g., file:// protocol)
-            }
+                localStorage.setItem('cyberCatSave_v3.2', JSON.stringify(data));
+            } catch (e) {}
         }
 
         function loadGame() {
             try {
-                const saved = localStorage.getItem('cyberCatSave_v3.1');
+                const saved = localStorage.getItem('cyberCatSave_v3.2');
                 if (saved) {
                     const data = JSON.parse(saved);
                     if (data.config) {
@@ -280,13 +280,10 @@
                     }
                     return data.cats;
                 }
-            } catch (e) {
-                // Silently fail if localStorage is not available
-            }
+            } catch (e) {}
             return null;
         }
 
-        // Save loop (Every 5 seconds)
         setInterval(saveGame, 5000);
 
         // --- LOCAL COMMAND SYSTEM ---
@@ -316,15 +313,16 @@
             } else if (cmd === 'reset') {
                 triggerSystemReset();
             } else if (cmd === 'box') {
-                 // Spawn a box at center screen
                  const worldY = (height/2) - globalScrollY;
                  boxes.push(new Box(width/2, worldY));
                  playMeow(0.5, 'crunch');
+            } else if (cmd === 'mouse' || cmd === 'bug') {
+                 const worldY = (height/2) - globalScrollY;
+                 glitchMice.push(new GlitchMouse(width/2, worldY));
+                 playMeow(2.0, 'glitch');
             } else if (cmd === 'say') {
                 const speech = parts.slice(1).join(' ') || "Meow.";
                 executeCommand({ action: 'cat_speech', value: speech });
-            } else if (cmd === 'clear') {
-                // Clear input
             } else {
                 executeCommand({ action: 'cat_speech', value: "Command not recognized." });
             }
@@ -431,45 +429,37 @@
             }
         }
 
-        // --- SYSTEM RESET FUNCTIONALITY ---
+        // --- SYSTEM RESET ---
         function triggerSystemReset() {
             initAudio();
-            
-            // 1. Visual Glitch
-            globalGlitchIntensity = 20; // Lasts for 20 frames
+            globalGlitchIntensity = 20; 
             resetOverlay.style.display = 'block';
             setTimeout(() => { resetOverlay.style.display = 'none'; }, 500);
 
-            // 2. Audio Glitch
             playMeow(0.2, 'glitch');
             setTimeout(() => playMeow(0.5, 'chirp'), 300);
 
-            // 3. Reset Variables
             treats = [];
             particles = [];
-            boxes = []; // Destroy all boxes
+            boxes = [];
+            glitchMice = []; // Remove bugs
             globalScrollY = 0;
             isLaserOn = false;
 
-            // 4. Nullify Cats (Reset to Grid)
             spawnCats(true); 
 
-            // 5. Clear Save
             try {
-                localStorage.removeItem('cyberCatSave_v3.1');
+                localStorage.removeItem('cyberCatSave_v3.2');
                 saveGame();
             } catch(e){}
 
-            // 6. Reset Config Defaults
             config.pitchBase = 1.0;
-            
             console.log("SYSTEM NULLIFICATION COMPLETE");
         }
         
         // --- MICROPHONE SETUP ---
         async function setupMicrophone() {
-            if (isMicOn) return; // Already on
-            
+            if (isMicOn) return; 
             try {
                 if (!audioCtx) initAudio();
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -479,7 +469,6 @@
                 micSource.connect(micAnalyser);
                 micDataArray = new Uint8Array(micAnalyser.frequencyBinCount);
                 
-                // Initialize Speech Recognition if supported
                 if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
                     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                     speechRecognition = new SpeechRecognition();
@@ -497,7 +486,6 @@
                             }
                         });
                     };
-                    
                     speechRecognition.start();
                 }
 
@@ -515,9 +503,7 @@
 
         function playMeow(pitchMod = 1.0, type = 'normal') {
             if (!audioCtx) initAudio();
-            
             pitchMod *= (config.pitchBase || 1.0);
-            
             const now = audioCtx.currentTime;
             
             const osc = audioCtx.createOscillator();
@@ -534,16 +520,12 @@
                 osc.frequency.linearRampToValueAtTime(800, now + 0.05);
                 osc.frequency.setValueAtTime(200, now + 0.05);
                 osc.frequency.linearRampToValueAtTime(1200, now + 0.1);
-                
                 filter.type = 'highpass';
                 filter.frequency.value = 500;
-                
                 gain.gain.setValueAtTime(0.3, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-                
                 osc.start(now);
                 osc.stop(now + 0.3);
-
             } else if (type === 'hiss') {
                 osc.type = 'sawtooth';
                 osc.frequency.setValueAtTime(800, now);
@@ -558,25 +540,19 @@
                 osc.type = 'sawtooth'; 
                 const modulator = audioCtx.createOscillator();
                 const modGain = audioCtx.createGain();
-                
                 modulator.type = 'square';
                 modulator.frequency.value = 350 * pitchMod * 0.43; 
                 modGain.gain.value = 600; 
-
                 modulator.connect(modGain);
                 modGain.connect(osc.frequency); 
-                
                 const baseFreq = 800 * pitchMod;
                 osc.frequency.setValueAtTime(baseFreq, now);
                 osc.frequency.linearRampToValueAtTime(baseFreq * 0.9, now + 0.1); 
                 osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.4, now + 0.6);
-
                 filter.type = 'lowpass';
                 filter.frequency.value = 3000;
-
                 gain.gain.setValueAtTime(0.35, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
-                
                 modulator.start(now);
                 modulator.stop(now + 0.6);
                 osc.start(now);
@@ -586,14 +562,11 @@
                 osc.frequency.setValueAtTime(800 * pitchMod, now);
                 osc.frequency.linearRampToValueAtTime(1200 * pitchMod, now + 0.1);
                 osc.frequency.linearRampToValueAtTime(800 * pitchMod, now + 0.2);
-                
                 gain.gain.setValueAtTime(0.2, now);
                 gain.gain.linearRampToValueAtTime(0, now + 0.2);
-                
                 osc.start(now);
                 osc.stop(now + 0.2);
             } else if (type === 'crunch') {
-                // Cardboard/Paper sound
                 const bufferSize = audioCtx.sampleRate * 0.1;
                 const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
                 const data = buffer.getChannelData(0);
@@ -602,37 +575,29 @@
                 }
                 const noise = audioCtx.createBufferSource();
                 noise.buffer = buffer;
-                
                 const noiseFilter = audioCtx.createBiquadFilter();
                 noiseFilter.type = 'bandpass';
                 noiseFilter.frequency.value = 500;
-
                 noise.connect(noiseFilter);
                 noiseFilter.connect(gain);
-                
                 gain.gain.setValueAtTime(0.4, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-                
                 noise.start(now);
             } else {
                 osc.type = 'sawtooth'; 
                 const duration = 0.4 + Math.random() * 0.2;
                 const baseFreq = 350 * pitchMod; 
-                
                 osc.frequency.setValueAtTime(baseFreq, now);
                 osc.frequency.linearRampToValueAtTime(baseFreq * 1.25, now + 0.1); 
                 osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.7, now + duration); 
-
                 filter.type = 'bandpass';
                 filter.Q.value = 1.0; 
                 filter.frequency.setValueAtTime(baseFreq * 1.5, now); 
                 filter.frequency.linearRampToValueAtTime(baseFreq * 4.0, now + 0.15); 
                 filter.frequency.linearRampToValueAtTime(baseFreq * 1.5, now + duration); 
-
                 gain.gain.setValueAtTime(0, now);
                 gain.gain.linearRampToValueAtTime(0.1, now + 0.05); 
                 gain.gain.exponentialRampToValueAtTime(0.001, now + duration); 
-
                 osc.start(now);
                 osc.stop(now + duration);
             }
@@ -655,21 +620,16 @@
                 purrNode = audioCtx.createBufferSource();
                 purrNode.buffer = buffer;
                 purrNode.loop = true;
-
                 const filter = audioCtx.createBiquadFilter();
                 filter.type = 'lowpass';
                 filter.frequency.value = 80; 
-
                 const lfo = audioCtx.createOscillator();
                 lfo.type = 'sine';
                 lfo.frequency.value = 25; 
-
                 const lfoGain = audioCtx.createGain();
                 lfoGain.gain.value = 500; 
-
                 purrGain = audioCtx.createGain();
                 purrGain.gain.value = 0;
-
                 lfo.connect(lfoGain);
                 lfoGain.connect(filter.frequency); 
                 purrNode.connect(filter);
@@ -685,7 +645,7 @@
 
         const catArt = {
             ears:  " /\\_/\\ ",
-            earsSleep: " /v_v\\ ", // Relaxed folded ears for sleep
+            earsSleep: " /v_v\\ ", 
             body:  " > ^ < ",
             faces: {
                 idle:    "( o.o )",
@@ -709,7 +669,8 @@
                 yawn:    "( =O= )",
                 sneeze:  "( >~< )",
                 confused:"( o.O )",
-                love:    "( ♥_♥ )"
+                love:    "( ♥_♥ )",
+                euphoria:"( >w< )" // New pet state
             }
         };
 
@@ -746,61 +707,92 @@
                 this.x = x;
                 this.y = y;
                 this.occupiedBy = null; 
-                this.life = 1500; // Boxes decay over time (~25 seconds @ 60fps)
+                this.life = 1500; 
             }
-
             getRenderPosition() {
                 let renderY = ((this.y + globalScrollY) % totalWorldHeight + totalWorldHeight) % totalWorldHeight;
                 return { x: this.x, y: renderY };
             }
-
             update() {
                 if (!this.occupiedBy) this.life -= 1.0;
             }
-
             draw(ctx) {
                 const pos = this.getRenderPosition();
-                
-                // Don't draw if off screen
                 if (pos.y < -50 || pos.y > height + 50) return;
-
                 ctx.fillStyle = config.boxColor;
                 ctx.font = '16px "Fira Code", monospace';
-                
-                // Blinking effect when life is low
                 if (this.life < 200 && Math.floor(this.life / 10) % 2 === 0) {
                      ctx.globalAlpha = 0.5;
                 }
-                
-                // Draw ASCII Box
-                // Offset to center it somewhat around the coordinate
                 ctx.fillText("|‾‾‾‾‾‾|", pos.x - 30, pos.y - 10);
                 ctx.fillText("|______|", pos.x - 30, pos.y + 15);
-                
                 if (this.occupiedBy) {
                     ctx.fillStyle = config.treatColor;
                     ctx.font = '10px "Fira Code", monospace';
                     ctx.fillText("OCCUPIED", pos.x - 22, pos.y + 25);
                     ctx.font = `${config.fontSize}px ${config.fontFamily}`;
                 }
-                
                 ctx.globalAlpha = 1.0;
+            }
+        }
+
+        class GlitchMouse {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.active = true;
+                this.vx = (Math.random() - 0.5) * 8;
+                this.vy = (Math.random() - 0.5) * 8;
+                this.changeDirTimer = 0;
+            }
+            getRenderPosition() {
+                let renderY = ((this.y + globalScrollY) % totalWorldHeight + totalWorldHeight) % totalWorldHeight;
+                return { x: this.x, y: renderY };
+            }
+            update() {
+                // Erratic movement
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                // Bounce off walls (virtual walls since world wraps Y)
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                
+                // Change direction randomly
+                this.changeDirTimer++;
+                if (this.changeDirTimer > 20) {
+                    this.vx = (Math.random() - 0.5) * 15; // Fast burst
+                    this.vy = (Math.random() - 0.5) * 15;
+                    this.changeDirTimer = 0;
+                }
+                
+                // Friction
+                this.vx *= 0.95;
+                this.vy *= 0.95;
+            }
+            draw(ctx) {
+                const pos = this.getRenderPosition();
+                ctx.fillStyle = config.mouseColor;
+                ctx.shadowBlur = 5;
+                ctx.shadowColor = config.mouseColor;
+                // Glitchy appearance
+                const chars = ["&_&", "~@~", "^.^", "*_*"];
+                const char = chars[Math.floor(Date.now() / 100) % chars.length];
+                ctx.fillText(char, pos.x, pos.y);
+                ctx.shadowBlur = 0;
             }
         }
 
         class Treat {
             constructor(x, y) {
                 this.x = x;
-                this.y = y; // World Y
+                this.y = y; 
                 this.active = true;
                 this.char = "<><";
             }
-            
             getRenderPosition() {
                 let renderY = ((this.y + globalScrollY) % totalWorldHeight + totalWorldHeight) % totalWorldHeight;
                 return { x: this.x, y: renderY };
             }
-
             draw(ctx) {
                 const pos = this.getRenderPosition();
                 ctx.fillStyle = config.treatColor;
@@ -818,7 +810,6 @@
                 this.gridX = gridX;
                 this.gridY = gridY;
                 
-                // Personality
                 const rand = Math.random();
                 if (rand < 0.2) this.type = 'grumpy';
                 else if (rand < 0.5) this.type = 'lazy';
@@ -833,56 +824,45 @@
                 this.shaking = 0; 
                 this.hoverStart = 0;
                 this.isDragged = false;
-
-                // Box State
                 this.occupiedBox = null;
-
-                // Bundle State
                 this.isBundled = false;
                 this.bundleReleaseTime = 0;
                 this.wanderDest = null;
-                
-                // Identity & Speech
                 this.speech = null;
                 this.speechTimer = 0;
                 this.dreamText = null; 
                 this.name = null;
                 this.nameGlow = 0; 
-                
-                // Affinity & Interaction
                 this.affinity = 0; 
                 this.approachingUser = false;
-                
-                // Idle Action Timer
                 this.idleActionEnd = 0;
-
-                // Hunger
                 this.lastFedTime = performance.now() + Math.random() * 30000; 
                 this.nextHungryComplaint = 0;
                 this.satiety = 0;
+                
+                // Petting Logic
+                this.pettingScore = 0;
+                this.lastPetPos = {x:0, y:0};
             }
 
             speak(text) {
                 this.speech = text;
-                this.speechTimer = performance.now() + 6000; // Speak for 6s
+                this.speechTimer = performance.now() + 6000; 
                 this.state = 'sing';
                 this.singingUntil = performance.now() + 2000;
             }
             
             dream(text) {
                 this.dreamText = text;
-                this.speechTimer = performance.now() + 10000; // Dreams last longer
+                this.speechTimer = performance.now() + 10000; 
             }
             
             hearName() {
-                // Base chance 20% + 8% per affinity level
                 let baseChance = 0.2;
                 if (this.type === 'friendly') baseChance += 0.2;
                 if (this.type === 'grumpy') baseChance -= 0.1;
-                
                 const chance = baseChance + (this.affinity * 0.08);
                 this.nameGlow = Math.max(0.3, Math.min(chance * 2.5, 2.0));
-
                 if (Math.random() < chance) {
                     this.triggerEmote('?', '#fff');
                     this.state = 'hear';
@@ -905,19 +885,18 @@
             }
 
             update(timestamp) {
-                // Speech/Dream timer
                 if ((this.speech || this.dreamText) && timestamp > this.speechTimer) {
                     this.speech = null;
                     this.dreamText = null;
                 }
-                
                 if (this.nameGlow > 0) {
                     this.nameGlow -= 0.02;
                     if (this.nameGlow < 0) this.nameGlow = 0;
                 }
-                
-                // Decay Satiety
                 if (this.satiety > 0) this.satiety -= 0.0002;
+                
+                // Petting Decay
+                if (this.pettingScore > 0) this.pettingScore -= 2;
 
                 const pos = this.getRenderPosition();
                 const renderX = pos.x;
@@ -927,8 +906,7 @@
                     this.affinity = Math.min(this.affinity + 0.005, 10);
                 }
                 
-                // --- NEW: BOID SEPARATION (Don't stack on friends) ---
-                // Only if not sleeping, not in a box, and not being dragged
+                // Boid Separation
                 if (!this.isSleeping && !this.isBundled && !this.occupiedBox && !this.isDragged) {
                     cats.forEach(otherCat => {
                         if (otherCat !== this && !otherCat.isSleeping && !otherCat.occupiedBox) {
@@ -936,7 +914,6 @@
                             const dy = this.y - otherCat.y;
                             const dist = Math.sqrt(dx*dx + dy*dy);
                             if (dist < 40 && dist > 0) {
-                                // Push away
                                 this.x += (dx / dist) * 0.5;
                                 this.y += (dy / dist) * 0.5;
                             }
@@ -944,17 +921,14 @@
                     });
                 }
 
-                // --- NEW: BOX TRAP LOGIC ---
+                // Box Logic
                 if (this.occupiedBox) {
-                    // Stick to box
                     this.x = this.occupiedBox.x;
                     this.y = this.occupiedBox.y;
-                    this.state = 'liquid'; // Liquid cat mode
+                    this.state = 'liquid'; 
                     this.isSleeping = true;
                     this.purring = true;
-                    this.affinity = Math.min(this.affinity + 0.01, 10); // Boxes make cats happy
-                    
-                    // If box dies or cat is dragged
+                    this.affinity = Math.min(this.affinity + 0.01, 10); 
                     if (this.occupiedBox.life <= 0 || this.isDragged) {
                         if (this.occupiedBox) this.occupiedBox.occupiedBy = null;
                         this.occupiedBox = null;
@@ -962,43 +936,38 @@
                         this.state = 'shock';
                         this.triggerEmote('Pop!', '#fff');
                     }
-                    return; // Stop processing movement
+                    return; 
                 }
                 
-                // Scan for empty boxes
+                // Find empty box
                 if (!this.isSleeping && !this.isDragged && Math.random() < 0.05) {
                     const nearestBox = boxes.find(b => !b.occupiedBy && Math.sqrt((this.x - b.x)**2 + (this.y - b.y)**2) < 150);
                     if (nearestBox) {
-                        // Move towards box
                         const dx = nearestBox.x - this.x;
                         const dy = nearestBox.y - this.y;
                         const dist = Math.sqrt(dx*dx + dy*dy);
-                        
                         if (dist < 10) {
-                            // Enter box
                             this.occupiedBox = nearestBox;
                             nearestBox.occupiedBy = this;
                             this.triggerEmote('Fits!', '#0f0');
-                            playMeow(0.8, 'crunch'); // Satisfaction sound
+                            playMeow(0.8, 'crunch'); 
                         } else {
                             this.x += (dx/dist) * 2;
                             this.y += (dy/dist) * 2;
                             this.state = dx > 0 ? 'right' : 'left';
-                            return; // Busy walking to box
+                            return; 
                         }
                     }
                 }
 
-                // --- HUNGER LOGIC ---
+                // Hunger
                 if (timestamp - this.lastFedTime > 45000) { 
                     if (timestamp > this.nextHungryComplaint) {
-                        // Wake up if sleeping
                         if (this.isSleeping) {
                             this.isSleeping = false;
                             this.dreamText = null;
                             this.state = 'idle';
                         }
-
                         const r = Math.random();
                         if (r < 0.3) {
                             this.speak("Feed me?");
@@ -1012,12 +981,11 @@
                             this.triggerEmote('Hungry!', config.warnColor);
                             playMeow(0.6, 'normal'); 
                         }
-                        
                         this.nextHungryComplaint = timestamp + 10000 + Math.random() * 15000;
                     }
                 }
 
-                // Bundle / Leakage Logic
+                // Bundle
                 if (this.isBundled) {
                     if (!this.isSleeping) {
                         this.isBundled = false;
@@ -1027,7 +995,6 @@
                         this.isSleeping = false;
                         this.purring = false;
                         this.triggerEmote('?', '#fff');
-                        
                         const angle = Math.random() * Math.PI * 2;
                         const dist = 50 + Math.random() * 100;
                         this.wanderDest = {
@@ -1049,6 +1016,17 @@
                     this.purring = false;
                     return; 
                 }
+                
+                // Petting Reaction
+                if (this.pettingScore > 100) {
+                    this.state = 'euphoria';
+                    this.purring = true;
+                    this.shaking = 3;
+                    this.affinity = Math.min(this.affinity + 0.5, 10);
+                    if (Math.random() < 0.1) this.triggerEmote('♥', '#ff69b4');
+                    if (Math.random() < 0.1) this.triggerEmote('⚡', '#ffff00');
+                    return;
+                }
 
                 if (timestamp < this.singingUntil) {
                     if (this.state !== 'screech') this.state = 'sing';
@@ -1056,8 +1034,7 @@
                     return;
                 }
                 
-                // --- MOVEMENT LOGIC ---
-                
+                // MOVEMENT
                 let targetX = null;
                 let targetY = null; 
                 let chaseSpeed = 0;
@@ -1073,24 +1050,52 @@
                     this.shaking = 2;
                     this.approachingUser = false;
                     this.dreamText = null; 
-                    
                     const angle = performance.now() * 0.01 + (this.x * 0.1);
                     const orbitRadius = 50 + Math.random() * 50;
                     targetX += Math.cos(angle) * orbitRadius;
                     targetY += Math.sin(angle) * orbitRadius;
                 }
-                
+                // 0.1 Chase Glitch Mouse
+                else if (glitchMice.length > 0) {
+                     let nearestMouse = null;
+                     let minMouseDist = 400;
+                     glitchMice.forEach(gm => {
+                         const gmPos = gm.getRenderPosition();
+                         const dist = Math.sqrt((renderX - gmPos.x)**2 + (renderY - gmPos.y)**2);
+                         if (dist < minMouseDist) {
+                             minMouseDist = dist;
+                             nearestMouse = { obj: gm, x: gmPos.x, y: gmPos.y };
+                         }
+                     });
+                     
+                     if (nearestMouse) {
+                         if (minMouseDist < 10) {
+                             // Catch Mouse
+                             nearestMouse.obj.active = false; // Kill mouse
+                             this.triggerEmote('GOTCHA', '#ff00ff');
+                             playMeow(1.5, 'chirp');
+                             this.state = 'happy';
+                             this.singingUntil = timestamp + 1000;
+                             this.affinity = Math.min(this.affinity + 3.0, 10); // Big reward
+                         } else {
+                             targetX = nearestMouse.x;
+                             targetY = nearestMouse.y;
+                             chaseSpeed = 5;
+                             stateOverride = 'chase';
+                             this.isSleeping = false;
+                             this.dreamText = null;
+                         }
+                     }
+                }
                 // 0.5 Approach User
                 else if (this.approachingUser) {
                     targetX = width / 2;
                     targetY = height - 50; 
                     chaseSpeed = 3 + (this.affinity * 0.2); 
                     stateOverride = 'hear';
-                    
                     const dx = targetX - renderX;
                     const dy = targetY - renderY;
                     const dist = Math.sqrt(dx*dx + dy*dy);
-                    
                     if (dist < 50) {
                         this.approachingUser = false;
                         this.state = 'love'; 
@@ -1099,12 +1104,10 @@
                         this.triggerEmote('♥', '#ff69b4');
                     }
                 }
-
                 // 1. Check for Treats
                 if (!stateOverride) {
                     let nearestTreat = null;
                     let minTreatDist = 300; 
-
                     treats.forEach(t => {
                         const tPos = t.getRenderPosition();
                         const dist = Math.sqrt((renderX - tPos.x)**2 + (renderY - tPos.y)**2);
@@ -1113,7 +1116,6 @@
                             nearestTreat = { treat: t, x: tPos.x, y: tPos.y, dist: dist };
                         }
                     });
-
                     if (nearestTreat) {
                         if (nearestTreat.dist < 20) {
                             nearestTreat.treat.active = false;
@@ -1129,13 +1131,11 @@
                         }
                     } 
                 }
-                
                 // 2. Check for Laser
                 if (!stateOverride && isLaserOn) {
                     const dx = mouse.x - (renderX + 30);
                     const dy = mouse.y - (renderY + 20);
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    
                     if (dist < 400) { 
                         targetX = mouse.x - 30; 
                         targetY = mouse.y - 20;
@@ -1146,11 +1146,8 @@
                         if (dist < 30) this.shaking = 3; 
                     }
                 }
-                
-                // 2.5. Idle Meandering (New)
-                // If cat is idle, awake, and user hasn't interacted for 3 seconds
+                // 2.5. Idle Meandering
                 if (!stateOverride && !this.wanderDest && !this.isSleeping && this.state === 'idle' && timestamp - lastInteractionTime > 3000) {
-                      // 0.2% chance per frame to start walking (meandering)
                       if (Math.random() < 0.002) {
                         const angle = Math.random() * Math.PI * 2;
                         const dist = 50 + Math.random() * 200;
@@ -1160,7 +1157,6 @@
                         };
                       }
                 }
-
                 // 3. Wander
                 if (!stateOverride && this.wanderDest) {
                     const destX = this.wanderDest.x;
@@ -1168,7 +1164,6 @@
                     const dx = destX - this.x;
                     const dy = destY - this.y;
                     const dist = Math.sqrt(dx*dx + dy*dy);
-                    
                     if (dist < 5) {
                         this.wanderDest = null;
                     } else {
@@ -1185,7 +1180,6 @@
                     const dx = targetX - renderX; 
                     const dy = targetY - renderY;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    
                     if (dist > 5) {
                         const moveX = (dx / dist) * chaseSpeed;
                         const moveY = (dy / dist) * chaseSpeed;
@@ -1203,26 +1197,30 @@
 
                 if (dist < 60) {
                     if (this.hoverStart === 0) this.hoverStart = timestamp;
+                    
+                    // Petting Logic: Scrubbing motion detection
+                    const moveDist = Math.sqrt(Math.pow(mouse.x - this.lastPetPos.x, 2) + Math.pow(mouse.y - this.lastPetPos.y, 2));
+                    if (moveDist > 5 && mouseSpeed > 5) {
+                         this.pettingScore += 5;
+                         if (Math.random() < 0.2) this.triggerEmote('+', config.selectColor);
+                    }
+                    this.lastPetPos = {x: mouse.x, y: mouse.y};
+                    
                 } else {
                     this.hoverStart = 0;
+                    this.pettingScore = 0;
                 }
 
                 if (this.shaking === 0 && this.isSleeping && this.purring) {
-                    // Keep purring
                 } else {
                     this.purring = false;
                 }
-                
                 this.shaking = 0;
 
                 if (this.isSleeping) {
-                    this.state = this.occupiedBox ? 'liquid' : 'sleep'; // Check if liquid
-                    
+                    this.state = this.occupiedBox ? 'liquid' : 'sleep'; 
                     if (Math.random() < 0.02) particles.push(new Particle(renderX + 40, renderY, 'z', '#444'));
-                    
-                    // Box protection: Harder to wake up if in a box
                     const wakeDist = this.occupiedBox ? 20 : 50;
-
                     if (dist < wakeDist && mouseSpeed > 10) {
                         this.isSleeping = false; 
                         this.dreamText = null;
@@ -1240,7 +1238,6 @@
 
                 if (dist < 100) {
                     const isPleased = (this.hoverStart !== 0 && (timestamp - this.hoverStart) > 3000);
-
                     if (mouseSpeed > 30) {
                         this.state = 'shock';
                         this.shaking = 5;
@@ -1251,7 +1248,6 @@
                         this.state = 'happy';
                         this.purring = true;
                         this.shaking = 1; 
-                        
                         if (this.type === 'grumpy') {
                             if (isPleased) {
                                 this.state = 'happy'; 
@@ -1265,9 +1261,8 @@
                         }
                     } 
                     else {
-                        // Idle Animations
-                        if (['yawn', 'sneeze', 'confused', 'love'].includes(this.state)) {
-                            if (timestamp > this.idleActionEnd) {
+                        if (['yawn', 'sneeze', 'confused', 'love', 'euphoria'].includes(this.state)) {
+                            if (timestamp > this.idleActionEnd && this.pettingScore < 50) {
                                 this.state = 'idle'; 
                             }
                         } else {
@@ -1276,13 +1271,9 @@
                             } else {
                                 this.state = 'idle';
                             }
-                            
-                            // Random Sleep Logic (Boosted by Satiety)
                             let sleepChance = 0.0005;
-                            if (this.satiety > 4) sleepChance = 0.05; // High chance if full
-                            
+                            if (this.satiety > 4) sleepChance = 0.05; 
                             if (!this.wanderDest && Math.random() < sleepChance) this.isSleeping = true;
-                            
                             if (this.state === 'idle' && !this.isSleeping && !this.wanderDest && Math.random() < 0.005) { 
                                 const r = Math.random();
                                 if (r < 0.4) {
@@ -1304,7 +1295,6 @@
                     this.state = 'idle';
                     if (!this.wanderDest && Math.random() < 0.0005) this.isSleeping = true;
                 }
-
                 if (this.state === 'idle') {
                     if (timestamp > this.nextBlink) {
                         this.state = 'blink';
@@ -1323,19 +1313,13 @@
                 this.purring = true;
                 this.shaking = 1;
                 this.affinity = Math.min(this.affinity + 1.0, 10);
-                
-                // Update Hunger/Satiety
                 this.lastFedTime = performance.now();
                 this.satiety++;
-
                 this.triggerEmote('yum', '#00ffff');
                 this.triggerEmote('♥', '#ff69b4');
-                
-                // Food Coma Check
                 if (this.satiety > 4) { 
                       this.triggerEmote('Full', '#ffaa00');
-                      // Force sleep after the happy animation
-                      this.isSleeping = true; // Will take effect next update loop after singingUntil
+                      this.isSleeping = true; 
                       this.triggerEmote('zZz', '#aaaaaa');
                 }
             }
@@ -1349,9 +1333,7 @@
                 this.singingUntil = timestamp + 400; 
                 this.isSleeping = false;
                 this.dreamText = null;
-                
                 const isPleased = (this.hoverStart !== 0 && (timestamp - this.hoverStart) > 3000);
-
                 if (isPleased) {
                     this.state = 'happy';
                     playMeow(1.2 + Math.random() * 0.3, 'normal'); 
@@ -1359,10 +1341,8 @@
                     this.triggerEmote('^_^', '#ff69b4');
                     return; 
                 }
-                
                 let soundType = 'normal';
                 let pitch = 0.9 + Math.random() * 0.4;
-                
                 if (this.type === 'grumpy') {
                     const r = Math.random();
                     if (r < 0.4) soundType = 'screech';
@@ -1371,7 +1351,6 @@
                 } else {
                     if (Math.random() < 0.05) soundType = 'screech';
                 }
-
                 if (soundType === 'screech') {
                     this.state = 'screech';
                     playMeow(pitch, 'screech');
@@ -1394,10 +1373,8 @@
                 this.singingUntil = performance.now() + 600;
                 this.hoverStart = performance.now() - 5000; 
                 this.affinity = Math.min(this.affinity + 2.0, 10);
-                
                 playMeow(1.5, 'chirp');
                 playMeow(1.0, 'normal');
-                
                 for(let i=0; i<8; i++) {
                     this.triggerEmote('♥', '#ff00ff');
                     this.triggerEmote('★', '#ffff00');
@@ -1409,11 +1386,9 @@
                 const drawX = pos.x;
                 const drawY = pos.y;
                 
-                // Name Tag
                 if (this.name) {
                     ctx.font = 'bold 10px "Fira Code", monospace';
                     const nameWidth = ctx.measureText(this.name).width;
-                    
                     if (this.nameGlow > 0.05) {
                         ctx.shadowBlur = this.nameGlow * 10;
                         ctx.shadowColor = config.treatColor; 
@@ -1422,55 +1397,40 @@
                         ctx.shadowBlur = 0;
                         ctx.fillStyle = config.baseColor;
                     }
-                    
                     ctx.fillText(this.name, drawX + 35 - nameWidth/2, drawY - 10);
                     ctx.shadowBlur = 0; 
                     ctx.font = `${config.fontSize}px ${config.fontFamily}`;
                 }
 
-                // Render Content (Speech OR Dream)
                 const contentText = this.speech || this.dreamText;
-                
                 if (contentText) {
                     ctx.font = '10px "Fira Code", monospace';
                     const textWidth = ctx.measureText(contentText).width;
                     const padding = 6;
-                    
                     ctx.fillStyle = 'rgba(0,0,0,0.8)';
-                    // Dreams get a different color border (cyan) vs Speech (green/base)
                     ctx.strokeStyle = this.dreamText ? '#00ffff' : config.baseColor;
                     ctx.lineWidth = 1;
-                    
                     const bX = drawX + 35 - textWidth/2 - padding;
                     const bY = drawY - 35 - padding;
-                    
-                    // Bubble shape
                     ctx.fillRect(bX, bY, textWidth + padding*2, 20);
                     ctx.strokeRect(bX, bY, textWidth + padding*2, 20);
-                    
-                    // Thought bubbles get little circles
                     if (this.dreamText) {
                         ctx.beginPath();
                         ctx.arc(drawX + 45, drawY - 8, 3, 0, Math.PI*2);
                         ctx.arc(drawX + 50, drawY - 15, 5, 0, Math.PI*2);
                         ctx.stroke();
                     }
-                    
-                    // Text
                     ctx.fillStyle = this.dreamText ? '#00ffff' : config.baseColor;
                     ctx.fillText(contentText, bX + padding, bY + 13);
-                    
                     ctx.font = `${config.fontSize}px ${config.fontFamily}`;
                 }
                 
-                // Affinity Aura
                 if (this.affinity > 5) {
-                    const intensity = (this.affinity - 5) / 5; // 0.0 to 1.0
+                    const intensity = (this.affinity - 5) / 5; 
                     ctx.shadowBlur = intensity * 15;
                     ctx.shadowColor = config.selectColor;
                 }
 
-                // Selection Highlight
                 if (isSelecting && !this.isDragged) {
                     const cx = drawX + 30;
                     const cy = drawY + 20;
@@ -1486,18 +1446,15 @@
 
                 let color = config.baseColor;
                 if (this.isDragged) color = config.dragColor;
-                else if (this.state === 'sing' || this.state === 'happy') color = config.singColor;
+                else if (this.state === 'sing' || this.state === 'happy' || this.state === 'euphoria') color = config.singColor;
                 else if (this.state === 'shock' || this.state === 'screech' || this.state === 'dragFast' || this.state === 'chase' || this.state === 'swarm') color = config.warnColor;
                 else if (this.purring && this.type !== 'grumpy') color = config.activeColor;
                 
                 ctx.fillStyle = color;
-                
-                if (this.state === 'shock' || this.state === 'sing' || this.purring || this.state === 'screech' || this.isDragged || this.state === 'happy' || this.state === 'chase' || this.state === 'swarm') {
+                if (this.state === 'shock' || this.state === 'sing' || this.purring || this.state === 'screech' || this.isDragged || this.state === 'happy' || this.state === 'chase' || this.state === 'swarm' || this.state === 'euphoria') {
                     ctx.shadowBlur = 10;
                     ctx.shadowColor = color;
                 } 
-                
-                // Re-apply correct shadow for drawing the cat body
                 if (this.affinity > 5 && !ctx.shadowBlur) {
                      const intensity = (this.affinity - 5) / 5; 
                      ctx.shadowBlur = intensity * 15;
@@ -1511,7 +1468,6 @@
                     shakeY = (Math.random() - 0.5) * this.shaking;
                 }
 
-                // DRAW EARS (Visual feedback for Sleep State)
                 let earsStr = catArt.ears;
                 if (this.isSleeping && !this.occupiedBox) {
                     earsStr = catArt.earsSleep;
@@ -1524,12 +1480,11 @@
                 }
                 ctx.fillText(faceStr, drawX + shakeX, drawY + config.fontSize + shakeY);
                 ctx.fillText(catArt.body, drawX + shakeX, drawY + (config.fontSize * 2) + shakeY);
-                
-                ctx.shadowBlur = 0; // Reset for next items
+                ctx.shadowBlur = 0; 
             }
         }
 
-        // --- SPAWN LOGIC (Modified for Reset) ---
+        // --- SPAWN LOGIC ---
         function spawnCats(forceFresh = false) {
              ctx.font = `${config.fontSize}px ${config.fontFamily}`;
              const textMetrics = ctx.measureText(catArt.ears);
@@ -1541,17 +1496,14 @@
              
              totalWorldHeight = rows * catHeight;
              
-             // Try loading saved cats if not forcing a fresh reset
              let savedCats = null;
              if (!forceFresh) {
                  savedCats = loadGame();
              }
              
              if (savedCats && savedCats.length > 0) {
-                 // Map saved data back to Cat objects
                  cats = [];
                  savedCats.forEach(sc => {
-                     // Check if cat is valid within current world
                      const c = new Cat(sc.x, sc.y, sc.gridX, sc.gridY); 
                      c.name = sc.name;
                      c.affinity = sc.affinity || 0;
@@ -1560,11 +1512,9 @@
                      cats.push(c);
                  });
              } else {
-                 // Clean initialization
                  cats = [];
                  const startX = (width - (cols * catWidth)) / 2;
                  const startY = (height - (rows * catHeight)) / 2;
-
                  for (let r = 0; r < rows; r++) {
                      for (let c = 0; c < cols; c++) {
                          const x = startX + c * catWidth;
@@ -1572,8 +1522,6 @@
                          cats.push(new Cat(x, y, c, r));
                      }
                  }
-                 
-                 // Assign initial names to 20% ONLY if not forcing fresh (reset means 0 names)
                  if (!forceFresh) {
                      const count = Math.floor(cats.length * 0.2);
                      const shuffled = [...cats].sort(() => Math.random() - 0.5);
@@ -1592,19 +1540,15 @@
             
             spawnCats(false);
             
-            // Initialize Matrix Rain
             const rainCols = Math.floor(width / 14); 
             rainDrops = Array(rainCols).fill(1).map(() => Math.random() * height * -1);
 
             window.addEventListener('resize', resize);
-            
-            // --- INPUT EVENT LISTENERS ---
-            
             window.addEventListener('contextmenu', e => e.preventDefault()); 
             
             window.addEventListener('keydown', e => {
                 lastInteractionTime = performance.now();
-                if (document.activeElement === cmdInput) return; // Ignore if typing in terminal
+                if (document.activeElement === cmdInput) return; 
                 
                 if (e.key.toLowerCase() === 't') {
                     const worldY = mouse.y - globalScrollY; 
@@ -1615,6 +1559,11 @@
                     const worldY = mouse.y - globalScrollY; 
                     boxes.push(new Box(mouse.x, worldY));
                     playMeow(0.5, 'crunch');
+                }
+                if (e.key.toLowerCase() === 'g') {
+                    const worldY = mouse.y - globalScrollY; 
+                    glitchMice.push(new GlitchMouse(mouse.x, worldY));
+                    playMeow(2.0, 'glitch');
                 }
                 if (e.key.toLowerCase() === 'm') {
                     setupMicrophone();
@@ -1641,12 +1590,10 @@
                     if (globalScrollY < 0) globalScrollY += totalWorldHeight * 1000;
                     globalScrollY = globalScrollY % totalWorldHeight;
                 }
-                
                 if (draggedCat) {
                     draggedCat.x = e.clientX - dragOffset.x;
                     draggedCat.y = e.clientY - dragOffset.y;
                 }
-
                 if (isSelecting) {
                     if (selectionMode === 'center') {
                         const selDx = e.clientX - selectionStart.x;
@@ -1669,9 +1616,7 @@
             
             window.addEventListener('mousedown', e => {
                 lastInteractionTime = performance.now();
-                // Ignore input clicks
                 if (e.target === cmdInput) return;
-
                 initAudio();
                 
                 if (e.button === 1) {
@@ -1679,17 +1624,14 @@
                     isViewDragging = true;
                     return;
                 }
-
                 if (e.button === 2) {
                     isLaserOn = true;
                     return;
                 }
-
                 if (e.button !== 0) return; 
 
                 let clickedCat = null;
                 let minDist = 50; 
-                
                 cats.forEach(cat => {
                     const pos = cat.getRenderPosition();
                     const cx = pos.x + 30; 
@@ -1704,9 +1646,7 @@
                 if (clickedCat) {
                     draggedCat = clickedCat;
                     draggedCat.isDragged = true;
-                    // Exit box if dragged
                     draggedCat.occupiedBox = null; 
-                    
                     const pos = draggedCat.getRenderPosition();
                     dragOffset.x = e.clientX - pos.x;
                     dragOffset.y = e.clientY - pos.y;
@@ -1723,13 +1663,8 @@
             });
             
             window.addEventListener('mouseup', e => {
-                if (e.button === 1) {
-                    isViewDragging = false;
-                }
-                
-                if (e.button === 2) {
-                    isLaserOn = false;
-                }
+                if (e.button === 1) isViewDragging = false;
+                if (e.button === 2) isLaserOn = false;
 
                 if (draggedCat) {
                     draggedCat.isDragged = false;
@@ -1738,34 +1673,27 @@
                     draggedCat = null;
                 } else if (isSelecting) {
                     isSelecting = false;
-                    
                     if (selectionRadius < 10) {
                         playMeow(0.5);
                     } else {
                         playMeow(1.2, 'chirp'); 
-                        
                         cats.forEach(cat => {
                             const pos = cat.getRenderPosition();
                             const cx = pos.x + 30; 
                             const cy = pos.y + 20;
                             const dist = Math.sqrt((cx - selectionCenter.x)**2 + (cy - selectionCenter.y)**2);
-
                             if (dist < selectionRadius) {
                                 const snuggleX = (Math.random() - 0.5) * 50;
                                 const snuggleY = (Math.random() - 0.5) * 30;
-                                
                                 cat.x = selectionCenter.x + snuggleX - 30;
                                 cat.y = (selectionCenter.y + snuggleY - 20) - globalScrollY;
-                                
                                 cat.state = 'sleep';
                                 cat.isSleeping = true;
                                 cat.purring = true;
                                 cat.shaking = 0;
                                 cat.singingUntil = 0; 
-                                
                                 cat.isBundled = true;
                                 cat.bundleReleaseTime = performance.now() + 10000 + Math.random() * 20000;
-                                
                                 cat.triggerEmote('♥', '#ff69b4');
                                 if(Math.random() < 0.5) cat.triggerEmote('z', '#aaaaaa');
                             }
@@ -1780,7 +1708,6 @@
                  lastInteractionTime = performance.now();
                  let clickedCat = null;
                 let minDist = 50; 
-                
                 cats.forEach(cat => {
                     const pos = cat.getRenderPosition();
                     const cx = pos.x + 30; 
@@ -1791,7 +1718,6 @@
                         clickedCat = cat;
                     }
                 });
-                
                 if (clickedCat) {
                     clickedCat.triggerDoubleTap();
                 }
@@ -1812,11 +1738,8 @@
             height = window.innerHeight;
             canvas.width = width;
             canvas.height = height;
-            
             ctx.font = `${config.fontSize}px ${config.fontFamily}`;
             ctx.textBaseline = 'top';
-
-            // Re-initialize Matrix Rain columns
             const rainCols = Math.floor(width / 14);
             if (rainDrops.length < rainCols) {
                 const diff = rainCols - rainDrops.length;
@@ -1825,8 +1748,6 @@
         }
 
         function animate(timestamp) {
-            
-            // Glitch Effect Check
             if (globalGlitchIntensity > 0) {
                 globalGlitchIntensity--;
                 ctx.save();
@@ -1839,45 +1760,36 @@
                 }
             }
             
-            // Draw Background (Matrix Rain)
-            ctx.fillStyle = 'rgba(5, 5, 5, 0.3)'; // Fade effect
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.3)'; 
             ctx.fillRect(0, 0, width, height);
             
             ctx.font = '12px "Fira Code", monospace';
-            ctx.fillStyle = '#0f0'; // Matrix green constant
+            ctx.fillStyle = '#0f0'; 
             
             for(let i=0; i<rainDrops.length; i++) {
-                const char = String.fromCharCode(0x30A0 + Math.random() * 96); // Katakana
+                const char = String.fromCharCode(0x30A0 + Math.random() * 96); 
                 const x = i * 14;
                 const y = rainDrops[i] * 14;
-                
-                // Draw lighter head of the drop
                 ctx.globalAlpha = 0.5;
                 if (Math.random() > 0.975) {
-                     ctx.fillStyle = '#fff'; // Sparkle
+                     ctx.fillStyle = '#fff'; 
                 } else {
-                     ctx.fillStyle = '#003300'; // Dark trail
+                     ctx.fillStyle = '#003300'; 
                 }
-                
-                // Only draw if within reasonable view to save perf
                 if (y > 0 && y < height) {
                     ctx.fillText(char, x, y);
                 }
-                
-                // Varied speed
                 let speed = 1;
                 if (i % 3 === 0) speed = 1.5;
-                
                 if (y > height && Math.random() > 0.975) {
                     rainDrops[i] = 0;
                 }
                 rainDrops[i] += speed;
-                ctx.globalAlpha = 1.0; // Reset
+                ctx.globalAlpha = 1.0; 
             }
             
             ctx.font = `${config.fontSize}px ${config.fontFamily}`;
             
-            // Analyze Mic Volume
             if (isMicOn && micAnalyser) {
                 micAnalyser.getByteFrequencyData(micDataArray);
                 let sum = 0;
@@ -1887,7 +1799,6 @@
                 micVolume = sum / micDataArray.length;
             }
             
-            // Draw Laser Pointer
             if (isLaserOn) {
                 ctx.beginPath();
                 ctx.arc(mouse.x, mouse.y, 5, 0, Math.PI * 2);
@@ -1898,7 +1809,6 @@
                 ctx.shadowBlur = 0;
             }
 
-            // Draw Selection Circle
             if (isSelecting && selectionCenter) {
                 ctx.beginPath();
                 ctx.arc(selectionCenter.x, selectionCenter.y, selectionRadius, 0, Math.PI * 2);
@@ -1911,27 +1821,29 @@
                 ctx.fill();
             }
             
-            // Draw Treats
             treats = treats.filter(t => t.active);
             treats.forEach(t => t.draw(ctx));
 
-            // Draw Boxes (Behind Cats)
             boxes = boxes.filter(b => b.life > 0);
             boxes.forEach(b => {
                 b.update();
                 b.draw(ctx);
             });
+            
+            // Draw Glitch Mice
+            glitchMice = glitchMice.filter(gm => gm.active);
+            glitchMice.forEach(gm => {
+                gm.update();
+                gm.draw(ctx);
+            });
 
             let anyCatPurring = false;
-
-            // Draw Cats
             cats.forEach(cat => {
                 cat.update(timestamp);
                 const pos = cat.getRenderPosition();
                 if (pos.y > -100 && pos.y < height + 100) {
                     cat.draw(ctx);
                 }
-                
                 if (cat.purring) anyCatPurring = true;
             });
 
@@ -1948,14 +1860,12 @@
             mouse.vy *= 0.8;
 
             if (globalGlitchIntensity >= 0) {
-                 ctx.restore(); // Undo glitch translate
+                 ctx.restore(); 
             }
-
             requestAnimationFrame(animate);
         }
 
         init();
-
     </script>
 </body>
 </html>
