@@ -1,353 +1,114 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <svg width="1200" height="720" viewBox="0 0 1200 720" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style>
-      .bg { fill: #050014; }
-      .title { fill: #f5d0fe; font: 700 22px Arial, sans-serif; }
-      .label { fill: #e879f9; font: 700 16px Arial, sans-serif; }
-      .small { fill: #c084fc; font: 14px Arial, sans-serif; }
-      .micro { fill: #c084fc; font: 12px Arial, sans-serif; opacity: 0.95; }
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&amp;display=swap');
+      .bg { fill: #0a0a0f; }
+      .title { fill: #ffffff; font: 700 28px 'Inter', sans-serif; }
+      .label { fill: #22d3ee; font: 700 20px 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
+      .small { fill: #94a3b8; font: 500 15px 'Inter', sans-serif; }
+      .micro { fill: #64748b; font: 400 13px 'Inter', sans-serif; }
 
-      .boundary { fill: none; stroke: #a855f7; stroke-width: 2.5; opacity: 0.75; }
-      .boundaryInner { fill: none; stroke: #7e22ce; stroke-width: 1.8; opacity: 0.55; }
+      /* Boundaries */
+      .boundary-outer { fill: none; stroke: #ec4899; stroke-width: 3; stroke-dasharray: 8 4; opacity: 0.8; }
+      .boundary-inner { fill: rgba(236, 72, 153, 0.05); stroke: #ec4899; stroke-width: 1.5; }
 
-      .edge { stroke: #7e22ce; stroke-width: 1.25; opacity: 0.23; }
-      .edgeStrong { stroke: #d946ef; stroke-width: 1.6; opacity: 0.25; }
+      /* Graph Elements */
+      .edge { stroke: #4f46e5; stroke-width: 1; opacity: 0.3; }
+      .edge-strong { stroke: #818cf8; stroke-width: 1.5; opacity: 0.6; }
+      .node-primary { fill: #22d3ee; filter: drop-shadow(0 0 3px #22d3ee); }
+      .node-secondary { fill: #f472b6; }
 
-      .node { fill: #d946ef; }
-      .nodeSmall { fill: #a855f7; }
-
-      .glyphStroke { stroke: #f5d0fe; stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round; opacity: 0.9; }
-      .glyphFill { fill: #f5d0fe; opacity: 0.92; }
+      /* UI Elements */
+      .glyph-path { fill: none; stroke: #fde047; stroke-width: 4; stroke-linecap: round; }
+      .arrow-head { fill: #fde047; }
     </style>
+
+    <symbol id="k8-cluster" viewBox="-50 -50 100 100">
+      <polygon points="-30,-45 30,-45 45,-30 45,30 30,45 -30,45 -45,30 -45,-30" class="boundary-inner"/>
+      <line x1="-30" y1="-30" x2="30" y2="30" class="edge" />
+      <line x1="30" y1="-30" x2="-30" y2="30" class="edge" />
+      <line x1="0" y1="-40" x2="0" y2="40" class="edge" />
+      <line x1="-40" y1="0" x2="40" y2="0" class="edge" />
+      <circle cx="0" cy="-35" r="4" class="node-secondary"/>
+      <circle cx="25" cy="-25" r="4" class="node-secondary"/>
+      <circle cx="35" cy="0" r="4" class="node-secondary"/>
+      <circle cx="25" cy="25" r="4" class="node-secondary"/>
+      <circle cx="0" cy="35" r="4" class="node-secondary"/>
+      <circle cx="-25" cy="25" r="4" class="node-secondary"/>
+      <circle cx="-35" cy="0" r="4" class="node-secondary"/>
+      <circle cx="-25" cy="-25" r="4" class="node-secondary"/>
+    </symbol>
   </defs>
 
-  <rect x="0" y="0" width="1200" height="720" class="bg"/>
+  <rect width="100%" height="100%" class="bg"/>
 
-  <!-- Title -->
-  <text x="600" y="48" text-anchor="middle" class="title">
-    Nested Recursive Adjacency Example: O8CC  →  O8CCxx2
-  </text>
+  <text x="600" y="50" text-anchor="middle" class="title">Recursive Adjacency Expansion</text>
+  <line x1="500" y1="65" x2="700" y2="65" stroke="#334155" stroke-width="2"/>
 
-  <!-- =========================
-       LEFT PANEL: O8CC (K8)
-       ========================= -->
-  <text x="240" y="105" text-anchor="middle" class="label">O8CC</text>
-  <text x="240" y="130" text-anchor="middle" class="small">K₈ complete graph inside an octagon boundary</text>
+  <g transform="translate(240, 300)">
+    <text y="-180" text-anchor="middle" class="label">Stage 1: O8CC</text>
+    <text y="-155" text-anchor="middle" class="small">Base $K_8$ Complete Graph</text>
+    
+    <polygon points="-110,-110 110,-110 160,0 110,110 -110,110 -160,0" class="boundary-outer" transform="rotate(22.5)"/>
+    
+    <g class="edge-strong">
+      <circle id="p1" cx="0" cy="-90" r="0"/> <circle id="p2" cx="63" cy="-63" r="0"/>
+      <circle id="p3" cx="90" cy="0" r="0"/>  <circle id="p4" cx="63" cy="63" r="0"/>
+      <circle id="p5" cx="0" cy="90" r="0"/>  <circle id="p6" cx="-63" cy="63" r="0"/>
+      <circle id="p7" cx="-90" cy="0" r="0"/> <circle id="p8" cx="-63" cy="-63" r="0"/>
+      
+      <line x1="0" y1="-90" x2="0" y2="90" />
+      <line x1="90" y1="0" x2="-90" y2="0" />
+      <line x1="63" y1="-63" x2="-63" y2="63" />
+      <line x1="63" y1="63" x2="-63" y2="-63" />
+      <path d="M0 -90 L90 0 L0 90 L-90 0 Z" fill="none" stroke-width="1"/>
+    </g>
 
-  <!-- Left octagon boundary -->
-  <polygon class="boundary"
-    points="
-      240,165
-      315,196
-      346,271
-      315,346
-      240,377
-      165,346
-      134,271
-      165,196
-    "/>
-
-  <!-- Left K8 nodes (8 vertices on ring) -->
-  <!-- Node coordinates (same as octagon vertices but slightly inset) -->
-  <!-- Inset ring -->
-  <g id="leftK8">
-    <!-- edges (complete graph: 28) -->
-    <!-- vertices -->
-    <!-- v0 -->
-    <!-- We'll define points explicitly and draw all pair edges -->
-    <!-- Points -->
-    <!-- p0 (top)      (240,180) -->
-    <!-- p1 (top-right)(302,206) -->
-    <!-- p2 (right)    (328,268) -->
-    <!-- p3 (bot-right)(302,330) -->
-    <!-- p4 (bottom)   (240,356) -->
-    <!-- p5 (bot-left) (178,330) -->
-    <!-- p6 (left)     (152,268) -->
-    <!-- p7 (top-left) (178,206) -->
-
-    <!-- Complete graph edges -->
-    <!-- From p0 -->
-    <line x1="240" y1="180" x2="302" y2="206" class="edgeStrong"/>
-    <line x1="240" y1="180" x2="328" y2="268" class="edgeStrong"/>
-    <line x1="240" y1="180" x2="302" y2="330" class="edgeStrong"/>
-    <line x1="240" y1="180" x2="240" y2="356" class="edgeStrong"/>
-    <line x1="240" y1="180" x2="178" y2="330" class="edgeStrong"/>
-    <line x1="240" y1="180" x2="152" y2="268" class="edgeStrong"/>
-    <line x1="240" y1="180" x2="178" y2="206" class="edgeStrong"/>
-
-    <!-- From p1 -->
-    <line x1="302" y1="206" x2="328" y2="268" class="edge"/>
-    <line x1="302" y1="206" x2="302" y2="330" class="edge"/>
-    <line x1="302" y1="206" x2="240" y2="356" class="edge"/>
-    <line x1="302" y1="206" x2="178" y2="330" class="edge"/>
-    <line x1="302" y1="206" x2="152" y2="268" class="edge"/>
-    <line x1="302" y1="206" x2="178" y2="206" class="edge"/>
-
-    <!-- From p2 -->
-    <line x1="328" y1="268" x2="302" y2="330" class="edge"/>
-    <line x1="328" y1="268" x2="240" y2="356" class="edge"/>
-    <line x1="328" y1="268" x2="178" y2="330" class="edge"/>
-    <line x1="328" y1="268" x2="152" y2="268" class="edge"/>
-    <line x1="328" y1="268" x2="178" y2="206" class="edge"/>
-
-    <!-- From p3 -->
-    <line x1="302" y1="330" x2="240" y2="356" class="edge"/>
-    <line x1="302" y1="330" x2="178" y2="330" class="edge"/>
-    <line x1="302" y1="330" x2="152" y2="268" class="edge"/>
-    <line x1="302" y1="330" x2="178" y2="206" class="edge"/>
-
-    <!-- From p4 -->
-    <line x1="240" y1="356" x2="178" y2="330" class="edge"/>
-    <line x1="240" y1="356" x2="152" y2="268" class="edge"/>
-    <line x1="240" y1="356" x2="178" y2="206" class="edge"/>
-
-    <!-- From p5 -->
-    <line x1="178" y1="330" x2="152" y2="268" class="edge"/>
-    <line x1="178" y1="330" x2="178" y2="206" class="edge"/>
-
-    <!-- From p6 -->
-    <line x1="152" y1="268" x2="178" y2="206" class="edge"/>
-
-    <!-- nodes -->
-    <circle cx="240" cy="180" r="5.8" class="node"/>
-    <circle cx="302" cy="206" r="5.8" class="node"/>
-    <circle cx="328" cy="268" r="5.8" class="node"/>
-    <circle cx="302" cy="330" r="5.8" class="node"/>
-    <circle cx="240" cy="356" r="5.8" class="node"/>
-    <circle cx="178" cy="330" r="5.8" class="node"/>
-    <circle cx="152" cy="268" r="5.8" class="node"/>
-    <circle cx="178" cy="206" r="5.8" class="node"/>
+    <circle cx="0" cy="-90" r="7" class="node-primary"/>
+    <circle cx="63" cy="-63" r="7" class="node-primary"/>
+    <circle cx="90" cy="0" r="7" class="node-primary"/>
+    <circle cx="63" cy="63" r="7" class="node-primary"/>
+    <circle cx="0" cy="90" r="7" class="node-primary"/>
+    <circle cx="-63" cy="63" r="7" class="node-primary"/>
+    <circle cx="-90" cy="0" r="7" class="node-primary"/>
+    <circle cx="-63" cy="-63" r="7" class="node-primary"/>
   </g>
 
-  <text x="240" y="420" text-anchor="middle" class="micro">
-    Local adjacency: |E| = 8·7/2 = 28
-  </text>
-
-  <!-- =========================
-       CENTER GLYPH: quadratic expansion
-       ========================= -->
-  <text x="600" y="190" text-anchor="middle" class="label">Quadratic expansion</text>
-  <text x="600" y="215" text-anchor="middle" class="small">O8CC  →  O8CCxx2 (K₈ → K₈²)</text>
-
-  <!-- Arrow-like glyph with "²" hint -->
-  <g transform="translate(0,0)">
-    <!-- main arrow body -->
-    <path class="glyphStroke" d="M460 300 C520 300, 560 300, 610 300 C660 300, 700 300, 740 300"/>
-    <!-- arrow head -->
-    <polygon class="glyphFill" points="740,300 718,288 718,312"/>
-    <!-- nested chevrons indicating 'expansion' -->
-    <path class="glyphStroke" d="M560 270 L590 300 L560 330" />
-    <path class="glyphStroke" d="M620 270 L650 300 L620 330" />
-    <!-- exponent marker -->
-    <text x="690" y="270" class="label">²</text>
+  <g transform="translate(600, 300)">
+    <path d="M-80 0 H60" class="glyph-path" stroke-dasharray="5 5"/>
+    <polygon points="60,-10 85,0 60,10" class="arrow-head"/>
+    <text y="-30" text-anchor="middle" class="label" fill="#fde047">Quadratic</text>
+    <text y="40" text-anchor="middle" class="small">Expansion ($K_8 \to K_8^2$)</text>
   </g>
 
-  <!-- =========================
-       RIGHT PANEL: O8CCxx2 (K8^2)
-       ========================= -->
-  <text x="960" y="105" text-anchor="middle" class="label">O8CCxx2</text>
-  <text x="960" y="130" text-anchor="middle" class="small">K₈²: eight K₈ clusters nested into a whole</text>
+  <g transform="translate(960, 320)">
+    <text y="-200" text-anchor="middle" class="label">Stage 2: O8CCxx2</text>
+    <text y="-175" text-anchor="middle" class="small">8 Clusters of $K_8$</text>
+    
+    <polygon points="-180,-180 180,-180 250,0 180,180 -180,180 -250,0" class="boundary-outer" transform="rotate(22.5)"/>
 
-  <!-- Right big octagon boundary -->
-  <polygon class="boundary"
-    points="
-      960,150
-      1090,204
-      1144,334
-      1090,464
-      960,518
-      830,464
-      776,334
-      830,204
-    "/>
-
-  <!-- Place 8 sub-octagons at the 8 vertices of an inner ring -->
-  <!-- Sub centers (inner ring radius ~150) -->
-  <!-- c0 top (960,205) -->
-  <!-- c1 top-right (1065,255) -->
-  <!-- c2 right (1110,334) -->
-  <!-- c3 bot-right (1065,413) -->
-  <!-- c4 bottom (960,463) -->
-  <!-- c5 bot-left (855,413) -->
-  <!-- c6 left (810,334) -->
-  <!-- c7 top-left (855,255) -->
-
-  <!-- Helper: functionally repeated shapes (manual) -->
-  <!-- Each subcluster: tiny octagon boundary + implied K8 edges + nodes -->
-  <!-- To keep readability, edges are lighter than left panel and drawn as clique chords subset -->
-  <g id="subclusters">
-    <!-- ===== Subcluster template: a small octagon with 8 nodes and a few clique chords ===== -->
-    <!-- We will define one subcluster at a time with consistent offsets. Small radius ~32 -->
-
-    <!-- Sub 0 -->
-    <g transform="translate(960,205)">
-      <polygon class="boundaryInner"
-        points="0,-40 28,-28 40,0 28,28 0,40 -28,28 -40,0 -28,-28"/>
-      <!-- chords (imply clique) -->
-      <line x1="0" y1="-32" x2="40" y2="0" class="edge"/>
-      <line x1="0" y1="-32" x2="0" y2="32" class="edge"/>
-      <line x1="28" y1="-22" x2="-28" y2="22" class="edge"/>
-      <line x1="40" y1="0" x2="-40" y2="0" class="edge"/>
-      <!-- nodes -->
-      <circle cx="0" cy="-32" r="3.8" class="nodeSmall"/>
-      <circle cx="22" cy="-22" r="3.8" class="nodeSmall"/>
-      <circle cx="32" cy="0" r="3.8" class="nodeSmall"/>
-      <circle cx="22" cy="22" r="3.8" class="nodeSmall"/>
-      <circle cx="0" cy="32" r="3.8" class="nodeSmall"/>
-      <circle cx="-22" cy="22" r="3.8" class="nodeSmall"/>
-      <circle cx="-32" cy="0" r="3.8" class="nodeSmall"/>
-      <circle cx="-22" cy="-22" r="3.8" class="nodeSmall"/>
-    </g>
-
-    <!-- Sub 1 -->
-    <g transform="translate(1065,255)">
-      <polygon class="boundaryInner"
-        points="0,-40 28,-28 40,0 28,28 0,40 -28,28 -40,0 -28,-28"/>
-      <line x1="0" y1="-32" x2="40" y2="0" class="edge"/>
-      <line x1="0" y1="-32" x2="0" y2="32" class="edge"/>
-      <line x1="28" y1="-22" x2="-28" y2="22" class="edge"/>
-      <line x1="40" y1="0" x2="-40" y2="0" class="edge"/>
-      <circle cx="0" cy="-32" r="3.8" class="nodeSmall"/>
-      <circle cx="22" cy="-22" r="3.8" class="nodeSmall"/>
-      <circle cx="32" cy="0" r="3.8" class="nodeSmall"/>
-      <circle cx="22" cy="22" r="3.8" class="nodeSmall"/>
-      <circle cx="0" cy="32" r="3.8" class="nodeSmall"/>
-      <circle cx="-22" cy="22" r="3.8" class="nodeSmall"/>
-      <circle cx="-32" cy="0" r="3.8" class="nodeSmall"/>
-      <circle cx="-22" cy="-22" r="3.8" class="nodeSmall"/>
-    </g>
-
-    <!-- Sub 2 -->
-    <g transform="translate(1110,334)">
-      <polygon class="boundaryInner"
-        points="0,-40 28,-28 40,0 28,28 0,40 -28,28 -40,0 -28,-28"/>
-      <line x1="0" y1="-32" x2="40" y2="0" class="edge"/>
-      <line x1="0" y1="-32" x2="0" y2="32" class="edge"/>
-      <line x1="28" y1="-22" x2="-28" y2="22" class="edge"/>
-      <line x1="40" y1="0" x2="-40" y2="0" class="edge"/>
-      <circle cx="0" cy="-32" r="3.8" class="nodeSmall"/>
-      <circle cx="22" cy="-22" r="3.8" class="nodeSmall"/>
-      <circle cx="32" cy="0" r="3.8" class="nodeSmall"/>
-      <circle cx="22" cy="22" r="3.8" class="nodeSmall"/>
-      <circle cx="0" cy="32" r="3.8" class="nodeSmall"/>
-      <circle cx="-22" cy="22" r="3.8" class="nodeSmall"/>
-      <circle cx="-32" cy="0" r="3.8" class="nodeSmall"/>
-      <circle cx="-22" cy="-22" r="3.8" class="nodeSmall"/>
-    </g>
-
-    <!-- Sub 3 -->
-    <g transform="translate(1065,413)">
-      <polygon class="boundaryInner"
-        points="0,-40 28,-28 40,0 28,28 0,40 -28,28 -40,0 -28,-28"/>
-      <line x1="0" y1="-32" x2="40" y2="0" class="edge"/>
-      <line x1="0" y1="-32" x2="0" y2="32" class="edge"/>
-      <line x1="28" y1="-22" x2="-28" y2="22" class="edge"/>
-      <line x1="40" y1="0" x2="-40" y2="0" class="edge"/>
-      <circle cx="0" cy="-32" r="3.8" class="nodeSmall"/>
-      <circle cx="22" cy="-22" r="3.8" class="nodeSmall"/>
-      <circle cx="32" cy="0" r="3.8" class="nodeSmall"/>
-      <circle cx="22" cy="22" r="3.8" class="nodeSmall"/>
-      <circle cx="0" cy="32" r="3.8" class="nodeSmall"/>
-      <circle cx="-22" cy="22" r="3.8" class="nodeSmall"/>
-      <circle cx="-32" cy="0" r="3.8" class="nodeSmall"/>
-      <circle cx="-22" cy="-22" r="3.8" class="nodeSmall"/>
-    </g>
-
-    <!-- Sub 4 -->
-    <g transform="translate(960,463)">
-      <polygon class="boundaryInner"
-        points="0,-40 28,-28 40,0 28,28 0,40 -28,28 -40,0 -28,-28"/>
-      <line x1="0" y1="-32" x2="40" y2="0" class="edge"/>
-      <line x1="0" y1="-32" x2="0" y2="32" class="edge"/>
-      <line x1="28" y1="-22" x2="-28" y2="22" class="edge"/>
-      <line x1="40" y1="0" x2="-40" y2="0" class="edge"/>
-      <circle cx="0" cy="-32" r="3.8" class="nodeSmall"/>
-      <circle cx="22" cy="-22" r="3.8" class="nodeSmall"/>
-      <circle cx="32" cy="0" r="3.8" class="nodeSmall"/>
-      <circle cx="22" cy="22" r="3.8" class="nodeSmall"/>
-      <circle cx="0" cy="32" r="3.8" class="nodeSmall"/>
-      <circle cx="-22" cy="22" r="3.8" class="nodeSmall"/>
-      <circle cx="-32" cy="0" r="3.8" class="nodeSmall"/>
-      <circle cx="-22" cy="-22" r="3.8" class="nodeSmall"/>
-    </g>
-
-    <!-- Sub 5 -->
-    <g transform="translate(855,413)">
-      <polygon class="boundaryInner"
-        points="0,-40 28,-28 40,0 28,28 0,40 -28,28 -40,0 -28,-28"/>
-      <line x1="0" y1="-32" x2="40" y2="0" class="edge"/>
-      <line x1="0" y1="-32" x2="0" y2="32" class="edge"/>
-      <line x1="28" y1="-22" x2="-28" y2="22" class="edge"/>
-      <line x1="40" y1="0" x2="-40" y2="0" class="edge"/>
-      <circle cx="0" cy="-32" r="3.8" class="nodeSmall"/>
-      <circle cx="22" cy="-22" r="3.8" class="nodeSmall"/>
-      <circle cx="32" cy="0" r="3.8" class="nodeSmall"/>
-      <circle cx="22" cy="22" r="3.8" class="nodeSmall"/>
-      <circle cx="0" cy="32" r="3.8" class="nodeSmall"/>
-      <circle cx="-22" cy="22" r="3.8" class="nodeSmall"/>
-      <circle cx="-32" cy="0" r="3.8" class="nodeSmall"/>
-      <circle cx="-22" cy="-22" r="3.8" class="nodeSmall"/>
-    </g>
-
-    <!-- Sub 6 -->
-    <g transform="translate(810,334)">
-      <polygon class="boundaryInner"
-        points="0,-40 28,-28 40,0 28,28 0,40 -28,28 -40,0 -28,-28"/>
-      <line x1="0" y1="-32" x2="40" y2="0" class="edge"/>
-      <line x1="0" y1="-32" x2="0" y2="32" class="edge"/>
-      <line x1="28" y1="-22" x2="-28" y2="22" class="edge"/>
-      <line x1="40" y1="0" x2="-40" y2="0" class="edge"/>
-      <circle cx="0" cy="-32" r="3.8" class="nodeSmall"/>
-      <circle cx="22" cy="-22" r="3.8" class="nodeSmall"/>
-      <circle cx="32" cy="0" r="3.8" class="nodeSmall"/>
-      <circle cx="22" cy="22" r="3.8" class="nodeSmall"/>
-      <circle cx="0" cy="32" r="3.8" class="nodeSmall"/>
-      <circle cx="-22" cy="22" r="3.8" class="nodeSmall"/>
-      <circle cx="-32" cy="0" r="3.8" class="nodeSmall"/>
-      <circle cx="-22" cy="-22" r="3.8" class="nodeSmall"/>
-    </g>
-
-    <!-- Sub 7 -->
-    <g transform="translate(855,255)">
-      <polygon class="boundaryInner"
-        points="0,-40 28,-28 40,0 28,28 0,40 -28,28 -40,0 -28,-28"/>
-      <line x1="0" y1="-32" x2="40" y2="0" class="edge"/>
-      <line x1="0" y1="-32" x2="0" y2="32" class="edge"/>
-      <line x1="28" y1="-22" x2="-28" y2="22" class="edge"/>
-      <line x1="40" y1="0" x2="-40" y2="0" class="edge"/>
-      <circle cx="0" cy="-32" r="3.8" class="nodeSmall"/>
-      <circle cx="22" cy="-22" r="3.8" class="nodeSmall"/>
-      <circle cx="32" cy="0" r="3.8" class="nodeSmall"/>
-      <circle cx="22" cy="22" r="3.8" class="nodeSmall"/>
-      <circle cx="0" cy="32" r="3.8" class="nodeSmall"/>
-      <circle cx="-22" cy="22" r="3.8" class="nodeSmall"/>
-      <circle cx="-32" cy="0" r="3.8" class="nodeSmall"/>
-      <circle cx="-22" cy="-22" r="3.8" class="nodeSmall"/>
-    </g>
+    <use href="#k8-cluster" x="-40" y="-170" width="80" height="80" />
+    <use href="#k8-cluster" x="80" y="-110" width="80" height="80" />
+    <use href="#k8-cluster" x="130" y="-40" width="80" height="80" />
+    <use href="#k8-cluster" x="80" y="30" width="80" height="80" />
+    <use href="#k8-cluster" x="-40" y="90" width="80" height="80" />
+    <use href="#k8-cluster" x="-160" y="30" width="80" height="80" />
+    <use href="#k8-cluster" x="-210" y="-40" width="80" height="80" />
+    <use href="#k8-cluster" x="-160" y="-110" width="80" height="80" />
   </g>
 
-  <!-- Right panel explanatory labels -->
-  <text x="960" y="570" text-anchor="middle" class="micro">
-    Whole boundary: octagon (global container)
-  </text>
-  <text x="960" y="592" text-anchor="middle" class="micro">
-    Inside: 8 embedded K₈ clusters (each with its own octagon boundary)
-  </text>
-
-  <!-- Bottom legend -->
-  <text x="60" y="655" class="small">Legend:</text>
-  <circle cx="120" cy="650" r="6" class="node"/>
-  <text x="135" y="655" class="micro">K₈ node (O8CC)</text>
-  <circle cx="320" cy="650" r="5" class="nodeSmall"/>
-  <text x="335" y="655" class="micro">Nested K₈ node (O8CCxx2 subcluster)</text>
-  <line x1="560" y1="650" x2="610" y2="650" class="edgeStrong"/>
-  <text x="620" y="655" class="micro">Clique edges (implied complete)</text>
-
-  <!-- Alt text / accessibility -->
-  <desc>
-    Two-panel diagram. Left: O8CC shown as an octagon boundary containing a K8 complete graph (eight nodes on a ring with dense chords).
-    Center: arrow-like glyph with chevrons and a superscript 2 indicating quadratic expansion.
-    Right: O8CCxx2 shown as a larger octagon boundary containing eight smaller octagon subclusters arranged on an inner octagon ring; each subcluster implies a K8 complete graph.
-  </desc>
+  <rect x="50" y="640" width="1100" height="60" rx="10" fill="#161b22"/>
+  <g transform="translate(100, 670)">
+    <circle r="6" class="node-primary"/>
+    <text x="15" y="5" class="micro">Base Vertices</text>
+    
+    <circle cx="180" r="5" class="node-secondary"/>
+    <text x="195" y="5" class="micro">Recursive Leaf Nodes</text>
+    
+    <line x1="380" y1="0" x2="420" y2="0" class="edge-strong"/>
+    <text x="430" y="5" class="micro">Primary Adjacency</text>
+    
+    <line x1="600" y1="0" x2="640" y2="0" class="boundary-outer" stroke-dasharray="2 2"/>
+    <text x="650" y="5" class="micro">Octagonal Constraint</text>
+  </g>
 </svg>
