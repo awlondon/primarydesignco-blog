@@ -203,6 +203,10 @@ Recursive literacy may become a prerequisite for meaningful human governance in 
 
 The light field above is one small demonstration of that principle.
 
+If you want to experiment with recursive structure directly, the PDCo Dev Studio provides a sandbox for building and manipulating hierarchical systems in real time. The goal is not aesthetic output but structural literacy: learning to see scaling pressure before it becomes collapse.
+
+Explore: https://dev.primarydesignco.com
+
 ---
 
 ## References
