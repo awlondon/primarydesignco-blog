@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>AI 3D HLSF Light Show - Orbits Extended</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: #000; 
+            color: white; 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+        #canvas-container:active { cursor: grabbing; }
+        .glass-panel {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: rgba(10, 10, 20, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 48px rgba(168, 85, 247, 0.6);
+            user-select: none;
+        }
+        input[type=range] { -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px; width: 20px; border-radius: 50%;
+            background: #d946ef; margin-top: -8px;
+            cursor: pointer; box-shadow: 0 0 18px rgba(217, 70, 239, 0.8);
+            transition: background 0.3s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            background: #e879f9;
+            box-shadow: 0 0 25px rgba(232, 121, 249, 1);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 6px; background: #2e2a66; border-radius: 3px;
+        }
+        .control-btn { @apply py-2 px-3 text-[10px] font-bold rounded-lg transition-all border border-slate-800 bg-slate-900 text-slate-400 hover:bg-slate-800; }
+        .control-btn.active { @apply bg-fuchsia-600 border-fuchsia-400 text-white shadow-lg shadow-fuchsia-900/60; }
+        
+        #flash-btn:active {
+            background: #fae8ff;
+            transform: scale(0.96);
+            box-shadow: 0 0 36px rgba(255, 192, 255, 0.6);
+        }
+        #live-stats {
+            position: fixed;
+            bottom: 8px;
+            left: 8px;
+            background: rgba(10,10,20,0.85);
+            border: 1px solid rgba(168,85,247,0.4);
+            box-shadow: 0 4px 16px rgba(168,85,247,0.5);
+            color: #e879f9;
+            font-family: monospace;
+            font-size: 10px;
+            padding: 8px 12px;
+            border-radius: 16px;
+            z-index: 30;
+            user-select: none;
+            width: 148px;
+            line-height: 1.2;
+            pointer-events: none;
+        }
+        #live-stats span {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
+        #live-stats span:last-child { margin-bottom: 0; }
+        
+        /* Scrollbar hiding for cleaner UI if needed */
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+
+    <!-- 2D Analog Overlay (Top Right) -->
+    <div class="glass-panel fixed top-6 right-6 p-2 rounded-2xl z-20 border-fuchsia-500/30 overflow-hidden select-none pointer-events-none sm:pointer-events-auto">
+        <p class="text-[9px] font-black text-fuchsia-400 uppercase tracking-widest text-center mb-1">2D Analog</p>
+        <canvas id="analog-2d" width="180" height="180" class="rounded-xl bg-black/50"></canvas>
+    </div>
+
+    <!-- Main Structural Controls -->
+    <div class="glass-panel fixed top-6 left-6 p-6 rounded-3xl w-80 z-10 transition-all duration-400 hover:bg-slate-900/90 select-none">
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-xl font-black text-fuchsia-400 tracking-tighter italic drop-shadow-[0_0_10px_rgba(168,85,247,0.9)]">HLSF SHOW v11</h1>
+            <div class="text-[10px] text-fuchsia-300 bg-fuchsia-950/60 px-2 py-1 rounded font-mono border border-fuchsia-800/50 shadow-inner">
+                Lvl <span id="l-val">1</span>
+            </div>
+        </div>
+        
+        <div class="mb-4">
+            <div class="flex justify-between text-[10px] text-slate-400 mb-2 uppercase font-black tracking-widest" aria-label="Luminosity control">
+                <label for="n-input">Luminosity (n)</label>
+                <span id="n-val" class="text-fuchsia-300 font-mono" aria-live="polite">6</span>
+            </div>
+            <input type="range" id="n-input" min="3" max="50" value="6" step="1" class="w-full" aria-valuemin="3" aria-valuemax="50" aria-valuenow="6" aria-label="Luminosity slider" />
+            <p class="text-[8px] text-slate-500 mt-1 uppercase italic tracking-tighter">Maximum N increased to 50</p>
+        </div>
+
+        <div class="mb-4">
+            <div class="flex justify-between text-[10px] text-slate-400 mb-2 uppercase font-black tracking-widest" aria-label="Internal Depth control">
+                <label for="l-input">Internal Depth (L)</label>
+                <span id="node-total" class="text-emerald-400 font-mono" aria-live="polite">0</span>
+            </div>
+            <input type="range" id="l-input" min="0" max="8" value="1" step="1" class="w-full" aria-valuemin="0" aria-valuemax="8" aria-valuenow="1" aria-label="Depth slider" />
+            <p id="l-limit-warning" class="text-[8px] text-amber-500 mt-1 uppercase italic tracking-tighter hidden">Depth capped to prevent crash</p>
+        </div>
+
+        <div class="mb-4">
+            <div class="flex justify-between text-[10px] text-slate-400 mb-2 uppercase font-black tracking-widest" aria-label="Internal Scale control">
+                <label for="scale-input">Internal Scale</label>
+                <span id="scale-val" class="text-amber-400 font-mono" aria-live="polite">0.45</span>
+            </div>
+            <input type="range" id="scale-input" min="10" max="80" value="45" step="1" class="w-full" aria-valuemin="10" aria-valuemax="80" aria-valuenow="45" aria-label="Scale slider" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 mb-3">
+            <button id="toggle-spin" class="control-btn active" aria-pressed="true" aria-label="Toggle spinning">TURBO SPIN</button>
+            <button id="toggle-hue" class="control-btn active" aria-pressed="true" aria-label="Toggle hue cycling">HUE CYCLE</button>
+            <button id="toggle-pulse" class="control-btn active" aria-pressed="true" aria-label="Toggle strobe pulse">STROBE PULSE</button>
+            <button id="reset-view" class="control-btn" aria-label="Reset camera view">SYNC CAMERA</button>
+        </div>
+        
+        <button id="flash-btn" class="w-full py-2 bg-white hover:bg-fuchsia-100 text-black text-[10px] font-black rounded-lg transition-all uppercase tracking-widest shadow-xl select-none" aria-label="Burst energy button (hold)">
+            BURST ENERGY (HOLD)
+        </button>
+    </div>
+
+    <div id="live-stats" aria-live="polite" aria-atomic="true" role="region" aria-label="Live Statistics">
+        <span><strong>Nodes:</strong> <span id="stat-nodes">0</span></span>
+        <span><strong>Edges:</strong> <span id="stat-edges">0</span></span>
+        <span><strong>FPS:</strong> <span id="stat-fps">0</span></span>
+        <span><strong>Mem (MB):</strong> <span id="stat-mem">0</span></span>
+    </div>
+
+<script>
+    // Improved glow texture for better appearance
+    function createGlowTexture() {
+        const size = 128;
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        const grad = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+        grad.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+        grad.addColorStop(0.15, 'rgba(255, 255, 255, 0.6)');
+        grad.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
+        grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, size, size);
+        return new THREE.Texture(canvas);
+    }
+
+    const container = document.getElementById('canvas-container');
+    const canvas2d = document.getElementById('analog-2d');
+    const ctx2d = canvas2d.getContext('2d');
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000011); // Slightly tinted blue for mood
+    
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 15000);
+    camera.position.z = 900;
+
+    const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true, powerPreference: "high-performance"});
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Cap pixel ratio for performance
+    container.appendChild(renderer.domElement);
+
+    const state = {
+        n: 6,
+        level: 1,
+        internalScale: 0.45,
+        time: 0,
+        isSpinning: true,
+        isHueCycling: true,
+        isPulsing: true,
+        isBursting: false,
+        flashIntensity: 0,
+        theme: {
+            hueBase: 280,
+            edgeOpacity: 0.28,
+            nodeSize: 14
+        },
+        nodes: [],
+        clusters: [],
+        edgeGroups: [],
+        orbits: [],
+        isDragging: false,
+        prevMouse: { x: 0, y: 0 }
+    };
+
+    const ui = {
+        nInput: document.getElementById('n-input'),
+        lInput: document.getElementById('l-input'),
+        lLimitWarning: document.getElementById('l-limit-warning'),
+        sInput: document.getElementById('scale-input'),
+        nVal: document.getElementById('n-val'),
+        lVal: document.getElementById('l-val'),
+        sVal: document.getElementById('scale-val'),
+        nodeTotal: document.getElementById('node-total'),
+        resetBtn: document.getElementById('reset-view'),
+        flashBtn: document.getElementById('flash-btn'),
+        btnSpin: document.getElementById('toggle-spin'),
+        btnHue: document.getElementById('toggle-hue'),
+        btnPulse: document.getElementById('toggle-pulse'),
+        statNodes: document.getElementById('stat-nodes'),
+        statEdges: document.getElementById('stat-edges'),
+        statFPS: document.getElementById('stat-fps'),
+        statMem: document.getElementById('stat-mem')
+    };
+
+    // Drag to rotate logic
+    container.addEventListener('pointerdown', (e) => {
+        state.isDragging = true;
+        state.prevMouse = { x: e.clientX, y: e.clientY };
+        container.setPointerCapture(e.pointerId);
+        container.style.cursor = 'grabbing';
+    });
+    
+    container.addEventListener('pointerup', (e) => { 
+        state.isDragging = false; 
+        container.releasePointerCapture(e.pointerId);
+        container.style.cursor = 'grab';
+    });
+    
+    container.addEventListener('pointercancel', (e) => {
+        state.isDragging = false;
+        container.releasePointerCapture(e.pointerId);
+        container.style.cursor = 'grab';
+    });
+
+    container.addEventListener('pointermove', (e) => {
+        if (!state.isDragging) return;
+        const dx = e.clientX - state.prevMouse.x;
+        const dy = e.clientY - state.prevMouse.y;
+        
+        mainGroup.rotation.y += dx * 0.006;
+        mainGroup.rotation.x += dy * 0.006;
+        
+        // Clamp vertical rotation to avoid flipping
+        mainGroup.rotation.x = Math.min(Math.max(mainGroup.rotation.x, -Math.PI/2.2), Math.PI/2.2);
+        
+        state.prevMouse = { x: e.clientX, y: e.clientY };
+    });
+
+    container.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const newZ = camera.position.z + e.deltaY * 0.6;
+        camera.position.z = THREE.MathUtils.clamp(newZ, 150, 8000);
+    }, {passive:false});
+
+    // Burst energy smoothness
+    const startBurst = (e) => { 
+        if(e.cancelable) e.preventDefault();
+        state.isBursting = true; 
+        state.flashIntensity = 1.0; 
+    };
+    const stopBurst = () => { state.isBursting = false; };
+    
+    ui.flashBtn.addEventListener('mousedown', startBurst);
+    ui.flashBtn.addEventListener('touchstart', startBurst, {passive: false});
+    
+    window.addEventListener('mouseup', stopBurst);
+    window.addEventListener('touchend', stopBurst);
+    ui.flashBtn.addEventListener('pointerout', stopBurst);
+
+    let mainGroup = new THREE.Group();
+    scene.add(mainGroup);
+    
+    const glowTexture = createGlowTexture();
+    glowTexture.needsUpdate = true;
+
+    function createHierarchy3D(cx, cy, cz, radius, level, path = []) {
+        state.clusters.push({ x: cx, y: cy, z: cz, radius, level, path: [...path] });
+        if(level === 0){
+            state.nodes.push({ x: cx, y: cy, z: cz, path: [...path] });
+            return;
+        }
+        for(let i = 0; i < state.n; i++){
+            // Golden angle distribution for children
+            const phi = Math.acos(1 - 2 * (i + 0.5) / state.n);
+            const theta = Math.PI * (1 + Math.sqrt(5)) * (i + 0.5);
+            
+            const childCx = cx + radius * Math.sin(phi) * Math.cos(theta);
+            const childCy = cy + radius * Math.sin(phi) * Math.sin(theta);
+            const childCz = cz + radius * Math.cos(phi);
+            
+            createHierarchy3D(childCx, childCy, childCz, radius * state.internalScale, level - 1, [...path, i]);
+        }
+    }
+
+    function disposeGeometry(obj) {
+        if (obj.geometry) {
+            obj.geometry.dispose();
+            obj.geometry = null;
+        }
+        if (obj.material) {
+            if(Array.isArray(obj.material)) obj.material.forEach(m => m.dispose());
+            else obj.material.dispose();
+            obj.material = null;
+        }
+    }
+
+    function generate() {
+        // Cleanup old scene
+        while(mainGroup.children.length) {
+            const obj = mainGroup.children[0];
+            disposeGeometry(obj);
+            mainGroup.remove(obj);
+        }
+        
+        state.nodes = [];
+        state.clusters = [];
+        state.edgeGroups = [];
+        state.orbits = [];
+
+        // Recursively build structure
+        createHierarchy3D(0, 0, 0, 270, state.level);
+        ui.nodeTotal.textContent = state.nodes.length.toLocaleString();
+
+        const maxDrawLevels = 3;
+        let totalEdgesCount = 0;
+        
+        // Create edges connecting siblings
+        for(let depth = 0; depth <= Math.min(state.level, maxDrawLevels); depth++) {
+            const groups = new Map();
+            state.clusters.filter(c => c.path.length === state.level - depth + 1).forEach(c => {
+                const key = c.path.slice(0, -1).join(',') || 'root';
+                if(!groups.has(key)) groups.set(key, []);
+                groups.get(key).push(c);
+            });
+
+            groups.forEach(group => {
+                if(group.length < 2) return;
+                // Performance safeguard for dense connections
+                if(group.length > 40 && depth > 1) return;
+
+                const geometry = new THREE.BufferGeometry();
+                const vertices = [];
+                for(let i=0; i<group.length; i++) {
+                    for(let j=i+1; j<group.length; j++) {
+                        vertices.push(group[i].x, group[i].y, group[i].z);
+                        vertices.push(group[j].x, group[j].y, group[j].z);
+                        totalEdgesCount++;
+                    }
+                }
+                geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+                const material = new THREE.LineBasicMaterial({
+                    color: new THREE.Color().setHSL(state.theme.hueBase/360, 0.85, 0.55),
+                    transparent:true,
+                    opacity: state.theme.edgeOpacity / (depth * 2 + 1),
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false
+                });
+                const lineSeg = new THREE.LineSegments(geometry, material);
+                mainGroup.add(lineSeg);
+                state.edgeGroups.push({ mesh: lineSeg, depth: depth });
+            });
+        }
+        ui.statEdges.textContent = totalEdgesCount.toLocaleString();
+
+        // Create Nodes (Points)
+        const pointsGeometry = new THREE.BufferGeometry();
+        const positions = [];
+        const maxPoints = 150000; // soft cap for performance
+        const step = Math.max(1, Math.floor(state.nodes.length / maxPoints));
+        
+        for(let i=0; i<state.nodes.length; i+=step) {
+            const n = state.nodes[i];
+            positions.push(n.x, n.y, n.z);
+        }
+        
+        pointsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        const pointsMaterial = new THREE.PointsMaterial({
+            size: state.theme.nodeSize,
+            map: glowTexture,
+            transparent: true,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+            color: new THREE.Color().setHSL(state.theme.hueBase/360, 0.95, 0.6),
+            sizeAttenuation: true
+        });
+        const pts = new THREE.Points(pointsGeometry, pointsMaterial);
+        mainGroup.add(pts);
+        state.nodesMesh = pts;
+
+        // Create Orbital Rings for the first level clusters
+        const orbitMaterial = new THREE.LineBasicMaterial({
+            color: new THREE.Color().setHSL(state.theme.hueBase/360, 0.65, 0.8),
+            transparent: true,
+            opacity: state.theme.edgeOpacity * 0.4,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+        const ringSegments = 64;
+
+        const orbitClusters = state.clusters.filter(c => c.level === 1);
+        orbitClusters.forEach(c => {
+            const orbitGroup = new THREE.Group();
+            const radius = c.radius * 1.3;
+            ['x','y','z'].forEach(axis => {
+                const circleGeom = new THREE.BufferGeometry();
+                const positionsOrbit = [];
+                for(let i=0; i<=ringSegments; i++) {
+                    const angle = (i / ringSegments) * Math.PI * 2;
+                    if(axis==='x') positionsOrbit.push(c.x, c.y + radius * Math.cos(angle), c.z + radius * Math.sin(angle));
+                    else if(axis==='y') positionsOrbit.push(c.x + radius * Math.cos(angle), c.y, c.z + radius * Math.sin(angle));
+                    else if(axis==='z') positionsOrbit.push(c.x + radius * Math.cos(angle), c.y + radius * Math.sin(angle), c.z);
+                }
+                circleGeom.setAttribute('position', new THREE.Float32BufferAttribute(positionsOrbit, 3));
+                const line = new THREE.Line(circleGeom, orbitMaterial);
+                orbitGroup.add(line);
+            });
+            mainGroup.add(orbitGroup);
+            state.orbits.push(orbitGroup);
+            orbitGroup.userData = { 
+                speedX: 0.022 + Math.random()*0.014, 
+                speedY: 0.017 + Math.random()*0.016, 
+                speedZ: 0.012 + Math.random()*0.018, 
+                angleX:0, angleY:0, angleZ:0 
+            };
+        });
+        
+        ui.statNodes.textContent = state.nodes.length.toLocaleString();
+    }
+
+    function updateLBounds(){
+        const nodeBudget = 120000; 
+        let maxL = Math.floor(Math.log(nodeBudget) / Math.log(state.n));
+        maxL = Math.max(1, Math.min(maxL, 7)); 
+        ui.lInput.max = maxL;
+        if(state.level > maxL){
+            state.level = maxL;
+            ui.lInput.value = maxL;
+            ui.lVal.textContent = maxL;
+            generate();
+        }
+        if(maxL < 4) ui.lLimitWarning.classList.remove('hidden');
+        else ui.lLimitWarning.classList.add('hidden');
+    }
+
+    function render2DAnalog() {
+        ctx2d.clearRect(0, 0, canvas2d.width, canvas2d.height);
+        const cx = canvas2d.width / 2;
+        const cy = canvas2d.height / 2;
+        const baseRadius = 70;
+        const pulse = state.isPulsing ? Math.sin(state.time * 2)*0.22 + 0.85 : 1.0;
+        const hShift = state.isHueCycling ? state.time*0.12 : 0;
+        const h = ((state.theme.hueBase/360)+hShift)%1;
+        const col = `hsla(${h*360}, 88%, 60%, 0.68)`;
+
+        function drawRecursive2D(x, y, radius, level, rot) {
+            if(level === 0){
+                ctx2d.beginPath();
+                ctx2d.arc(x, y, 1.6, 0, Math.PI*2);
+                ctx2d.fillStyle = col;
+                ctx2d.shadowColor = col;
+                ctx2d.shadowBlur = 4;
+                ctx2d.fill();
+                ctx2d.shadowBlur = 0;
+                return;
+            }
+            ctx2d.beginPath();
+            ctx2d.strokeStyle = `hsla(${h*360}, 88%, 44%, ${0.23/(state.level - level + 1)})`;
+            ctx2d.lineWidth = 0.82;
+            let pts = [];
+            
+            // Draw polygon
+            for(let i=0; i<state.n; i++){
+                const angle = (Math.PI*2*i)/state.n + rot;
+                const px = x+radius*Math.cos(angle);
+                const py = y+radius*Math.sin(angle);
+                
+                // Only draw connections if low N count to avoid mess
+                if(i===0) ctx2d.moveTo(px, py);
+                else ctx2d.lineTo(px, py);
+                
+                pts.push({ px, py });
+            }
+            ctx2d.closePath();
+            ctx2d.stroke();
+            
+            // Draw internal lines if N is small
+            if(state.n <= 20) {
+                 ctx2d.beginPath();
+                 ctx2d.lineWidth = 0.3;
+                 for(let i=0; i<pts.length; i++){
+                    ctx2d.moveTo(x, y); // Connect center to edge
+                    ctx2d.lineTo(pts[i].px, pts[i].py);
+                 }
+                 ctx2d.stroke();
+            }
+
+            pts.forEach(pt => drawRecursive2D(pt.px, pt.py, radius*state.internalScale, level-1, rot*1.49));
+        }
+        let spinAngle = state.isSpinning ? (state.time*0.5) : -Math.PI/2;
+        drawRecursive2D(cx, cy, baseRadius*pulse, Math.min(state.level, 3), spinAngle);
+    }
+
+    ui.nInput.oninput = e => {
+        state.n = Math.min(50, Math.max(3, parseInt(e.target.value)));
+        ui.nVal.textContent = state.n;
+        updateLBounds();
+        generate();
+    };
+    ui.lInput.oninput = e => {
+        state.level = Math.min(parseInt(ui.lInput.max), Math.max(0, parseInt(e.target.value)));
+        ui.lVal.textContent = state.level;
+        generate();
+    };
+    ui.sInput.oninput = e => {
+        state.internalScale = parseInt(e.target.value)/100;
+        ui.sVal.textContent = state.internalScale.toFixed(2);
+        generate();
+    };
+    ui.resetBtn.onclick = () => {
+        camera.position.set(0, 0, 900);
+        camera.lookAt(0, 0, 0);
+        mainGroup.rotation.set(0, 0, 0);
+    };
+
+    ui.btnSpin.onclick = () => {
+        state.isSpinning = !state.isSpinning;
+        ui.btnSpin.classList.toggle('active', state.isSpinning);
+        ui.btnSpin.setAttribute('aria-pressed', state.isSpinning.toString());
+    };
+    ui.btnHue.onclick = () => {
+        state.isHueCycling = !state.isHueCycling;
+        ui.btnHue.classList.toggle('active', state.isHueCycling);
+        ui.btnHue.setAttribute('aria-pressed', state.isHueCycling.toString());
+    };
+    ui.btnPulse.onclick = () => {
+        state.isPulsing = !state.isPulsing;
+        ui.btnPulse.classList.toggle('active', state.isPulsing);
+        ui.btnPulse.setAttribute('aria-pressed', state.isPulsing.toString());
+    };
+
+    let lastFrameTime = performance.now();
+    let frames = 0;
+    let fps = 0;
+
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        const now = performance.now();
+        frames++;
+        if (now - lastFrameTime >= 1000) {
+            fps = frames;
+            frames = 0;
+            lastFrameTime = now;
+            ui.statFPS.textContent = fps.toString();
+            // Memory usage (if supported)
+            if (performance.memory) {
+                const memMB = (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(1);
+                ui.statMem.textContent = memMB;
+            } else {
+                ui.statMem.textContent = "-";
+            }
+        }
+
+        state.time += 0.017;
+        const pulse = state.isPulsing ? Math.sin(state.time*2)*0.24 + 0.88 : 1.0;
+        const colorShift = state.isHueCycling ? state.time*0.114 : 0;
+
+        if(state.isSpinning && !state.isDragging) {
+            mainGroup.rotation.y += 0.006;
+            // Removed continuous X rotation to prevent it from getting stuck at the clamp limit
+            // Instead, we just let the user set X angle or leave it at 0
+        }
+
+        if(state.isBursting) {
+            state.flashIntensity = 1.0;
+        } else if(state.flashIntensity > 0) {
+            state.flashIntensity *= 0.92;
+        }
+
+        state.edgeGroups.forEach(eg => {
+            const h = ((state.theme.hueBase/360)+colorShift + (eg.depth*0.053))%1;
+            if(eg.mesh.material){
+                eg.mesh.material.color.setHSL(h, 0.85, 0.48 + state.flashIntensity*0.5);
+                eg.mesh.material.opacity = ((state.theme.edgeOpacity/(eg.depth*2+1))*pulse) + state.flashIntensity*0.9;
+            }
+        });
+
+        if(state.nodesMesh && state.nodesMesh.material) {
+            const hNodes = ((state.theme.hueBase/360)+colorShift)%1;
+            state.nodesMesh.material.color.setHSL(hNodes, 0.95, 0.62 + state.flashIntensity*0.4);
+            state.nodesMesh.material.size = state.theme.nodeSize * pulse * (1 + state.flashIntensity*1.4);
+        }
+
+        state.orbits.forEach(orbitGrp => {
+            orbitGrp.userData.angleX += orbitGrp.userData.speedX;
+            orbitGrp.userData.angleY += orbitGrp.userData.speedY;
+            orbitGrp.userData.angleZ += orbitGrp.userData.speedZ;
+            orbitGrp.rotation.x = orbitGrp.userData.angleX;
+            orbitGrp.rotation.y = orbitGrp.userData.angleY;
+            orbitGrp.rotation.z = orbitGrp.userData.angleZ;
+        });
+
+        render2DAnalog();
+        renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth/window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Initialize
+    updateLBounds();
+    generate();
+    animate();
+</script>
+</body>
+</html>
