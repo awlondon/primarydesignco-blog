@@ -15,10 +15,10 @@ abstract: |
   for an AGI economy.
 ---
 
-<div style="position:relative; width:100%; padding-top:112.5%;">
+<div style="position:relative; width:100%; padding-top:112.5%; margin-bottom:0; line-height:0;">
   <iframe
     src="/assets/2026-02-11-hlsf-as-interface/demo/index.html"
-    style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
+    style="position:absolute; top:0; left:0; width:100%; height:100%; border:0; display:block;"
     loading="lazy"
     scrolling="no"
   ></iframe>
