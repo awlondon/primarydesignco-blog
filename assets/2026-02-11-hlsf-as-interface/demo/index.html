@@ -394,41 +394,48 @@
         state.nodesMesh = pts;
 
         // Create Orbital Rings for the first level clusters
+        // Optimization: Reduce obstruction at higher levels
+        // Base opacity reduced from 0.4 to 0.15 and divided by level
+        const orbitOpacity = (state.theme.edgeOpacity * 0.15) / Math.max(1, state.level);
+
         const orbitMaterial = new THREE.LineBasicMaterial({
             color: new THREE.Color().setHSL(state.theme.hueBase/360, 0.65, 0.8),
             transparent: true,
-            opacity: state.theme.edgeOpacity * 0.4,
+            opacity: orbitOpacity,
             blending: THREE.AdditiveBlending,
             depthWrite: false
         });
         const ringSegments = 64;
 
-        const orbitClusters = state.clusters.filter(c => c.level === 1);
-        orbitClusters.forEach(c => {
-            const orbitGroup = new THREE.Group();
-            const radius = c.radius * 1.3;
-            ['x','y','z'].forEach(axis => {
-                const circleGeom = new THREE.BufferGeometry();
-                const positionsOrbit = [];
-                for(let i=0; i<=ringSegments; i++) {
-                    const angle = (i / ringSegments) * Math.PI * 2;
-                    if(axis==='x') positionsOrbit.push(c.x, c.y + radius * Math.cos(angle), c.z + radius * Math.sin(angle));
-                    else if(axis==='y') positionsOrbit.push(c.x + radius * Math.cos(angle), c.y, c.z + radius * Math.sin(angle));
-                    else if(axis==='z') positionsOrbit.push(c.x + radius * Math.cos(angle), c.y + radius * Math.sin(angle), c.z);
-                }
-                circleGeom.setAttribute('position', new THREE.Float32BufferAttribute(positionsOrbit, 3));
-                const line = new THREE.Line(circleGeom, orbitMaterial);
-                orbitGroup.add(line);
+        // Only generate orbit rings if level is low (<= 3) to prevent visual clutter
+        if (state.level <= 3) {
+            const orbitClusters = state.clusters.filter(c => c.level === 1);
+            orbitClusters.forEach(c => {
+                const orbitGroup = new THREE.Group();
+                const radius = c.radius * 1.3;
+                ['x','y','z'].forEach(axis => {
+                    const circleGeom = new THREE.BufferGeometry();
+                    const positionsOrbit = [];
+                    for(let i=0; i<=ringSegments; i++) {
+                        const angle = (i / ringSegments) * Math.PI * 2;
+                        if(axis==='x') positionsOrbit.push(c.x, c.y + radius * Math.cos(angle), c.z + radius * Math.sin(angle));
+                        else if(axis==='y') positionsOrbit.push(c.x + radius * Math.cos(angle), c.y, c.z + radius * Math.sin(angle));
+                        else if(axis==='z') positionsOrbit.push(c.x + radius * Math.cos(angle), c.y + radius * Math.sin(angle), c.z);
+                    }
+                    circleGeom.setAttribute('position', new THREE.Float32BufferAttribute(positionsOrbit, 3));
+                    const line = new THREE.Line(circleGeom, orbitMaterial);
+                    orbitGroup.add(line);
+                });
+                mainGroup.add(orbitGroup);
+                state.orbits.push(orbitGroup);
+                orbitGroup.userData = { 
+                    speedX: 0.022 + Math.random()*0.014, 
+                    speedY: 0.017 + Math.random()*0.016, 
+                    speedZ: 0.012 + Math.random()*0.018, 
+                    angleX:0, angleY:0, angleZ:0 
+                };
             });
-            mainGroup.add(orbitGroup);
-            state.orbits.push(orbitGroup);
-            orbitGroup.userData = { 
-                speedX: 0.022 + Math.random()*0.014, 
-                speedY: 0.017 + Math.random()*0.016, 
-                speedZ: 0.012 + Math.random()*0.018, 
-                angleX:0, angleY:0, angleZ:0 
-            };
-        });
+        }
         
         ui.statNodes.textContent = state.nodes.length.toLocaleString();
     }
