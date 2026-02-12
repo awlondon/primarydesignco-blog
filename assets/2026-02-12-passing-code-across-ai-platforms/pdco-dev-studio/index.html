@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+<head>
+<style>
+  body,html { margin:0; background:#000; overflow:hidden; }
+  canvas { display:block; image-rendering: pixelated; background: #001; }
+</style>
+</head>
+<body>
+<canvas id="city"></canvas>
+<script>
+const canvas = document.getElementById('city');
+const ctx = canvas.getContext('2d');
+let w, h;
+
+function resize(){
+  w = window.innerWidth;
+  h = window.innerHeight;
+  canvas.width = w;
+  canvas.height = h;
+}
+resize();
+window.onresize = resize;
+
+// Pixel size (for blockiness)
+const px = 4;
+
+// Buildings data
+const skyline = [];
+const buildingCount = Math.floor(w / (px * 10));
+for(let i=0; i<buildingCount; i++){
+  const bw = px * (4 + Math.floor(Math.random()*6));
+  const bh = px * (20 + Math.floor(Math.random()*40));
+  const bx = i * px * 10;
+  const windows = [];
+  const rows = Math.floor(bh / (px*4));
+  const cols = Math.floor(bw / (px*2));
+  for(let r=0; r<rows; r++){
+    windows[r] = [];
+    for(let c=0; c<cols; c++){
+      windows[r][c] = Math.random() > 0.7;
+    }
+  }
+  skyline.push({x: bx, w: bw, h: bh, windows});
+}
+
+// Starfield
+const stars = [];
+for(let i=0; i<100; i++){
+  stars.push({
+    x: Math.random()*w,
+    y: Math.random()*h*0.4,
+    size: Math.random()*2+1,
+    blink: Math.random()*1
+  });
+}
+
+function drawStars(time){
+  ctx.fillStyle = '#fff';
+  stars.forEach(s => {
+    const alpha = 0.5 + 0.5 * Math.sin(time/500 + s.blink*10);
+    ctx.fillStyle = `rgba(255,255,255,${alpha.toFixed(2)})`;
+    ctx.fillRect(s.x, s.y, s.size, s.size);
+  });
+}
+
+let time=0;
+
+function drawBuilding(b){
+  // building main block
+  const grad = ctx.createLinearGradient(0, h - b.h, 0, h);
+  grad.addColorStop(0, '#0ff');
+  grad.addColorStop(1, '#005');
+  ctx.fillStyle = grad;
+  ctx.fillRect(b.x, h - b.h, b.w, b.h);
+  
+  // windows
+  const winOnColor = '#0ff';
+  const winOffColor = '#013';
+
+  for(let r=0; r<b.windows.length; r++){
+    for(let c=0; c<b.windows[r].length; c++){
+      const wx = b.x + c * px * 2 + px/2;
+      const wy = h - b.h + r * px * 4 + px/2;
+      // blinking effect
+      let on = b.windows[r][c];
+      // flicker windows randomly over time
+      if(Math.random() < 0.01) b.windows[r][c] = !b.windows[r][c];
+      ctx.fillStyle = on ? winOnColor : winOffColor;
+      ctx.fillRect(wx, wy, px*1.5, px*3);
+    }
+  }
+}
+
+function animate(t=0){
+  time = t;
+  ctx.clearRect(0,0,w,h);
+  drawStars(time);
+
+  // Draw ground
+  ctx.fillStyle = '#020a0a';
+  ctx.fillRect(0, h - px*10, w, px*10);
+
+  skyline.forEach(b => drawBuilding(b));
+
+  // Moving neon signs (rects) on some buildings
+  const neonHeight = px*3;
+  for(let i=0; i<skyline.length; i+=4){
+    const b = skyline[i];
+    const y = h - b.h + px*3 + (Math.sin(time/500+i)*2)*px;
+    const xOff = (time/5 + i*50) % (b.w - px*10);
+    ctx.fillStyle = 'cyan';
+    ctx.fillRect(b.x + xOff, y, px*8, neonHeight);
+  }
+
+  requestAnimationFrame(animate);
+}
+requestAnimationFrame(animate);
+</script>
+</body>
+</html>
