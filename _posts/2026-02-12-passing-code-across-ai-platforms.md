@@ -102,6 +102,14 @@ This isolates default generative character.
 
 ### 1. PDCo Dev Studio (GPT-4-mini API)
 
+<div style="position:relative; width:100%; padding-top:56.25%;">
+  <iframe
+    src="/assets/2026-02-12-passing-code-across-ai-platforms/pdco-dev-studio/index.html"
+    style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
+    loading="lazy"
+  ></iframe>
+</div>
+
 Baseline output characteristics:
 
 - Single-file architecture.
@@ -133,6 +141,15 @@ Competent, clean, conservative.
 
 ### 2. Gemini (Canvas)
 
+<div style="position:relative; width:100%; padding-top:56.25%;">
+  <iframe
+    src="/assets/2026-02-12-passing-code-across-ai-platforms/gemini-canvas/index.html"
+    style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
+    loading="lazy"
+  ></iframe>
+</div>
+
+
 Baseline output characteristics:
 
 - Higher visual density.
@@ -163,6 +180,14 @@ High aesthetic output; moderate structural volatility.
 
 ### 3. ChatGPT 5.2 Thinking (Canvas)
 
+<div style="position:relative; width:100%; padding-top:56.25%;">
+  <iframe
+    src="/assets/2026-02-12-passing-code-across-ai-platforms/chatgpt-5-2-thinking/index.html"
+    style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
+    loading="lazy"
+  ></iframe>
+</div>
+
 Baseline output characteristics:
 
 - Logical low-resolution buffer scaling.
@@ -192,6 +217,14 @@ Architecturally mature; slightly heavy for simple tasks.
 
 ### 4. Claude Code (Sonnet 4.5)
 
+<div style="position:relative; width:100%; padding-top:56.25%;">
+  <iframe
+    src="/assets/2026-02-12-passing-code-across-ai-platforms/claude-code-sonnet-4-5/index.html"
+    style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
+    loading="lazy"
+  ></iframe>
+</div>
+
 Baseline output characteristics:
 
 - Pixel-drawing via nested loops.
@@ -219,6 +252,14 @@ Solid mid-tier generative coder.
 ---
 
 ### 5. Grok 4.1 (Code Mode)
+
+<div style="position:relative; width:100%; padding-top:56.25%;">
+  <iframe
+    src="/assets/2026-02-12-passing-code-across-ai-platforms/grok-4-1-code-mode/index.html"
+    style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
+    loading="lazy"
+  ></iframe>
+</div>
 
 Baseline output characteristics:
 
@@ -248,6 +289,15 @@ Reliable baseline generator; moderate creative ceiling.
 
 ### 6. LlamaCode GLM 4.6
 
+<div style="position:relative; width:100%; padding-top:56.25%;">
+  <iframe
+    src="/assets/2026-02-12-passing-code-across-ai-platforms/llamacode-glm-4-6.png"
+    style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
+    loading="lazy"
+  ></iframe>
+</div>
+
+
 Baseline behavior:
 
 - Multi-file structure by default.
@@ -272,6 +322,14 @@ Architecturally over-scoped for the task; not deployment-ready in single-pass fo
 ---
 
 ### 7. Base 44
+
+<div style="position:relative; width:100%; padding-top:56.25%;">
+  <iframe
+    src="/assets/2026-02-12-passing-code-across-ai-platforms/base-44.png"
+    style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
+    loading="lazy"
+  ></iframe>
+</div>
 
 Observed behavior:
 
