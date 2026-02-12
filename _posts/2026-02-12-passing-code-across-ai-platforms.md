@@ -100,7 +100,7 @@ This isolates default generative character.
 
 ---
 
-### 1. PDCo Dev Studio (GPT-4-mini API)
+### 1. PDCo Dev Studio (GPT-4o-mini API)
 
 <div style="position:relative; width:100%; padding-top:56.25%;">
   <iframe
