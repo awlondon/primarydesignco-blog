@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futuristic Cityscape - Pixel Animation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #0a0e27;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: monospace;
+        }
+        canvas {
+            border: 4px solid #1a1f3a;
+            box-shadow: 0 0 30px rgba(100, 200, 255, 0.3);
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="cityscape"></canvas>
+    <script>
+        const canvas = document.getElementById('cityscape');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas size
+        const PIXEL_SIZE = 4;
+        const WIDTH = 160;
+        const HEIGHT = 120;
+        canvas.width = WIDTH * PIXEL_SIZE;
+        canvas.height = HEIGHT * PIXEL_SIZE;
+        
+        // Color palette
+        const colors = {
+            sky: ['#0a0e27', '#1a1f3a', '#2a2f4a'],
+            building1: '#1a2332',
+            building2: '#243245',
+            building3: '#2d3f5a',
+            window: '#4a90e2',
+            windowBright: '#64b5f6',
+            neon1: '#ff006e',
+            neon2: '#00f5ff',
+            neon3: '#ffbe0b',
+            vehicle: '#ff4081',
+            stars: '#ffffff'
+        };
+        
+        // Animation state
+        let frame = 0;
+        const stars = [];
+        const vehicles = [];
+        const billboards = [];
+        
+        // Initialize stars
+        for (let i = 0; i < 50; i++) {
+            stars.push({
+                x: Math.random() * WIDTH,
+                y: Math.random() * 50,
+                brightness: Math.random(),
+                speed: Math.random() * 0.02
+            });
+        }
+        
+        // Initialize flying vehicles
+        for (let i = 0; i < 3; i++) {
+            vehicles.push({
+                x: Math.random() * WIDTH,
+                y: 30 + Math.random() * 40,
+                speed: 0.5 + Math.random() * 0.5,
+                color: i % 2 === 0 ? colors.neon2 : colors.vehicle
+            });
+        }
+        
+        // Initialize animated billboards
+        billboards.push(
+            { x: 20, y: 25, width: 15, height: 8, colors: [colors.neon1, colors.neon2, colors.neon3] },
+            { x: 80, y: 30, width: 12, height: 8, colors: [colors.neon3, colors.neon2] },
+            { x: 130, y: 35, width: 10, height: 6, colors: [colors.neon2, colors.neon1] }
+        );
+        
+        function drawPixel(x, y, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x * PIXEL_SIZE, y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE);
+        }
+        
+        function drawRect(x, y, width, height, color) {
+            for (let i = 0; i < width; i++) {
+                for (let j = 0; j < height; j++) {
+                    drawPixel(x + i, y + j, color);
+                }
+            }
+        }
+        
+        function drawSky() {
+            // Gradient sky
+            for (let y = 0; y < 60; y++) {
+                const colorIndex = Math.floor((y / 60) * colors.sky.length);
+                const color = colors.sky[Math.min(colorIndex, colors.sky.length - 1)];
+                drawRect(0, y, WIDTH, 1, color);
+            }
+        }
+        
+        function drawStars() {
+            stars.forEach(star => {
+                star.brightness += star.speed;
+                if (star.brightness > 1) star.brightness = 0;
+                
+                const alpha = Math.sin(star.brightness * Math.PI);
+                const brightness = Math.floor(alpha * 255);
+                const color = `rgba(255, 255, 255, ${alpha})`;
+                
+                drawPixel(Math.floor(star.x), Math.floor(star.y), color);
+            });
+        }
+        
+        function drawBuilding(x, y, width, height, buildingColor) {
+            // Main building
+            drawRect(x, y, width, height, buildingColor);
+            
+            // Windows
+            for (let wx = 2; wx < width - 1; wx += 3) {
+                for (let wy = 2; wy < height - 1; wy += 4) {
+                    const isLit = Math.random() > 0.3 || (frame % 60 < 30 && Math.random() > 0.5);
+                    const windowColor = isLit ? 
+                        (Math.random() > 0.8 ? colors.windowBright : colors.window) : 
+                        buildingColor;
+                    drawPixel(x + wx, y + wy, windowColor);
+                }
+            }
+            
+            // Antenna
+            if (Math.random() > 0.5) {
+                const antennaX = x + Math.floor(width / 2);
+                drawRect(antennaX, y - 3, 1, 3, colors.building3);
+                // Blinking light
+                if (frame % 20 < 10) {
+                    drawPixel(antennaX, y - 4, colors.neon1);
+                }
+            }
+        }
+        
+        function drawBillboards() {
+            billboards.forEach(billboard => {
+                const colorIndex = Math.floor((frame / 20)) % billboard.colors.length;
+                const color = billboard.colors[colorIndex];
+                drawRect(billboard.x, billboard.y, billboard.width, billboard.height, color);
+                
+                // Border
+                for (let i = 0; i < billboard.width; i++) {
+                    drawPixel(billboard.x + i, billboard.y, colors.building3);
+                    drawPixel(billboard.x + i, billboard.y + billboard.height - 1, colors.building3);
+                }
+                for (let i = 0; i < billboard.height; i++) {
+                    drawPixel(billboard.x, billboard.y + i, colors.building3);
+                    drawPixel(billboard.x + billboard.width - 1, billboard.y + i, colors.building3);
+                }
+            });
+        }
+        
+        function drawVehicles() {
+            vehicles.forEach(vehicle => {
+                vehicle.x += vehicle.speed;
+                if (vehicle.x > WIDTH + 10) {
+                    vehicle.x = -10;
+                    vehicle.y = 30 + Math.random() * 40;
+                }
+                
+                const x = Math.floor(vehicle.x);
+                const y = Math.floor(vehicle.y);
+                
+                // Vehicle body
+                drawRect(x, y, 6, 2, vehicle.color);
+                drawPixel(x + 6, y, vehicle.color);
+                
+                // Headlights
+                drawPixel(x + 6, y, colors.windowBright);
+                drawPixel(x + 6, y + 1, colors.windowBright);
+                
+                // Trail effect
+                if (frame % 2 === 0) {
+                    drawPixel(x - 1, y + 1, `rgba(255, 255, 255, 0.3)`);
+                }
+            });
+        }
+        
+        function drawCityscape() {
+            // Clear canvas
+            ctx.fillStyle = '#0a0e27';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw sky and stars
+            drawSky();
+            drawStars();
+            
+            // Draw buildings (background to foreground)
+            // Background buildings
+            drawBuilding(10, 70, 18, 50, colors.building1);
+            drawBuilding(35, 65, 22, 55, colors.building1);
+            drawBuilding(90, 68, 16, 52, colors.building1);
+            drawBuilding(115, 72, 20, 48, colors.building1);
+            
+            // Draw billboards
+            drawBillboards();
+            
+            // Mid-ground buildings
+            drawBuilding(5, 80, 25, 40, colors.building2);
+            drawBuilding(45, 75, 30, 45, colors.building2);
+            drawBuilding(95, 78, 18, 42, colors.building2);
+            drawBuilding(125, 82, 28, 38, colors.building2);
+            
+            // Draw flying vehicles
+            drawVehicles();
+            
+            // Foreground buildings
+            drawBuilding(0, 90, 20, 30, colors.building3);
+            drawBuilding(28, 85, 35, 35, colors.building3);
+            drawBuilding(70, 88, 25, 32, colors.building3);
+            drawBuilding(105, 92, 22, 28, colors.building3);
+            drawBuilding(140, 87, 20, 33, colors.building3);
+            
+            // Ground/street
+            drawRect(0, 120, WIDTH, 10, '#0f1420');
+            
+            // Street lights
+            for (let i = 15; i < WIDTH; i += 30) {
+                drawRect(i, 118, 1, 2, colors.building3);
+                if (frame % 40 < 20) {
+                    drawPixel(i, 117, colors.neon3);
+                    drawPixel(i - 1, 118, `rgba(255, 190, 11, 0.3)`);
+                    drawPixel(i + 1, 118, `rgba(255, 190, 11, 0.3)`);
+                }
+            }
+            
+            frame++;
+        }
+        
+        function animate() {
+            drawCityscape();
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+    </script>
+</body>
+</html>
