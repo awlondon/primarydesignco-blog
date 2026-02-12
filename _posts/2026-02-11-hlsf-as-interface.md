@@ -15,12 +15,14 @@ abstract: |
   for an AGI economy.
 ---
 
-<div style="position:relative; width:100%; padding-top:112.5%; margin-bottom:0; line-height:0;">
+<div class="embed-frame" style="--embed-aspect-ratio: 8 / 9; margin-bottom: 0; line-height: 0;">
   <iframe
     src="/assets/2026-02-11-hlsf-as-interface/demo/index.html"
-    style="position:absolute; top:0; left:0; width:100%; height:100%; border:0; display:block;"
+    title="Interactive demo: HLSF Show"
     loading="lazy"
-    scrolling="no"
+    sandbox="allow-scripts allow-same-origin"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen
   ></iframe>
 </div>
 

@@ -18,11 +18,14 @@ abstract: |
   inspectable, and extensible interaction surfaces.
 ---
 
-<div style="width:100%; aspect-ratio: 16 / 27; margin-bottom:2rem;">
+<div class="embed-frame" style="--embed-aspect-ratio: 16 / 27;">
   <iframe
     src="https://dev.primarydesignco.com"
-    style="width:100%; height:100%; border:0;"
+    title="Interactive demo: Maya Dev Interface"
     loading="lazy"
+    sandbox="allow-scripts allow-same-origin"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen
   ></iframe>
 </div>
 

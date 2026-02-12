@@ -16,11 +16,16 @@ abstract: |
   features of development—even in the age of large language models.
 ---
 
+<div class="embed-frame" style="--embed-aspect-ratio: 16 / 9;">
 <iframe
   src="/assets/2026-02-08-five-steps-forward-two-back/demo/index.html"
-  style="width:100%; height:520px; border:none; border-radius:12px;"
-  loading="lazy">
+  title="Interactive demo: Five Steps Forward, Two Back"
+  loading="lazy"
+  sandbox="allow-scripts allow-same-origin"
+  referrerpolicy="strict-origin-when-cross-origin"
+  allowfullscreen>
 </iframe>
+</div>
 
 
 ## Opening: A sprint that worked—and didn’t

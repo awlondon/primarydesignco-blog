@@ -25,12 +25,14 @@ The result is a new development pattern: a continuous negotiation loop between h
 
 ---
 
-<div style="position:relative; width:100%; padding-top:56.25%; margin:2rem 0;">
+<div class="embed-frame" style="--embed-aspect-ratio: 16 / 9;">
   <iframe
     src="/assets/2026-02-10-human-intent-ai-capability-loop/demo/index.html"
-    style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
+    title="Interactive demo: Human Intent ⇄ AI Capability"
     loading="lazy"
-    title="Human Intent ⇄ AI Capability Demo: Cat Matrix"
+    sandbox="allow-scripts allow-same-origin"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen
   ></iframe>
 </div>
 
