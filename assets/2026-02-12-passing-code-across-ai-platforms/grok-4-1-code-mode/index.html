@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futuristic Pixel Cityscape Animation</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            overflow: hidden;
+        }
+        canvas {
+            image-rendering: pixelated; /* Forces crisp pixelated scaling */
+            image-rendering: crisp-edges;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="city"></canvas>
+
+    <script>
+        const canvas = document.getElementById('city');
+        const ctx = canvas.getContext('2d');
+
+        // Low internal resolution for true pixel-art feel, scaled up with CSS
+        const WIDTH = 320;
+        const HEIGHT = 200;
+        const SCALE = 4; // Adjust for larger/sharper display
+
+        canvas.width = WIDTH;
+        canvas.height = HEIGHT;
+        canvas.style.width = `${WIDTH * SCALE}px`;
+        canvas.style.height = `${HEIGHT * SCALE}px`;
+
+        const neonColors = ['#00ffff', '#ff00ff', '#ffff00', '#ff6600'];
+
+        // Buildings (x, width, height from bottom)
+        const buildings = [
+            { x: 15,  w: 50, h: 130 },
+            { x: 70,  w: 45, h: 160 },
+            { x: 120, w: 55, h: 110 },
+            { x: 180, w: 60, h: 150 },
+            { x: 245, w: 40, h: 140 },
+            { x: 290, w: 35, h: 170 }
+        ];
+
+        // Windows and their light states
+        const windows = [];      // {x, y, colorIndex}
+        const lightStates = [];   // 0 = off, 1 = on
+
+        // Flying vehicles
+        const vehicles = [];
+        for (let i = 0; i < 10; i++) {
+            vehicles.push({
+                x: Math.random() * WIDTH * 1.5 - WIDTH / 2,
+                y: 30 + i * 12,
+                speed: (Math.random() > 0.5 ? 1 : -1) * (0.6 + Math.random() * 0.8),
+                color: neonColors[Math.floor(Math.random() * neonColors.length)]
+            });
+        }
+
+        // Stars for twinkling
+        const stars = [];
+        for (let i = 0; i < 80; i++) {
+            stars.push({
+                x: Math.random() * WIDTH,
+                y: Math.random() * (HEIGHT * 0.5),
+                phase: Math.random() * Math.PI * 2
+            });
+        }
+
+        // Initialize windows
+        function initWindows() {
+            for (const b of buildings) {
+                for (let wx = b.x + 8; wx < b.x + b.w - 8; wx += 12) {
+                    for (let wy = HEIGHT - b.h + 15; wy < HEIGHT - 15; wy += 16) {
+                        windows.push({
+                            x: wx,
+                            y: wy,
+                            colorIndex: Math.floor(Math.random() * neonColors.length)
+                        });
+                        lightStates.push(Math.random() < 0.35 ? 1 : 0); // ~35% initially lit
+                    }
+                }
+            }
+        }
+
+        function drawSky() {
+            // Night gradient sky
+            const grad = ctx.createLinearGradient(0, 0, 0, HEIGHT * 0.7);
+            grad.addColorStop(0, '#0a001a');
+            grad.addColorStop(1, '#2a0044');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+            // Twinkling stars
+            ctx.fillStyle = '#ffffff';
+            for (const s of stars) {
+                const brightness = Math.abs(Math.sin(performance.now() / 800 + s.phase));
+                if (brightness > 0.6) {
+                    ctx.globalAlpha = brightness;
+                    ctx.fillRect(s.x, s.y, 1, 1);
+                    if (brightness > 0.9) ctx.fillRect(s.x, s.y, 2, 2);
+                }
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawBuildings() {
+            // Distant silhouette layer (dark)
+            ctx.fillStyle = '#0f0f2a';
+            for (let i = 0; i < WIDTH; i += 25) {
+                const h = 40 + Math.sin(i / 30) * 15;
+                ctx.fillRect(i, HEIGHT - h - 30, 25, h + 30);
+            }
+
+            // Main buildings
+            ctx.fillStyle = '#112244';
+            for (const b of buildings) {
+                ctx.fillRect(b.x, HEIGHT - b.h, b.w, b.h);
+            }
+
+            // Top antenna light on tallest building
+            const tallest = buildings.reduce((a, b) => a.h > b.h ? a : b);
+            const antX = tallest.x + tallest.w / 2;
+            const antY = HEIGHT - tallest.h - 8;
+            if (Math.floor(performance.now() / 600) % 2 === 0) {
+                ctx.fillStyle = '#ff0000';
+                ctx.fillRect(antX - 1, antY, 3, 4);
+            }
+        }
+
+        function drawWindows() {
+            for (let i = 0; i < windows.length; i++) {
+                if (lightStates[i] === 1) {
+                    ctx.fillStyle = neonColors[windows[i].colorIndex];
+                    ctx.fillRect(windows[i].x, windows[i].y, 8, 10);
+                } else {
+                    ctx.fillStyle = '#000022';
+                    ctx.fillRect(windows[i].x, windows[i].y, 8, 10);
+                }
+            }
+        }
+
+        function drawVehicles() {
+            for (const v of vehicles) {
+                // Engine glow (trail)
+                ctx.fillStyle = v.color;
+                ctx.fillRect(v.x - 3, v.y + 1, 4, 2);
+
+                // Body
+                ctx.fillStyle = '#334466';
+                ctx.fillRect(v.x, v.y, 10, 4);
+
+                // Window light
+                ctx.fillStyle = '#00ffff';
+                ctx.fillRect(v.x + 2, v.y + 1, 5, 2);
+            }
+        }
+
+        function drawGround() {
+            // Ground / road area
+            ctx.fillStyle = '#001100';
+            ctx.fillRect(0, HEIGHT - 35, WIDTH, 35);
+
+            ctx.fillStyle = '#222233';
+            ctx.fillRect(0, HEIGHT - 28, WIDTH, 18);
+
+            // Moving lane dashes
+            const dashSpeed = 0.15;
+            const offset = (performance.now() * dashSpeed) % 60;
+            ctx.fillStyle = '#ffff99';
+            for (let i = -60; i < WIDTH + 60; i += 60) {
+                const x = i + offset;
+                ctx.fillRect(x, HEIGHT - 20, 35, 2);
+                ctx.fillRect(x, HEIGHT - 10, 35, 2);
+            }
+        }
+
+        function update() {
+            // Slowly flicker building lights
+            for (let i = 0; i < windows.length; i++) {
+                if (Math.random() < 0.0018) { // ~once every 9–10 seconds per window on average
+                    lightStates[i] = 1 - lightStates[i];
+                }
+            }
+
+            // Move vehicles (loop around screen)
+            for (const v of vehicles) {
+                v.x += v.speed;
+                if (v.speed > 0 && v.x > WIDTH + 20) v.x = -20;
+                if (v.speed < 0 && v.x < -20) v.x = WIDTH + 20;
+            }
+        }
+
+        function render() {
+            ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+            drawSky();
+            drawBuildings();
+            drawWindows();
+            drawVehicles();
+            drawGround();
+        }
+
+        function loop() {
+            update();
+            render();
+            requestAnimationFrame(loop);
+        }
+
+        initWindows();
+        loop();
+    </script>
+</body>
+</html>
