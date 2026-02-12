@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberpunk Pixel City</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #050510;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            /* These properties are key for the crisp pixel art look when scaling up */
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        #ui {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: #00fff5;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            pointer-events: none;
+            text-shadow: 0 0 5px #00fff5;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div id="ui">Generating Sector 7...<br>Click to change Palette</div>
+    <canvas id="canvas"></canvas>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Internal resolution (low res for pixel look)
+    const GAME_WIDTH = 320;
+    let GAME_HEIGHT = 180; // Calculated based on aspect ratio
+
+    // State
+    let frame = 0;
+    let speed = 0.5;
+    let mouseX = 0;
+    let mouseY = 0;
+    
+    // Palettes
+    const palettes = [
+        { // Cyberpunk Neon
+            bg: '#050510',
+            sky: ['#050510', '#1a1a2e'],
+            layers: ['#121225', '#1a1a38', '#252545'],
+            lights: ['#00fff5', '#ff00ff', '#f0f0f0', '#ffff00'],
+            fog: 'rgba(5, 5, 16, 0.5)'
+        },
+        { // Matrix Green
+            bg: '#000000',
+            sky: ['#000000', '#001100'],
+            layers: ['#001100', '#002200', '#003300'],
+            lights: ['#00ff00', '#33ff33', '#ccffcc'],
+            fog: 'rgba(0, 10, 0, 0.5)'
+        },
+        { // Sunset Synthwave
+            bg: '#2d1b2e',
+            sky: ['#2d1b2e', '#b04285'],
+            layers: ['#251220', '#481830', '#752040'],
+            lights: ['#ffcd3c', '#ff9a00', '#ff0055'],
+            fog: 'rgba(45, 27, 46, 0.3)'
+        }
+    ];
+    let currentPaletteIndex = 0;
+    let colors = palettes[currentPaletteIndex];
+
+    // Entities
+    const buildings = [[], [], []]; // 3 Layers: Far, Mid, Close
+    const stars = [];
+    const cars = [];
+    const particles = [];
+
+    // Setup
+    function init() {
+        resize();
+        window.addEventListener('resize', resize);
+        window.addEventListener('mousemove', e => {
+            // Map mouse to canvas coordinates for subtle interactions
+            const rect = canvas.getBoundingClientRect();
+            mouseX = (e.clientX - rect.left) / (rect.width / GAME_WIDTH);
+            mouseY = (e.clientY - rect.top) / (rect.height / GAME_HEIGHT);
+        });
+        
+        window.addEventListener('mousedown', () => {
+            currentPaletteIndex = (currentPaletteIndex + 1) % palettes.length;
+            colors = palettes[currentPaletteIndex];
+            // Flash effect
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0,0,GAME_WIDTH, GAME_HEIGHT);
+        });
+
+        // Initialize Stars
+        for(let i=0; i<50; i++) {
+            stars.push({
+                x: Math.random() * GAME_WIDTH,
+                y: Math.random() * GAME_HEIGHT * 0.6,
+                size: Math.random() < 0.9 ? 1 : 2,
+                blink: Math.random() * 100
+            });
+        }
+
+        // Initialize Buildings Layers (Back to Front)
+        // Layer 0 (Far)
+        initLayer(0, 50, 80, 0.2);
+        // Layer 1 (Mid)
+        initLayer(1, 30, 60, 0.5);
+        // Layer 2 (Close)
+        initLayer(2, 20, 40, 1.0);
+
+        loop();
+    }
+
+    function initLayer(layerIndex, minWidth, maxWidth, scrollFactor) {
+        let currentX = -50;
+        while(currentX < GAME_WIDTH + 50) {
+            const b = generateBuilding(currentX, layerIndex, minWidth, maxWidth);
+            buildings[layerIndex].push(b);
+            currentX += b.width;
+        }
+    }
+
+    function generateBuilding(x, layerIndex, minW, maxW) {
+        const width = Math.floor(Math.random() * (maxW - minW) + minW);
+        // Height depends on layer
+        let baseHeight;
+        if (layerIndex === 0) baseHeight = GAME_HEIGHT * 0.4;
+        else if (layerIndex === 1) baseHeight = GAME_HEIGHT * 0.6;
+        else baseHeight = GAME_HEIGHT * 0.8;
+        
+        const height = Math.floor(Math.random() * (baseHeight/2) + baseHeight/2);
+        
+        // Windows
+        const windows = [];
+        const hasWindows = Math.random() > 0.2;
+        if(hasWindows) {
+            const rows = Math.floor(height / 6);
+            const cols = Math.floor(width / 5);
+            for(let r=1; r<rows-1; r++) {
+                for(let c=1; c<cols-1; c++) {
+                    if(Math.random() > 0.4) {
+                        windows.push({
+                            x: c * 5,
+                            y: r * 6,
+                            on: Math.random() > 0.3,
+                            flicker: Math.random() > 0.95,
+                            color: colors.lights[Math.floor(Math.random() * colors.lights.length)]
+                        });
+                    }
+                }
+            }
+        }
+        
+        // Antenna/Top detail
+        const hasAntenna = Math.random() > 0.7;
+        const antennaHeight = hasAntenna ? Math.random() * 20 + 5 : 0;
+
+        return {
+            x: x,
+            y: GAME_HEIGHT - height,
+            width: width,
+            height: height,
+            windows: windows,
+            antenna: antennaHeight,
+            type: Math.random() > 0.5 ? 'office' : 'apt'
+        };
+    }
+
+    function resize() {
+        // Maintain aspect ratio while fitting window
+        const aspect = window.innerWidth / window.innerHeight;
+        GAME_HEIGHT = Math.floor(GAME_WIDTH / aspect);
+        
+        canvas.width = GAME_WIDTH;
+        canvas.height = GAME_HEIGHT;
+    }
+
+    function update() {
+        frame++;
+
+        // Update Stars
+        stars.forEach(s => {
+            s.x -= speed * 0.05;
+            if(s.x < 0) s.x = GAME_WIDTH;
+        });
+
+        // Update Buildings
+        const scrollSpeeds = [0.2, 0.5, 1.0];
+        
+        for(let i=0; i<3; i++) {
+            const layerSpeed = speed * scrollSpeeds[i];
+            
+            // Move buildings
+            buildings[i].forEach(b => {
+                b.x -= layerSpeed;
+            });
+
+            // Remove off-screen and add new
+            if(buildings[i].length > 0 && buildings[i][0].x + buildings[i][0].width < -10) {
+                buildings[i].shift();
+            }
+
+            const lastBuilding = buildings[i][buildings[i].length - 1];
+            if(lastBuilding.x + lastBuilding.width < GAME_WIDTH + 50) {
+                const wMin = i===0 ? 50 : (i===1 ? 30 : 20);
+                const wMax = i===0 ? 80 : (i===1 ? 60 : 40);
+                const newB = generateBuilding(lastBuilding.x + lastBuilding.width, i, wMin, wMax);
+                buildings[i].push(newB);
+            }
+
+            // Update Windows (flicker)
+            if (frame % 10 === 0) {
+                buildings[i].forEach(b => {
+                    b.windows.forEach(w => {
+                        if (w.flicker) w.on = !w.on;
+                        // Randomly turn lights on/off rarely
+                        if (Math.random() > 0.999) w.on = !w.on;
+                    });
+                });
+            }
+        }
+
+        // Spawn Cars
+        if(Math.random() < 0.02) {
+            const isLeft = Math.random() > 0.5;
+            const yPos = Math.random() * (GAME_HEIGHT * 0.8);
+            const carSpeed = (Math.random() * 1.5 + 0.5) * (isLeft ? 1 : -1);
+            cars.push({
+                x: isLeft ? -20 : GAME_WIDTH + 20,
+                y: yPos,
+                vx: carSpeed,
+                color: Math.random() > 0.5 ? '#ff0055' : '#00fff5',
+                trail: []
+            });
+        }
+
+        // Update Cars
+        for(let i=cars.length-1; i>=0; i--) {
+            const c = cars[i];
+            c.x += c.vx;
+            
+            // Add trail particle
+            if(frame % 4 === 0) {
+                c.trail.push({x: c.x, y: c.y, life: 10});
+            }
+
+            // Update trail
+            for(let t=c.trail.length-1; t>=0; t--) {
+                c.trail[t].life--;
+                if(c.trail[t].life <= 0) c.trail.splice(t, 1);
+            }
+
+            if(c.x < -30 || c.x > GAME_WIDTH + 30) {
+                cars.splice(i, 1);
+            }
+        }
+    }
+
+    function draw() {
+        // Background
+        ctx.fillStyle = colors.bg;
+        ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+        // Gradient Sky
+        const grd = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
+        grd.addColorStop(0, colors.sky[0]);
+        grd.addColorStop(1, colors.sky[1]);
+        ctx.fillStyle = grd;
+        ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+        // Stars
+        ctx.fillStyle = '#ffffff';
+        stars.forEach(s => {
+            const opacity = Math.sin((frame + s.blink) * 0.1) * 0.5 + 0.5;
+            ctx.globalAlpha = opacity;
+            ctx.fillRect(s.x, s.y, s.size, s.size);
+        });
+        ctx.globalAlpha = 1.0;
+
+        // Draw Layers
+        for(let i=0; i<3; i++) {
+            
+            // Atmospheric fog between layers
+            if(i > 0) {
+                ctx.fillStyle = colors.fog;
+                ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+            }
+
+            ctx.fillStyle = colors.layers[i];
+            
+            buildings[i].forEach(b => {
+                // Building body
+                ctx.fillRect(Math.floor(b.x), Math.floor(b.y), b.width, b.height);
+                
+                // Antenna
+                if(b.antenna > 0) {
+                    ctx.fillStyle = colors.layers[i];
+                    ctx.fillRect(Math.floor(b.x + b.width/2), Math.floor(b.y - b.antenna), 1, b.antenna);
+                    // Blinking light on top
+                    if(frame % 40 < 20) {
+                        ctx.fillStyle = '#ff0000';
+                        ctx.fillRect(Math.floor(b.x + b.width/2) - 1, Math.floor(b.y - b.antenna), 3, 1);
+                        ctx.fillStyle = colors.layers[i];
+                    }
+                }
+
+                // Windows
+                if (i > 0) { // No windows on far back layer
+                    b.windows.forEach(w => {
+                        if(w.on) {
+                            ctx.fillStyle = w.color; //w.color;
+                            // Add window to building pos
+                            ctx.fillRect(Math.floor(b.x + w.x), Math.floor(b.y + w.y), 2, 3);
+                        }
+                    });
+                    ctx.fillStyle = colors.layers[i]; // Reset for next rect
+                }
+
+                // Silhouette/Edge highlight for front layer
+                if (i === 2) {
+                    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                    ctx.fillRect(Math.floor(b.x + b.width - 2), Math.floor(b.y), 2, b.height);
+                    ctx.fillStyle = colors.layers[i];
+                }
+            });
+        }
+
+        // Draw Cars
+        cars.forEach(c => {
+            // Trail
+            c.trail.forEach(t => {
+                ctx.fillStyle = c.color;
+                ctx.globalAlpha = t.life / 10;
+                ctx.fillRect(Math.floor(t.x), Math.floor(t.y), 2, 1);
+            });
+            ctx.globalAlpha = 1.0;
+            
+            // Car Body
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(Math.floor(c.x), Math.floor(c.y), 4, 1);
+            ctx.fillStyle = c.color;
+            ctx.fillRect(Math.floor(c.x), Math.floor(c.y+1), 4, 1);
+        });
+
+        // Scanline effect (subtle)
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        for(let y=0; y<GAME_HEIGHT; y+=2) {
+            ctx.fillRect(0, y, GAME_WIDTH, 1);
+        }
+        
+        // Vignette
+        const gradient = ctx.createRadialGradient(GAME_WIDTH/2, GAME_HEIGHT/2, GAME_HEIGHT/2, GAME_WIDTH/2, GAME_HEIGHT/2, GAME_HEIGHT);
+        gradient.addColorStop(0, "transparent");
+        gradient.addColorStop(1, "rgba(0,0,0,0.6)");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    }
+
+    function loop() {
+        update();
+        draw();
+        requestAnimationFrame(loop);
+    }
+
+    init();
+
+</script>
+</body>
+</html>
