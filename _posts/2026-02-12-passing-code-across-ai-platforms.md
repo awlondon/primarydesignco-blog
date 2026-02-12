@@ -290,13 +290,13 @@ Reliable baseline generator; moderate creative ceiling.
 ### 6. LlamaCode GLM 4.6
 
 <div style="position:relative; width:100%; padding-top:56.25%;">
-  <iframe
+  <img
     src="/assets/2026-02-12-passing-code-across-ai-platforms/llamacode-glm-4-6.png"
-    style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
+    alt="LlamaCode GLM 4.6 baseline output"
     loading="lazy"
-  ></iframe>
+    style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain;"
+  />
 </div>
-
 
 Baseline behavior:
 
@@ -324,11 +324,12 @@ Architecturally over-scoped for the task; not deployment-ready in single-pass fo
 ### 7. Base 44
 
 <div style="position:relative; width:100%; padding-top:56.25%;">
-  <iframe
+  <img
     src="/assets/2026-02-12-passing-code-across-ai-platforms/base-44.png"
-    style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
+    alt="Base 44 baseline output"
     loading="lazy"
-  ></iframe>
+    style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain;"
+  />
 </div>
 
 Observed behavior:
