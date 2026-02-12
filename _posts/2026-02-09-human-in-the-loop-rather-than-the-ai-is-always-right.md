@@ -14,11 +14,14 @@ abstract: |
 
 The system below runs continuously without supervision. Individual elements are not guided step-by-step; instead, human input intervenes selectively—changing regimes, constraints, and priorities only when the system’s direction matters. This is the emerging pattern of human–AI collaboration: not constant oversight, but high-leverage intervention at critical moments. As AI systems become more capable, the question is no longer whether humans remain “in the loop,” but whether we are capable of recognizing which loops matter—and acting effectively when they do.
 
-<div style="position:relative; width:100%; height:600px; margin:2rem 0;">
+<div class="embed-frame" style="--embed-aspect-ratio: 16 / 10;">
   <iframe
     src="/assets/2026-02-09-human-in-the-loop/demo/index.html"
-    style="width:100%; height:100%; border:0;"
+    title="Interactive demo: Human in the Loop"
     loading="lazy"
+    sandbox="allow-scripts allow-same-origin"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen
   ></iframe>
 </div>
 

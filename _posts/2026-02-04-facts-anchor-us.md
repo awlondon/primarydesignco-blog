@@ -10,21 +10,14 @@ reading_time: 16
 *Interactive figure (view on site): Verification as Epistemic Infrastructure.*
 
 {% unless page.feed %}
-<div style="position:relative; width:100%; padding-top:78%;">
+<div class="embed-frame" style="--embed-aspect-ratio: 50 / 39;">
   <iframe
     src="/assets/2026-02-04-facts-anchor-us/epistemic-verification-clickable.html"
-    style="
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      border:0;
-      border-radius:14px;
-      overflow:hidden;
-      background:#ffffff;
-    "
+    title="Interactive demo: Verification as Epistemic Infrastructure"
     loading="lazy"
-    title="Verification as Epistemic Infrastructure — Clickable Schema">
+    sandbox="allow-scripts allow-same-origin"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen>
   </iframe>
 </div>
 {% endunless %}
@@ -259,12 +252,16 @@ As shown in Figure 6, the generator translates verification behaviors into syste
 *Interactive figure (view on site): Belief Divergence Probability Generator.*
 
 {% unless page.feed %}
-<iframe
-  src="/assets/2026-02-04-facts-anchor-us/probability-generator.html"
-  style="width:100%; height:720px; border:0; border-radius:12px; overflow:hidden;"
-  loading="lazy"
-  title="Belief Divergence Probability Generator">
-</iframe>
+<div class="embed-frame" style="--embed-aspect-ratio: 5 / 4;">
+  <iframe
+    src="/assets/2026-02-04-facts-anchor-us/probability-generator.html"
+    title="Interactive demo: Belief Divergence Probability Generator"
+    loading="lazy"
+    sandbox="allow-scripts allow-same-origin"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen>
+  </iframe>
+</div>
 {% endunless %}
 #### Figure 6. Belief Divergence Probability Generator.
 This interactive model visualizes how small changes in verification behavior compound into large systemic effects.

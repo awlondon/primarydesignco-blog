@@ -14,14 +14,16 @@ abstract: |
 
 ## Anomaly Detection Engine (ADE)
 
+<div class="embed-frame" style="--embed-aspect-ratio: 5 / 4;">
 <iframe
   src="/assets/2026-02-05-amplifying-original-thought/ade.html"
-  width="100%"
-  height="720"
-  style="border:none;"
+  title="Interactive demo: Anomaly Detection Engine"
+  loading="lazy"
   sandbox="allow-scripts allow-same-origin"
-  loading="lazy">
+  referrerpolicy="strict-origin-when-cross-origin"
+  allowfullscreen>
 </iframe>
+</div>
 
 
 *Type your hypothesis or idea.*
