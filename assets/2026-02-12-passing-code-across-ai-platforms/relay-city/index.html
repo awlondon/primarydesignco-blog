@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Neon Cyberpunk City Enhanced</title>
+    <title>Neon Cyberpunk City Slowed Down</title>
     <style>
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%; background-color: #050510; overflow: hidden;
@@ -30,7 +30,7 @@
     </style>
 </head>
 <body>
-<div id="ui">SYSTEM: ONLINE // PARALLAX: ACTIVE // RENDER: 2D ENHANCED</div>
+<div id="ui">SYSTEM: ONLINE // PARALLAX: ACTIVE // RENDER: 2D ENHANCED // SPEED: SLOWED</div>
 <canvas id="city"></canvas>
 
 <script>
@@ -39,7 +39,7 @@
     const ctx = canvas.getContext('2d', { alpha: false });
     let w, h, frame = 0;
 
-    // Configuration
+    // Configuration with slowed speeds (divided original speeds by about 3)
     const CONFIG = {
         colors: {
             skyTop: '#06001f',
@@ -52,7 +52,7 @@
             neon: ['#ff0055', '#00ffff', '#ae00ff', '#33ffdd', '#ff88ff'],
             rainGlow: 'rgba(0,255,255,0.25)'
         },
-        speeds: [0.4, 1.3, 3.8], // refined scroll speeds
+        speeds: [0.13, 0.43, 1.27], // slowed down layer speeds (~1/3 original)
         rainIntensity: 150
     };
 
@@ -61,7 +61,6 @@
     const randomInt = (min, max) => Math.floor(random(min, max));
     const randomChoice = arr => arr[Math.floor(Math.random() * arr.length)];
 
-    // Starfield – subtle twinkling stars with slight color shift
     class Starfield {
         constructor(count) {
             this.stars = [];
@@ -89,7 +88,6 @@
         }
     }
 
-    // Enhanced Background with a dynamic glitch-texture sun and vertical scanline effect
     class Background {
         constructor() {
             this.linesCount = 40;
@@ -120,11 +118,11 @@
             ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
             ctx.fill();
 
-            // Scanlines flicker differently every frame
+            // Scanlines flicker slower for calm effect
             ctx.fillStyle = CONFIG.colors.skyBottom;
             for (let i = 0; i < this.linesCount; i++) {
                 let barHeight = 3 + (i % 2);
-                let flicker = 0.2 + 0.8 * Math.abs(Math.sin(frame * 0.06 + i * 0.55));
+                let flicker = 0.2 + 0.8 * Math.abs(Math.sin(frame * 0.02 + i * 0.55));
                 ctx.globalAlpha = flicker;
                 ctx.fillRect(sunX - sunRadius, sunY + i * barHeight * 2, sunRadius * 2, barHeight);
             }
@@ -133,11 +131,9 @@
         }
     }
 
-    // Supercharged Building with dynamic animated neon signs and flickering window patterns.
     class Building {
         constructor(x, color, isFrontLayer) {
             this.isFrontLayer = isFrontLayer;
-            // Scale building heights and widths for layering visual depth
             this.w = random(40, 90) * (isFrontLayer ? 1.6 : 1);
             this.h = random(h * 0.15, h * 0.55) * (isFrontLayer ? 1.15 : 0.85);
             this.x = x;
@@ -150,7 +146,6 @@
             this.generateDetails();
         }
         generateDetails() {
-            // Windows grid with randomized flicker cycles
             if (this.isFrontLayer || Math.random() > 0.45) {
                 const cols = Math.floor(this.w / 12);
                 const rows = Math.floor(this.h / 18);
@@ -170,7 +165,6 @@
                     }
                 }
             }
-            // Neon signs with pulsating glow animation (front layer only)
             if (this.isFrontLayer && Math.random() > 0.55) {
                 this.neonSigns.push({
                     x: random(8, this.w - 30),
@@ -178,17 +172,15 @@
                     w: 25,
                     h: random(25, 70),
                     color: randomChoice(CONFIG.colors.neon),
-                    type: randomInt(0, 3) // 0=vertical bars, 1=box, 2=vertical text lines
+                    type: randomInt(0, 3)
                 });
             }
         }
         draw(ctx, scrollX) {
             const drawX = this.x - scrollX;
-            if (drawX < -this.w - 30 || drawX > w + 30) return; // skip offscreen
+            if (drawX < -this.w - 30 || drawX > w + 30) return;
 
-            // Base building wall
             ctx.fillStyle = this.color;
-            // subtle vertical noise & shading
             const noiseWidth = 3;
             for (let i = 0; i < this.w; i += noiseWidth) {
                 const shade = 5 + (Math.sin((frame + i) * 0.1) * 7);
@@ -196,7 +188,6 @@
                 ctx.fillRect(drawX + i, h - this.h, noiseWidth, this.h);
             }
 
-            // Antenna with blinking light pulse
             if (this.hasAntenna) {
                 ctx.lineWidth = 2;
                 ctx.strokeStyle = this.color;
@@ -204,7 +195,7 @@
                 ctx.moveTo(drawX + this.w/2, h - this.h);
                 ctx.lineTo(drawX + this.w/2, h - this.h - 25);
                 ctx.stroke();
-                if ((frame % 60) < 30) {
+                if ((frame % 180) < 90) { // blinking slower
                     ctx.shadowBlur = 14;
                     ctx.shadowColor = '#ff2222';
                     ctx.fillStyle = '#ff2222';
@@ -215,9 +206,8 @@
                 }
             }
 
-            // Windows with flicker animation
             this.windows.forEach(win => {
-                const flickerPhase = (frame / 10) * win.flickerSpeed + win.flickerBase;
+                const flickerPhase = (frame / 30) * win.flickerSpeed + win.flickerBase;
                 const flickerOpacity = 0.6 + Math.sin(flickerPhase) * 0.4;
                 ctx.fillStyle = win.color;
                 ctx.globalAlpha = flickerOpacity > 0 ? flickerOpacity : 0.1;
@@ -225,21 +215,20 @@
                 ctx.globalAlpha = 1;
             });
 
-            // Neon Signs with pulsating glow
             ctx.save();
             this.neonSigns.forEach(sign => {
-                const pulse = 0.4 + 0.6 * Math.sin(frame * 0.08);
+                const pulse = 0.4 + 0.6 * Math.sin(frame * 0.027);
                 ctx.shadowBlur = 20 + 20 * pulse;
                 ctx.shadowColor = sign.color;
                 ctx.fillStyle = `rgba(${hexToRgb(sign.color)},${0.5 + 0.5 * pulse})`;
 
-                if (sign.type === 0) {  // vertical glowing bars
+                if (sign.type === 0) {
                     for (let i = 0; i < sign.h; i += 9) {
                         ctx.fillRect(drawX + sign.x + 3, h - this.h + sign.y + i, sign.w - 6, 3);
                     }
-                } else if (sign.type === 1) { // glowing box
+                } else if (sign.type === 1) {
                     ctx.fillRect(drawX + sign.x, h - this.h + sign.y, sign.w, sign.h);
-                } else { // vertical text lines
+                } else {
                     for (let i = 0; i < sign.h; i += 6) {
                         ctx.fillRect(drawX + sign.x + 4, h - this.h + sign.y + i, sign.w - 8, 1.8);
                     }
@@ -249,7 +238,6 @@
         }
     }
 
-    // Converts hex color to rgb string for rgba usage
     function hexToRgb(hex) {
         let c;
         if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
@@ -263,7 +251,6 @@
         return '255,255,255';
     }
 
-    // Layer with improved building placement and floor with reflective gloss
     class Layer {
         constructor(speed, color, isFront) {
             this.speed = speed;
@@ -286,7 +273,7 @@
             this.totalWidth += building.w + gap;
         }
         update() {
-            this.scrollX += this.speed * CONFIG.speeds[this.isFront ? 2 : (this.speed > 1 ? 1 : 0)];
+            this.scrollX += this.speed;
             if (this.buildings.length && this.buildings[0].x + this.buildings[0].w < this.scrollX - 120) {
                 this.buildings.shift();
                 this.addBuilding();
@@ -294,8 +281,6 @@
         }
         draw() {
             this.buildings.forEach(b => b.draw(ctx, this.scrollX));
-
-            // Reflective floor / street gloss with soft neon reflections
             ctx.save();
             const grad = ctx.createLinearGradient(0, h-8, 0, h);
             grad.addColorStop(0, this.color);
@@ -313,14 +298,14 @@
         }
         update() {
             this.timer++;
-            if (this.timer > 20) {
-                if (Math.random() > 0.62 && this.cars.length < 50) {
+            if (this.timer > 40) { // slower spawn rate
+                if (Math.random() > 0.75 && this.cars.length < 50) {
                     const fromLeft = Math.random() > 0.5;
                     this.cars.push({
                         x: fromLeft ? -60 : w + 60,
                         y: random(h - 160, h - 25),
                         dir: fromLeft ? 1 : -1,
-                        speed: random(5.5, 9),
+                        speed: random(2.0, 3.2),
                         color: randomChoice(CONFIG.colors.neon),
                         size: random(24, 48),
                         trailLength: randomInt(6, 12)
@@ -330,7 +315,7 @@
             }
             for (let i = this.cars.length - 1; i >= 0; i--) {
                 const c = this.cars[i];
-                c.x += c.speed * c.dir * 1.1;
+                c.x += c.speed * c.dir * 1.05;
                 if ((c.dir === 1 && c.x > w + 140) || (c.dir === -1 && c.x < -140)) {
                     this.cars.splice(i, 1);
                 }
@@ -339,7 +324,6 @@
         draw() {
             ctx.save();
             this.cars.forEach(c => {
-                // Multi-layer neon trail with fading and blur
                 for(let i=0; i < c.trailLength; i++) {
                     let posX = c.x - (c.dir * i * 5);
                     const alpha = 0.14 * (1 - i / c.trailLength);
@@ -350,7 +334,6 @@
                     ctx.fillStyle = grad;
                     ctx.fillRect(posX - (c.dir===1 ? width * 6 : 0), c.y + 1 + (i%2), width * 6, 2 - (i/10));
                 }
-                // Car body with neon glow
                 ctx.shadowBlur = 14;
                 ctx.shadowColor = c.color;
                 ctx.fillStyle = '#eee';
@@ -366,12 +349,11 @@
             this.intensity = CONFIG.rainIntensity;
         }
         update() {
-            // Spawn more drops per frame based on intensity and screen width/wind variation
             for (let i = 0; i < this.intensity / 20; i++) {
                 this.drops.push({
                     x: Math.random() * w,
                     y: -random(10, 120),
-                    speed: random(14, 26),
+                    speed: random(6, 12), // slowed drop speed
                     len: random(12, 35),
                     wind: random(-0.6, 0.4)
                 });
@@ -396,8 +378,6 @@
             }
             ctx.stroke();
 
-            // Drops reflections on floor (soft, stretched vertical lines)
-
             ctx.lineWidth = 1.5;
             ctx.strokeStyle = 'rgba(0,200,255,0.07)';
             ctx.shadowColor = 'rgba(0,255,255,0.1)';
@@ -416,7 +396,6 @@
         }
     }
 
-    // Globals & init
     let starfield, bg, layers, traffic, rain;
 
     function init() {
@@ -429,9 +408,9 @@
         bg = new Background();
 
         layers = [
-            new Layer(0.4, CONFIG.colors.layer1, false),
-            new Layer(1.3, CONFIG.colors.layer2, false),
-            new Layer(3.8, CONFIG.colors.layer3, true)
+            new Layer(0.13, CONFIG.colors.layer1, false),
+            new Layer(0.43, CONFIG.colors.layer2, false),
+            new Layer(1.27, CONFIG.colors.layer3, true)
         ];
         traffic = new TrafficSystem();
         rain = new Rain();
@@ -446,7 +425,7 @@
         ctx.clearRect(0, 0, w, h);
 
         bg.draw();
-        starfield.draw(frame * 0.08);
+        starfield.draw(frame * 0.027);
 
         layers[0].draw();
         layers[1].draw();
@@ -455,7 +434,6 @@
 
         layers[2].draw();
 
-        // Soft vignette for atmosphere depth
         const vignette = ctx.createRadialGradient(w/2, h/2, h/2, w/2, h/2, w);
         vignette.addColorStop(0, 'rgba(0,0,0,0)');
         vignette.addColorStop(1, 'rgba(0,0,0,0.55)');
