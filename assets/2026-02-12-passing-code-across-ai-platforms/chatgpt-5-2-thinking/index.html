@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pixel Futuristic Cityscape — Animated</title>
+  <style>
+    :root {
+      --bg: #070711;
+      --fg: #e7e7ff;
+      --ui: rgba(10, 10, 24, 0.72);
+      --stroke: rgba(255,255,255,0.12);
+    }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      overflow: hidden;
+    }
+    #wrap {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+    }
+    canvas {
+      width: 100vw;
+      height: 100vh;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      background: #000;
+    }
+    #ui {
+      position: fixed;
+      left: 16px;
+      bottom: 16px;
+      width: min(520px, calc(100vw - 32px));
+      padding: 12px 12px 10px;
+      background: var(--ui);
+      border: 1px solid var(--stroke);
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      user-select: none;
+    }
+    #ui .row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      margin: 6px 0;
+    }
+    #ui label {
+      font-size: 12px;
+      opacity: 0.92;
+      letter-spacing: 0.02em;
+    }
+    #ui input[type="range"] {
+      width: 280px;
+    }
+    #ui .buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    button {
+      appearance: none;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.06);
+      color: var(--fg);
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    button:hover { background: rgba(255,255,255,0.09); }
+    button:active { transform: translateY(1px); }
+    .hint {
+      margin-top: 8px;
+      font-size: 12px;
+      opacity: 0.75;
+      line-height: 1.35;
+    }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  </style>
+</head>
+<body>
+  <div id="wrap">
+    <canvas id="c"></canvas>
+  </div>
+
+  <div id="ui" aria-label="controls">
+    <div class="row">
+      <label>Time-of-night (sky hue)</label>
+      <input id="timeHue" type="range" min="0" max="100" value="62" />
+    </div>
+    <div class="row">
+      <label>Neon intensity</label>
+      <input id="neon" type="range" min="0" max="100" value="68" />
+    </div>
+    <div class="row">
+      <label>Rain</label>
+      <input id="rain" type="range" min="0" max="100" value="28" />
+    </div>
+    <div class="row">
+      <label>Traffic (flyers)</label>
+      <input id="traffic" type="range" min="0" max="100" value="30" />
+    </div>
+    <div class="row">
+      <label>Seed <span class="mono" id="seedLabel"></span></label>
+      <input id="seed" type="range" min="1" max="9999" value="2026" />
+    </div>
+
+    <div class="buttons">
+      <button id="regen">Regenerate</button>
+      <button id="pause">Pause</button>
+      <button id="screenshot">Screenshot</button>
+    </div>
+
+    <div class="hint">Tip: the scene is rendered at a low resolution and scaled up (pixel art). If you want chunkier pixels, change <span class="mono">LOGICAL_W/H</span> in the code.</div>
+  </div>
+
+  <script>
+    // Pixel Futuristic Cityscape
+    // - Renders into a low-res buffer and scales up with smoothing disabled.
+    // - Procedural skyline layers + animated window flicker + flying pixel craft + rain + CRT scanlines.
+
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d', { alpha: false });
+
+    const ui = {
+      timeHue: document.getElementById('timeHue'),
+      neon: document.getElementById('neon'),
+      rain: document.getElementById('rain'),
+      traffic: document.getElementById('traffic'),
+      seed: document.getElementById('seed'),
+      seedLabel: document.getElementById('seedLabel'),
+      regen: document.getElementById('regen'),
+      pause: document.getElementById('pause'),
+      screenshot: document.getElementById('screenshot'),
+    };
+
+    // Low-res logical buffer (pixel art). Adjust for chunkier/finer pixels.
+    const LOGICAL_W = 360;
+    const LOGICAL_H = 202;
+
+    const buf = document.createElement('canvas');
+    buf.width = LOGICAL_W;
+    buf.height = LOGICAL_H;
+    const b = buf.getContext('2d', { alpha: false });
+
+    // Prevent browser interpolation.
+    b.imageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = false;
+
+    function fit() {
+      const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      canvas.width = Math.floor(innerWidth * dpr);
+      canvas.height = Math.floor(innerHeight * dpr);
+      ctx.imageSmoothingEnabled = false;
+    }
+    window.addEventListener('resize', fit);
+    fit();
+
+    // --- Deterministic PRNG (mulberry32)
+    function mulberry32(a) {
+      return function() {
+        let t = (a += 0x6D2B79F5);
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    // --- Color helpers
+    const clamp01 = (x) => Math.max(0, Math.min(1, x));
+    function hsl(h, s, l, a = 1) {
+      return `hsla(${h}, ${s}%, ${l}%, ${a})`;
+    }
+
+    // --- Scene state
+    let rng = mulberry32(parseInt(ui.seed.value, 10));
+    let scene = null;
+    let paused = false;
+
+    function r(min, max) { return min + (max - min) * rng(); }
+    function ri(min, max) { return Math.floor(r(min, max + 1)); }
+    function pick(arr) { return arr[Math.floor(r(0, arr.length))]; }
+
+    function makeBuilding(x, w, baseY, minH, maxH, layerIndex) {
+      const h = ri(minH, maxH);
+      const y = baseY - h;
+
+      // window grid
+      const pad = Math.max(1, ri(1, 2));
+      const winW = ri(1, 2);
+      const winH = ri(1, 2);
+      const gapX = ri(1, 2);
+      const gapY = ri(1, 2);
+
+      const cols = Math.max(1, Math.floor((w - pad * 2) / (winW + gapX)));
+      const rows = Math.max(1, Math.floor((h - pad * 2) / (winH + gapY)));
+
+      // Initial lit probability varies by layer (far = fewer visible windows)
+      const baseLit = [0.22, 0.34, 0.48][layerIndex] ?? 0.35;
+
+      // Each window holds (lit, phase, flickerRate)
+      const windows = new Array(cols * rows);
+      for (let i = 0; i < windows.length; i++) {
+        windows[i] = {
+          lit: rng() < baseLit,
+          phase: rng() * 1000,
+          rate: r(0.4, 2.2) * (0.6 + layerIndex * 0.25),
+          hue: pick([190, 285, 320, 35, 155]),
+        };
+      }
+
+      const antenna = rng() < 0.22 && h > 40;
+      const crown = rng() < 0.35;
+      const sign = rng() < 0.18;
+
+      return {
+        x, y, w, h,
+        pad, winW, winH, gapX, gapY, cols, rows, windows,
+        antenna,
+        crown,
+        sign,
+        // tone and spec: layer-based
+        tone: layerIndex === 0 ? ri(10, 24) : layerIndex === 1 ? ri(8, 18) : ri(5, 14),
+        spec: r(0.08, 0.18),
+      };
+    }
+
+    function generateScene(seed) {
+      rng = mulberry32(seed);
+
+      const horizon = Math.floor(LOGICAL_H * 0.62);
+      const layers = [];
+
+      // Parallax layers: far, mid, near
+      const layerCfg = [
+        { count: 24, minW: 10, maxW: 24, minH: 18, maxH: 72, baseY: horizon - 12, speed: 0.18 },
+        { count: 18, minW: 16, maxW: 36, minH: 26, maxH: 96, baseY: horizon + 2,  speed: 0.32 },
+        { count: 12, minW: 24, maxW: 60, minH: 38, maxH: 130, baseY: horizon + 20, speed: 0.55 },
+      ];
+
+      for (let li = 0; li < layerCfg.length; li++) {
+        const cfg = layerCfg[li];
+        const buildings = [];
+        let x = ri(-20, 0);
+        while (x < LOGICAL_W + 40) {
+          const w = ri(cfg.minW, cfg.maxW);
+          buildings.push(makeBuilding(x, w, cfg.baseY, cfg.minH, cfg.maxH, li));
+          x += w + ri(2, 10);
+        }
+        layers.push({ ...cfg, buildings });
+      }
+
+      // Stars + distant aircraft trails
+      const stars = new Array(160).fill(0).map(() => ({
+        x: rng() * LOGICAL_W,
+        y: rng() * (horizon - 60),
+        a: r(0.15, 0.85),
+        tw: r(0.8, 2.2),
+      }));
+
+      // Flying craft (pixel cars)
+      const flyers = [];
+      const flyerCount = ri(6, 12);
+      for (let i = 0; i < flyerCount; i++) {
+        flyers.push({
+          x: rng() * LOGICAL_W,
+          y: r(18, horizon - 18),
+          vx: r(10, 36) * (rng() < 0.5 ? -1 : 1),
+          hue: pick([190, 300, 330, 45]),
+          blink: r(1.2, 3.5),
+          phase: rng() * 10,
+          z: r(0.2, 1.0),
+        });
+      }
+
+      // Rain particles
+      const drops = new Array(220).fill(0).map(() => ({
+        x: rng() * LOGICAL_W,
+        y: rng() * LOGICAL_H,
+        vy: r(80, 170),
+        vx: r(18, 42),
+        len: ri(3, 7),
+        a: r(0.05, 0.22),
+      }));
+
+      // Foreground ground strip
+      const groundY = horizon + 38;
+
+      // Occasional glitch bursts
+      const glitches = new Array(6).fill(0).map(() => ({
+        t: rng() * 8,
+        next: r(2, 8),
+        strength: r(0.08, 0.22),
+      }));
+
+      return { horizon, groundY, layers, stars, flyers, drops, glitches };
+    }
+
+    function setSeedLabel() {
+      ui.seedLabel.textContent = `#${String(ui.seed.value).padStart(4, '0')}`;
+    }
+    setSeedLabel();
+
+    ui.seed.addEventListener('input', () => {
+      setSeedLabel();
+    });
+
+    ui.regen.addEventListener('click', () => {
+      const seed = parseInt(ui.seed.value, 10);
+      scene = generateScene(seed);
+    });
+
+    ui.pause.addEventListener('click', () => {
+      paused = !paused;
+      ui.pause.textContent = paused ? 'Resume' : 'Pause';
+    });
+
+    ui.screenshot.addEventListener('click', () => {
+      // Capture the scaled canvas for a full-res screenshot.
+      const a = document.createElement('a');
+      a.download = 'pixel-cityscape.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    });
+
+    // Initialize
+    scene = generateScene(parseInt(ui.seed.value, 10));
+
+    // --- Drawing primitives (pixel-friendly)
+    function px(x, y, w = 1, h = 1, fill) {
+      b.fillStyle = fill;
+      b.fillRect(x | 0, y | 0, w | 0, h | 0);
+    }
+
+    function dithNoise(t, amount) {
+      // Cheap animated dither: a few random points per frame.
+      const n = Math.floor(amount);
+      for (let i = 0; i < n; i++) {
+        const x = (rng() * LOGICAL_W) | 0;
+        const y = (rng() * LOGICAL_H) | 0;
+        const a = 0.03 + (rng() * 0.05);
+        px(x, y, 1, 1, `rgba(255,255,255,${a})`);
+      }
+    }
+
+    function drawSky(t, params) {
+      const { horizon } = scene;
+      const hueBase = 210 + params.timeHue * 0.9; // pushes from deep blue toward violet
+
+      // Gradient bands (pixel stair-step)
+      for (let y = 0; y < horizon; y++) {
+        const k = y / horizon;
+        const h = hueBase + 18 * Math.sin((t * 0.06) + k * 2.4);
+        const s = 70 - k * 30;
+        const l = 10 + (1 - k) * 16;
+        b.fillStyle = hsl(h, s, l);
+        b.fillRect(0, y, LOGICAL_W, 1);
+      }
+
+      // Subtle "aurora grid" glow
+      const glow = 0.12 + params.neon * 0.002;
+      for (let x = 0; x < LOGICAL_W; x += 6) {
+        const wave = (Math.sin(t * 0.25 + x * 0.08) + 1) * 0.5;
+        const a = glow * (0.25 + 0.75 * wave);
+        b.fillStyle = `rgba(120, 70, 255, ${a})`;
+        b.fillRect(x, 0, 1, horizon);
+      }
+
+      // Stars
+      for (const s of scene.stars) {
+        const tw = 0.5 + 0.5 * Math.sin(t * s.tw + s.x * 0.06);
+        const a = s.a * (0.35 + 0.65 * tw);
+        px(s.x, s.y, 1, 1, `rgba(255,255,255,${a})`);
+        if (a > 0.6) px(s.x + 1, s.y, 1, 1, `rgba(255,255,255,${a * 0.35})`);
+      }
+    }
+
+    function drawBuilding(building, layerIndex, t, params) {
+      // Building base color
+      const base = building.tone;
+      const hue = 230 + layerIndex * 10;
+      const sat = 18 + layerIndex * 4;
+      const lum = base;
+      const fill = hsl(hue, sat, lum);
+      const edge = `rgba(255,255,255,${0.06 + layerIndex * 0.02})`;
+
+      // Body
+      b.fillStyle = fill;
+      b.fillRect(building.x, building.y, building.w, building.h);
+
+      // Edge highlight
+      b.fillStyle = edge;
+      b.fillRect(building.x, building.y, 1, building.h);
+      if (rng() < building.spec) b.fillRect(building.x + building.w - 1, building.y, 1, building.h);
+
+      // Crown
+      if (building.crown && building.h > 40) {
+        const ch = ri(2, 6);
+        const cw = Math.max(6, Math.floor(building.w * r(0.5, 0.9)));
+        const cx = building.x + ((building.w - cw) >> 1);
+        const cy = building.y - ch;
+        b.fillStyle = hsl(260, 55, 18);
+        b.fillRect(cx, cy, cw, ch);
+        b.fillStyle = `rgba(200, 120, 255, ${0.14 + params.neon * 0.002})`;
+        b.fillRect(cx, cy, cw, 1);
+      }
+
+      // Windows
+      const neonBoost = 0.35 + params.neon * 0.009;
+      const wx0 = building.x + building.pad;
+      const wy0 = building.y + building.pad;
+
+      let idx = 0;
+      for (let ry = 0; ry < building.rows; ry++) {
+        for (let cx = 0; cx < building.cols; cx++) {
+          const win = building.windows[idx++];
+
+          // Flicker update (cheap)
+          const flick = 0.5 + 0.5 * Math.sin((t + win.phase) * win.rate);
+          const togg = flick > 0.72;
+          const on = win.lit ? (togg ? 1 : 0.78) : (togg ? 0.22 : 0);
+
+          if (on > 0.02) {
+            const x = wx0 + cx * (building.winW + building.gapX);
+            const y = wy0 + ry * (building.winH + building.gapY);
+
+            const a = on * neonBoost * (layerIndex === 2 ? 1.0 : layerIndex === 1 ? 0.85 : 0.7);
+            const hh = win.hue;
+            const windowFill = `rgba(${Math.floor(220 + 20 * Math.sin(hh))}, ${Math.floor(190 + 30 * Math.sin(hh * 0.7))}, ${Math.floor(240)}, ${a})`;
+            b.fillStyle = windowFill;
+            b.fillRect(x, y, building.winW, building.winH);
+
+            // Tiny bloom pixel
+            if (a > 0.4 && rng() < 0.08) {
+              px(x + 1, y - 1, 1, 1, `rgba(140, 80, 255, ${a * 0.25})`);
+            }
+          }
+        }
+      }
+
+      // Signage
+      if (building.sign && building.h > 30 && layerIndex >= 1) {
+        const sh = ri(3, 6);
+        const sw = ri(Math.max(8, (building.w * 0.4) | 0), Math.max(12, (building.w * 0.8) | 0));
+        const sx = building.x + ri(2, Math.max(2, building.w - sw - 2));
+        const sy = building.y + ri(6, Math.max(8, building.h - 20));
+        const signHue = pick([190, 300, 330, 40]);
+        b.fillStyle = `rgba(20,20,40,0.8)`;
+        b.fillRect(sx, sy, sw, sh);
+        b.fillStyle = hsl(signHue, 95, 65, 0.30 + params.neon * 0.004);
+        b.fillRect(sx, sy, sw, 1);
+        b.fillStyle = hsl(signHue, 95, 60, 0.22 + params.neon * 0.003);
+        b.fillRect(sx, sy + 1, sw, 1);
+        // pseudo-text pixels
+        for (let i = 0; i < sw - 2; i += 2) {
+          if (rng() < 0.55) px(sx + 1 + i, sy + 2 + (rng() < 0.5 ? 0 : 1), 1, 1, hsl(signHue, 90, 75, 0.35));
+        }
+      }
+
+      // Antenna
+      if (building.antenna) {
+        const ax = building.x + ri(2, building.w - 3);
+        const ay = building.y - ri(6, 14);
+        b.fillStyle = `rgba(210, 200, 255, 0.22)`;
+        b.fillRect(ax, ay, 1, building.y - ay);
+        b.fillStyle = `rgba(255, 80, 180, ${0.2 + params.neon * 0.004})`;
+        b.fillRect(ax - 1, ay, 3, 1);
+      }
+    }
+
+    function drawLayers(t, params) {
+      const { layers } = scene;
+      const horizon = scene.horizon;
+
+      // Atmospheric haze just above horizon
+      for (let y = horizon - 18; y < horizon + 8; y++) {
+        const k = (y - (horizon - 18)) / 26;
+        b.fillStyle = `rgba(120, 80, 255, ${0.02 * (1 - k)})`;
+        b.fillRect(0, y, LOGICAL_W, 1);
+      }
+
+      for (let li = 0; li < layers.length; li++) {
+        const layer = layers[li];
+        const par = layer.speed;
+        const dx = (t * 6.5 * par) % LOGICAL_W;
+
+        // Loop buildings across the buffer width with offset
+        for (const building of layer.buildings) {
+          const x1 = building.x - dx;
+          // Wrap copy
+          for (const x of [x1, x1 + LOGICAL_W]) {
+            if (x + building.w < -2 || x > LOGICAL_W + 2) continue;
+            const b2 = { ...building, x: x | 0 };
+            drawBuilding(b2, li, t, params);
+          }
+        }
+      }
+    }
+
+    function drawFlyers(t, params) {
+      const traffic = params.traffic;
+      if (traffic <= 0) return;
+
+      const density = clamp01(traffic / 100);
+      const showEvery = 0.25 + (1 - density) * 0.75; // fewer visible when density low
+
+      for (const f of scene.flyers) {
+        if (rng() > showEvery) continue;
+
+        const sp = 0.4 + f.z * 0.9;
+        const x = (f.x + f.vx * t * sp + LOGICAL_W * 100) % (LOGICAL_W + 40) - 20;
+        const y = f.y + Math.sin(t * 0.9 + f.phase) * (0.8 + f.z * 1.6);
+
+        const blink = 0.5 + 0.5 * Math.sin(t * f.blink + f.phase);
+        const a = (0.10 + 0.22 * blink) * (0.35 + params.neon * 0.009);
+
+        // Body
+        px(x, y, 3, 1, `rgba(240,240,255,${0.16 + a})`);
+        px(x + 1, y - 1, 1, 1, `rgba(240,240,255,${0.12 + a * 0.8})`);
+
+        // Tail light
+        px(x - 1, y, 1, 1, hsl(f.hue, 95, 62, a));
+        if (blink > 0.6) px(x - 2, y, 1, 1, hsl(f.hue, 95, 62, a * 0.75));
+
+        // Trail
+        if (rng() < 0.35) {
+          px(x + 3, y, 1, 1, `rgba(120, 80, 255, ${a * 0.35})`);
+        }
+      }
+    }
+
+    function drawRain(t, params) {
+      const rainAmt = params.rain;
+      if (rainAmt <= 0) return;
+
+      const intensity = clamp01(rainAmt / 100);
+      const n = Math.floor(scene.drops.length * (0.15 + 0.85 * intensity));
+
+      b.fillStyle = `rgba(200, 220, 255, ${0.06 + 0.10 * intensity})`;
+      for (let i = 0; i < n; i++) {
+        const d = scene.drops[i];
+        d.x += d.vx * (0.016 + intensity * 0.01);
+        d.y += d.vy * (0.016 + intensity * 0.012);
+        if (d.y > LOGICAL_H + 10 || d.x > LOGICAL_W + 10) {
+          d.x = rng() * LOGICAL_W - 10;
+          d.y = -rng() * 40;
+        }
+        // diagonal streak
+        const x = d.x | 0;
+        const y = d.y | 0;
+        for (let k = 0; k < d.len; k++) {
+          px(x - k, y + k, 1, 1, `rgba(200,220,255,${d.a * (0.4 + 0.6 * intensity)})`);
+        }
+      }
+
+      // street sheen near bottom
+      const sheenY0 = Math.floor(scene.groundY - 8);
+      for (let y = sheenY0; y < LOGICAL_H; y++) {
+        const k = (y - sheenY0) / (LOGICAL_H - sheenY0);
+        b.fillStyle = `rgba(80, 60, 255, ${0.02 * intensity * (1 - k)})`;
+        b.fillRect(0, y, LOGICAL_W, 1);
+      }
+    }
+
+    function drawGround(t, params) {
+      const y0 = scene.groundY;
+      // base
+      b.fillStyle = `rgb(6, 6, 14)`;
+      b.fillRect(0, y0, LOGICAL_W, LOGICAL_H - y0);
+
+      // subtle road lines
+      for (let i = 0; i < 12; i++) {
+        const y = y0 + 6 + i * 3;
+        const a = 0.03 + (i % 2) * 0.01;
+        b.fillStyle = `rgba(255,255,255,${a})`;
+        b.fillRect(0, y, LOGICAL_W, 1);
+      }
+
+      // neon curb
+      const a = 0.08 + params.neon * 0.004;
+      b.fillStyle = `rgba(140, 80, 255, ${a})`;
+      b.fillRect(0, y0, LOGICAL_W, 1);
+    }
+
+    function drawCRT(t, params) {
+      // Scanlines
+      const a = 0.08;
+      b.fillStyle = `rgba(0,0,0,${a})`;
+      for (let y = 0; y < LOGICAL_H; y += 2) {
+        b.fillRect(0, y, LOGICAL_W, 1);
+      }
+
+      // Vignette
+      const g = b.createRadialGradient(LOGICAL_W * 0.5, LOGICAL_H * 0.6, LOGICAL_H * 0.1, LOGICAL_W * 0.5, LOGICAL_H * 0.6, LOGICAL_H * 0.85);
+      g.addColorStop(0, 'rgba(0,0,0,0)');
+      g.addColorStop(1, 'rgba(0,0,0,0.55)');
+      b.fillStyle = g;
+      b.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+
+      // Grain
+      dithNoise(params.t, 120);
+    }
+
+    function maybeGlitch(t, params) {
+      // Horizontal slice offsets (rare)
+      let strength = 0;
+      for (const g of scene.glitches) {
+        if (t > g.t + g.next) {
+          g.t = t;
+          g.next = r(2.5, 9.0);
+          g.strength = r(0.08, 0.22);
+        }
+        const phase = (t - g.t);
+        if (phase < 0.14) {
+          strength = Math.max(strength, g.strength * (1 - phase / 0.14));
+        }
+      }
+      if (strength <= 0) return;
+
+      const slices = 5 + ((strength * 20) | 0);
+      for (let i = 0; i < slices; i++) {
+        const y = ri(0, LOGICAL_H - 3);
+        const h = ri(1, 3);
+        const dx = ri(-8, 8) * strength;
+        const img = b.getImageData(0, y, LOGICAL_W, h);
+        b.putImageData(img, dx, y);
+      }
+
+      // Chromatic pop
+      b.fillStyle = `rgba(255, 40, 140, ${strength * 0.14})`;
+      b.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+    }
+
+    function present() {
+      // Scale buffer to screen with integer-ish scaling where possible.
+      const dpr = canvas.width / innerWidth;
+      const cw = canvas.width;
+      const ch = canvas.height;
+
+      const scale = Math.max(1, Math.floor(Math.min(cw / LOGICAL_W, ch / LOGICAL_H)));
+      const w = LOGICAL_W * scale;
+      const h = LOGICAL_H * scale;
+      const ox = ((cw - w) / 2) | 0;
+      const oy = ((ch - h) / 2) | 0;
+
+      // Letterbox background
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, cw, ch);
+
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(buf, 0, 0, LOGICAL_W, LOGICAL_H, ox, oy, w, h);
+
+      // Optional subtle outer bloom
+      ctx.globalAlpha = 0.08;
+      ctx.drawImage(buf, 0, 0, LOGICAL_W, LOGICAL_H, ox - 2, oy - 2, w + 4, h + 4);
+      ctx.globalAlpha = 1;
+    }
+
+    // --- Main loop
+    let t0 = performance.now();
+    function frame(now) {
+      requestAnimationFrame(frame);
+      if (paused) return;
+
+      const dt = Math.min(0.05, (now - t0) / 1000);
+      t0 = now;
+
+      // Time in seconds (stable)
+      const t = now / 1000;
+
+      const params = {
+        t,
+        timeHue: parseInt(ui.timeHue.value, 10),
+        neon: parseInt(ui.neon.value, 10),
+        rain: parseInt(ui.rain.value, 10),
+        traffic: parseInt(ui.traffic.value, 10),
+      };
+
+      // Clear buffer
+      b.fillStyle = '#000';
+      b.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+
+      // Re-seed noise for stable grain distribution per frame without drifting scene
+      // (still deterministic across a frame, but time changes pattern).
+      // Keep a derived seed so slider seed still regenerates scene reliably.
+      rng = mulberry32((parseInt(ui.seed.value, 10) * 2654435761) ^ ((t * 60) | 0));
+
+      drawSky(t, params);
+      drawLayers(t, params);
+      drawFlyers(t, params);
+      drawGround(t, params);
+      drawRain(t, params);
+      maybeGlitch(t, params);
+      drawCRT(t, params);
+
+      present();
+    }
+    requestAnimationFrame(frame);
+
+    // Allow quick regenerate via Enter
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        scene = generateScene(parseInt(ui.seed.value, 10));
+      }
+    });
+  </script>
+</body>
+</html>
