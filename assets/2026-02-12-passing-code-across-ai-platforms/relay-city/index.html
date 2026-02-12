@@ -1,251 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Cyberpunk City</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Neon Cyberpunk City Enhanced</title>
     <style>
         body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #050510;
-            overflow: hidden;
+            margin: 0; padding: 0; width: 100%; height: 100%; background-color: #050510; overflow: hidden;
+            -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
         }
         canvas {
             display: block;
+            background: linear-gradient(180deg, #0a001d 0%, #120f2a 60%, #050510 100%);
         }
         #ui {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
-            color: rgba(0, 255, 255, 0.5);
+            bottom: 20px; left: 20px;
+            color: rgba(0, 255, 255, 0.6);
             font-family: 'Courier New', Courier, monospace;
-            font-size: 12px;
+            font-size: 13px;
             pointer-events: none;
-            text-shadow: 0 0 5px cyan;
+            user-select: none;
+            text-shadow:
+                0 0 8px cyan,
+                0 0 12px #0ff,
+                0 0 20px #0ff;
+            letter-spacing: 0.05em;
         }
     </style>
 </head>
 <body>
-    <div id="ui">SYSTEM: ONLINE // PARALLAX: ACTIVE // RENDER: 2D</div>
-    <canvas id="city"></canvas>
+<div id="ui">SYSTEM: ONLINE // PARALLAX: ACTIVE // RENDER: 2D ENHANCED</div>
+<canvas id="city"></canvas>
 
 <script>
-/**
- * CYBERPUNK CITY GENERATOR
- * Features: Parallax scrolling, procedural buildings, rain, neon glow, flying traffic.
- */
-
-// Wrap in IIFE to prevent global scope pollution and variable collisions
-(function() {
+(() => {
     const canvas = document.getElementById('city');
     const ctx = canvas.getContext('2d', { alpha: false });
-
-    let w, h;
-    let frame = 0;
-    let animationId; // Store animation frame ID
+    let w, h, frame = 0;
 
     // Configuration
     const CONFIG = {
         colors: {
-            skyTop: '#000000',
-            skyBottom: '#180c2e',
-            sun: ['#ff0055', '#ffcc00'],
-            layer1: '#0a0a12', // Back
-            layer2: '#121225', // Mid
-            layer3: '#1a1a35', // Front
+            skyTop: '#06001f',
+            skyBottom: '#140929',
+            sun: ['#ff3355', '#ffcc22'],
+            layer1: '#0a0a12',
+            layer2: '#1b1a3a',
+            layer3: '#251a4c',
             windows: ['#00ffff', '#ff00ff', '#ffff00', '#ffffff'],
-            neon: ['#ff0055', '#00ffff', '#ae00ff']
+            neon: ['#ff0055', '#00ffff', '#ae00ff', '#33ffdd', '#ff88ff'],
+            rainGlow: 'rgba(0,255,255,0.25)'
         },
-        speed: 0.5, // Global scroll speed modifier
-        rainIntensity: 100
+        speeds: [0.4, 1.3, 3.8], // refined scroll speeds
+        rainIntensity: 150
     };
 
     // Utils
     const random = (min, max) => Math.random() * (max - min) + min;
     const randomInt = (min, max) => Math.floor(random(min, max));
-    const randomChoice = (arr) => arr[Math.floor(Math.random() * arr.length)];
+    const randomChoice = arr => arr[Math.floor(Math.random() * arr.length)];
 
+    // Starfield – subtle twinkling stars with slight color shift
     class Starfield {
         constructor(count) {
             this.stars = [];
             this.count = count;
             this.init();
         }
-
         init() {
             this.stars = [];
             for (let i = 0; i < this.count; i++) {
                 this.stars.push({
                     x: Math.random() * w,
-                    y: Math.random() * h * 0.6, // Only in top 60%
-                    size: Math.random() * 1.5,
-                    blinkSpeed: Math.random() * 0.05
+                    y: Math.random() * h * 0.5,
+                    size: random(0.4, 1.3),
+                    blinkSpeed: random(0.02, 0.08),
+                    hue: 180 + random(-40, 40)
                 });
             }
         }
-
         draw(t) {
-            ctx.fillStyle = '#ffffff';
             this.stars.forEach(s => {
-                const opacity = 0.3 + Math.abs(Math.sin(t * s.blinkSpeed)) * 0.7;
-                ctx.globalAlpha = opacity;
+                let opacity = 0.3 + Math.abs(Math.sin(t * s.blinkSpeed)) * 0.7;
+                ctx.fillStyle = `hsla(${s.hue},100%,85%,${opacity.toFixed(2)})`;
                 ctx.fillRect(s.x, s.y, s.size, s.size);
             });
-            ctx.globalAlpha = 1.0;
         }
     }
 
+    // Enhanced Background with a dynamic glitch-texture sun and vertical scanline effect
     class Background {
         constructor() {
-            this.sunY = 0;
+            this.linesCount = 40;
         }
-        
         draw() {
-            // Sky Gradient
+            // Gradient sky
             const grad = ctx.createLinearGradient(0, 0, 0, h);
             grad.addColorStop(0, CONFIG.colors.skyTop);
             grad.addColorStop(1, CONFIG.colors.skyBottom);
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, w, h);
 
-            // Retro Sun
-            const sunSize = Math.min(w, h) * 0.25;
+            // Sun with flicker scan lines
+            const sunRadius = w * 0.15;
             const sunX = w / 2;
-            const sunY = h * 0.6;
-            
-            const sunGrad = ctx.createLinearGradient(sunX, sunY - sunSize, sunX, sunY + sunSize);
+            const sunY = h * 0.63;
+
+            // Base glow
+            const sunGrad = ctx.createRadialGradient(sunX, sunY, sunRadius * 0.2, sunX, sunY, sunRadius);
             sunGrad.addColorStop(0, CONFIG.colors.sun[1]);
             sunGrad.addColorStop(1, CONFIG.colors.sun[0]);
 
             ctx.save();
-            ctx.shadowBlur = 50;
+            ctx.shadowBlur = 80;
             ctx.shadowColor = CONFIG.colors.sun[0];
             ctx.fillStyle = sunGrad;
             ctx.beginPath();
-            ctx.arc(sunX, sunY, sunSize, 0, Math.PI * 2);
+            ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
             ctx.fill();
 
-            // Sun lines (blind effect)
+            // Scanlines flicker differently every frame
             ctx.fillStyle = CONFIG.colors.skyBottom;
-            for(let i = 0; i < 10; i++) {
-                const barH = i * 4 + 2;
-                const barY = sunY + (i * 15);
-                if (barY < sunY + sunSize) {
-                    ctx.fillRect(sunX - sunSize, barY, sunSize * 2, barH);
-                }
+            for (let i = 0; i < this.linesCount; i++) {
+                let barHeight = 3 + (i % 2);
+                let flicker = 0.2 + 0.8 * Math.abs(Math.sin(frame * 0.06 + i * 0.55));
+                ctx.globalAlpha = flicker;
+                ctx.fillRect(sunX - sunRadius, sunY + i * barHeight * 2, sunRadius * 2, barHeight);
             }
+            ctx.globalAlpha = 1.0;
             ctx.restore();
         }
     }
 
+    // Supercharged Building with dynamic animated neon signs and flickering window patterns.
     class Building {
-        constructor(x, layerWidth, color, isFrontLayer) {
-            this.w = random(30, 80) * (isFrontLayer ? 1.5 : 1);
-            this.h = random(h * 0.1, h * 0.5) * (isFrontLayer ? 1.2 : 0.8);
-            this.x = x;
-            this.y = h; 
-            this.color = color;
+        constructor(x, color, isFrontLayer) {
             this.isFrontLayer = isFrontLayer;
+            // Scale building heights and widths for layering visual depth
+            this.w = random(40, 90) * (isFrontLayer ? 1.6 : 1);
+            this.h = random(h * 0.15, h * 0.55) * (isFrontLayer ? 1.15 : 0.85);
+            this.x = x;
+            this.y = h;
+            this.color = color;
             this.windows = [];
             this.neonSigns = [];
-            this.hasAntenna = Math.random() > 0.7;
-            
+            this.hasAntenna = Math.random() > 0.6;
+            this.flickerWindowSpeed = Math.random() * 0.03 + 0.01;
             this.generateDetails();
         }
-
         generateDetails() {
-            // Generate Windows
-            if (this.isFrontLayer || Math.random() > 0.5) {
-                const cols = Math.floor(this.w / 10);
-                const rows = Math.floor(this.h / 15);
-                // Grid logic
+            // Windows grid with randomized flicker cycles
+            if (this.isFrontLayer || Math.random() > 0.45) {
+                const cols = Math.floor(this.w / 12);
+                const rows = Math.floor(this.h / 18);
                 for (let r = 0; r < rows; r++) {
-                    if (Math.random() > 0.6) continue; // Skip some rows
                     for (let c = 0; c < cols; c++) {
-                        if (Math.random() > 0.3) {
+                        if (Math.random() > 0.4) {
                             this.windows.push({
-                                x: c * 10 + 2,
-                                y: r * 15 + 5,
-                                w: 6,
-                                h: 10,
+                                x: c * 12 + 3,
+                                y: r * 18 + 7,
+                                w: 7,
+                                h: 11,
                                 color: randomChoice(CONFIG.colors.windows),
-                                flicker: Math.random() > 0.95 // 5% chance to flicker
+                                flickerBase: Math.random() * 300,
+                                flickerSpeed: 0.9 + Math.random() * 0.3
                             });
                         }
                     }
                 }
             }
-
-            // Generate Neon Signs (Front layer only)
-            if (this.isFrontLayer && Math.random() > 0.6) {
+            // Neon signs with pulsating glow animation (front layer only)
+            if (this.isFrontLayer && Math.random() > 0.55) {
                 this.neonSigns.push({
-                    x: random(5, this.w - 25),
-                    y: random(20, this.h - 50),
-                    w: 20,
-                    h: random(20, 60),
+                    x: random(8, this.w - 30),
+                    y: random(30, this.h - 70),
+                    w: 25,
+                    h: random(25, 70),
                     color: randomChoice(CONFIG.colors.neon),
-                    type: randomInt(0, 2) // 0 = vertical text, 1 = box
+                    type: randomInt(0, 3) // 0=vertical bars, 1=box, 2=vertical text lines
                 });
             }
         }
-
         draw(ctx, scrollX) {
             const drawX = this.x - scrollX;
-            
-            // Base building
-            ctx.fillStyle = this.color;
-            ctx.fillRect(drawX, h - this.h, this.w, this.h);
+            if (drawX < -this.w - 30 || drawX > w + 30) return; // skip offscreen
 
-            // Antenna
+            // Base building wall
+            ctx.fillStyle = this.color;
+            // subtle vertical noise & shading
+            const noiseWidth = 3;
+            for (let i = 0; i < this.w; i += noiseWidth) {
+                const shade = 5 + (Math.sin((frame + i) * 0.1) * 7);
+                ctx.fillStyle = shade > 0 ? this.color : `rgba(30,20,60, 0.15)`;
+                ctx.fillRect(drawX + i, h - this.h, noiseWidth, this.h);
+            }
+
+            // Antenna with blinking light pulse
             if (this.hasAntenna) {
-                ctx.beginPath();
-                ctx.strokeStyle = this.color;
                 ctx.lineWidth = 2;
+                ctx.strokeStyle = this.color;
+                ctx.beginPath();
                 ctx.moveTo(drawX + this.w/2, h - this.h);
-                ctx.lineTo(drawX + this.w/2, h - this.h - 20);
+                ctx.lineTo(drawX + this.w/2, h - this.h - 25);
                 ctx.stroke();
-                // Blinking light on top
-                if (Math.floor(frame / 30) % 2 === 0) {
-                    ctx.fillStyle = 'red';
-                    ctx.fillRect(drawX + this.w/2 - 1, h - this.h - 22, 3, 3);
+                if ((frame % 60) < 30) {
+                    ctx.shadowBlur = 14;
+                    ctx.shadowColor = '#ff2222';
+                    ctx.fillStyle = '#ff2222';
+                    ctx.beginPath();
+                    ctx.arc(drawX + this.w/2, h - this.h - 27, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
                 }
             }
 
-            // Details only if visible
-            if (drawX > -this.w && drawX < w) {
-                // Windows
-                this.windows.forEach(win => {
-                    const isFlickering = win.flicker && Math.random() > 0.8;
-                    if (!isFlickering) {
-                        ctx.fillStyle = win.color;
-                        // Invert Y for drawing from bottom logic
-                        ctx.fillRect(drawX + win.x, h - this.h + win.y, win.w, win.h);
-                    }
-                });
+            // Windows with flicker animation
+            this.windows.forEach(win => {
+                const flickerPhase = (frame / 10) * win.flickerSpeed + win.flickerBase;
+                const flickerOpacity = 0.6 + Math.sin(flickerPhase) * 0.4;
+                ctx.fillStyle = win.color;
+                ctx.globalAlpha = flickerOpacity > 0 ? flickerOpacity : 0.1;
+                ctx.fillRect(drawX + win.x, h - this.h + win.y, win.w, win.h);
+                ctx.globalAlpha = 1;
+            });
 
-            // Neon Signs (Glow effect)
+            // Neon Signs with pulsating glow
             ctx.save();
             this.neonSigns.forEach(sign => {
-                ctx.shadowBlur = 15;
+                const pulse = 0.4 + 0.6 * Math.sin(frame * 0.08);
+                ctx.shadowBlur = 20 + 20 * pulse;
                 ctx.shadowColor = sign.color;
-                ctx.fillStyle = sign.color;
-                ctx.fillRect(drawX + sign.x, h - this.h + sign.y, sign.w, sign.h);
-                
-                // "Text" lines inside sign
-                ctx.fillStyle = '#fff';
-                ctx.shadowBlur = 0;
-                for(let i=0; i<sign.h; i+=8) {
-                    ctx.fillRect(drawX + sign.x + 4, h - this.h + sign.y + i + 2, sign.w - 8, 2);
+                ctx.fillStyle = `rgba(${hexToRgb(sign.color)},${0.5 + 0.5 * pulse})`;
+
+                if (sign.type === 0) {  // vertical glowing bars
+                    for (let i = 0; i < sign.h; i += 9) {
+                        ctx.fillRect(drawX + sign.x + 3, h - this.h + sign.y + i, sign.w - 6, 3);
+                    }
+                } else if (sign.type === 1) { // glowing box
+                    ctx.fillRect(drawX + sign.x, h - this.h + sign.y, sign.w, sign.h);
+                } else { // vertical text lines
+                    for (let i = 0; i < sign.h; i += 6) {
+                        ctx.fillRect(drawX + sign.x + 4, h - this.h + sign.y + i, sign.w - 8, 1.8);
+                    }
                 }
             });
             ctx.restore();
-            }
         }
     }
 
+    // Converts hex color to rgb string for rgba usage
+    function hexToRgb(hex) {
+        let c;
+        if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+            c = hex.substring(1).split('');
+            if(c.length== 3) {
+                c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+            }
+            c= '0x'+c.join('');
+            return [(c>>16)&255, (c>>8)&255, c&255].join(',');
+        }
+        return '255,255,255';
+    }
+
+    // Layer with improved building placement and floor with reflective gloss
     class Layer {
         constructor(speed, color, isFront) {
             this.speed = speed;
@@ -256,39 +274,35 @@
             this.totalWidth = 0;
             this.populate();
         }
-
         populate() {
-            // Fill screen plus buffer
-            while (this.totalWidth < w + 500) {
+            while (this.totalWidth < w + 600) {
                 this.addBuilding();
             }
         }
-
         addBuilding() {
-            const b = new Building(this.totalWidth, 0, this.color, this.isFront);
-            this.buildings.push(b);
-            // Add random gap
-            const gap = this.isFront ? random(-10, 0) : random(-5, 5); // Overlap front buildings slightly
-            this.totalWidth += b.w + gap;
+            const building = new Building(this.totalWidth, this.color, this.isFront);
+            this.buildings.push(building);
+            const gap = this.isFront ? random(-12, 2) : random(-7, 7);
+            this.totalWidth += building.w + gap;
         }
-
         update() {
-            this.scrollX += this.speed * CONFIG.speed;
-
-            // Cleanup and generate
-            const firstBuilding = this.buildings[0];
-            if (firstBuilding.x + firstBuilding.w < this.scrollX - 100) {
+            this.scrollX += this.speed * CONFIG.speeds[this.isFront ? 2 : (this.speed > 1 ? 1 : 0)];
+            if (this.buildings.length && this.buildings[0].x + this.buildings[0].w < this.scrollX - 120) {
                 this.buildings.shift();
                 this.addBuilding();
             }
         }
-
         draw() {
             this.buildings.forEach(b => b.draw(ctx, this.scrollX));
-            
-            // Floor/Fog for this layer
-            ctx.fillStyle = this.color;
-            ctx.fillRect(0, h - 10, w, 10);
+
+            // Reflective floor / street gloss with soft neon reflections
+            ctx.save();
+            const grad = ctx.createLinearGradient(0, h-8, 0, h);
+            grad.addColorStop(0, this.color);
+            grad.addColorStop(1, 'rgba(60,40,80, 0.6)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, h - 15, w, 15);
+            ctx.restore();
         }
     }
 
@@ -297,55 +311,50 @@
             this.cars = [];
             this.timer = 0;
         }
-
         update() {
             this.timer++;
-            // Spawn car
-            if (this.timer > 30) { 
-                if (Math.random() > 0.7) {
+            if (this.timer > 20) {
+                if (Math.random() > 0.62 && this.cars.length < 50) {
+                    const fromLeft = Math.random() > 0.5;
                     this.cars.push({
-                        x: Math.random() > 0.5 ? -50 : w + 50,
-                        y: random(h - 150, h - 20),
-                        dir: 0, // set below
-                        speed: random(4, 8),
+                        x: fromLeft ? -60 : w + 60,
+                        y: random(h - 160, h - 25),
+                        dir: fromLeft ? 1 : -1,
+                        speed: random(5.5, 9),
                         color: randomChoice(CONFIG.colors.neon),
-                        size: random(20, 40)
+                        size: random(24, 48),
+                        trailLength: randomInt(6, 12)
                     });
-                    // Set direction based on spawn side
-                    let c = this.cars[this.cars.length-1];
-                    c.dir = c.x < 0 ? 1 : -1;
                 }
                 this.timer = 0;
             }
-
-            // Move cars
             for (let i = this.cars.length - 1; i >= 0; i--) {
-                let c = this.cars[i];
-                c.x += c.speed * c.dir * CONFIG.speed;
-                
-                // Remove if off screen
-                if ((c.dir === 1 && c.x > w + 100) || (c.dir === -1 && c.x < -100)) {
+                const c = this.cars[i];
+                c.x += c.speed * c.dir * 1.1;
+                if ((c.dir === 1 && c.x > w + 140) || (c.dir === -1 && c.x < -140)) {
                     this.cars.splice(i, 1);
                 }
             }
         }
-
         draw() {
             ctx.save();
             this.cars.forEach(c => {
-                // Trail effect
-                const grad = ctx.createLinearGradient(c.x, 0, c.x - (c.size * 3 * c.dir), 0);
-                grad.addColorStop(0, c.color);
-                grad.addColorStop(1, 'rgba(0,0,0,0)');
-                
-                ctx.fillStyle = grad;
-                ctx.fillRect(c.x - (c.dir === 1 ? c.size * 3 : 0), c.y, c.size * 3, 2);
-
-                // Car body
-                ctx.shadowBlur = 10;
+                // Multi-layer neon trail with fading and blur
+                for(let i=0; i < c.trailLength; i++) {
+                    let posX = c.x - (c.dir * i * 5);
+                    const alpha = 0.14 * (1 - i / c.trailLength);
+                    const width = c.size * (1 - i / (c.trailLength * 1.3));
+                    const grad = ctx.createLinearGradient(posX, 0, posX - (c.size * 6 * c.dir), 0);
+                    grad.addColorStop(0, `rgba(${hexToRgb(c.color)},${alpha.toFixed(2)})`);
+                    grad.addColorStop(1, 'rgba(0,0,0,0)');
+                    ctx.fillStyle = grad;
+                    ctx.fillRect(posX - (c.dir===1 ? width * 6 : 0), c.y + 1 + (i%2), width * 6, 2 - (i/10));
+                }
+                // Car body with neon glow
+                ctx.shadowBlur = 14;
                 ctx.shadowColor = c.color;
-                ctx.fillStyle = '#fff';
-                ctx.fillRect(c.x, c.y, c.size, 4);
+                ctx.fillStyle = '#eee';
+                ctx.fillRect(c.x, c.y, c.size, 5);
             });
             ctx.restore();
         }
@@ -354,42 +363,61 @@
     class Rain {
         constructor() {
             this.drops = [];
+            this.intensity = CONFIG.rainIntensity;
         }
-        
         update() {
-            // Add new drops
-            for(let i=0; i<5; i++) {
+            // Spawn more drops per frame based on intensity and screen width/wind variation
+            for (let i = 0; i < this.intensity / 20; i++) {
                 this.drops.push({
                     x: Math.random() * w,
-                    y: -20,
-                    speed: random(10, 20),
-                    len: random(10, 30)
+                    y: -random(10, 120),
+                    speed: random(14, 26),
+                    len: random(12, 35),
+                    wind: random(-0.6, 0.4)
                 });
             }
-
-            // Move
-            for(let i=this.drops.length-1; i>=0; i--) {
+            for (let i = this.drops.length - 1; i >= 0; i--) {
                 let d = this.drops[i];
                 d.y += d.speed;
-                d.x -= 1; // wind
+                d.x += d.wind;
                 if (d.y > h) this.drops.splice(i, 1);
             }
         }
-
         draw() {
-            ctx.strokeStyle = 'rgba(100, 100, 255, 0.2)';
+            ctx.lineCap = 'round';
             ctx.lineWidth = 1;
+            ctx.strokeStyle = CONFIG.colors.rainGlow;
+            ctx.shadowColor = 'cyan';
+            ctx.shadowBlur = 4;
+            ctx.beginPath();
+            for (const d of this.drops) {
+                ctx.moveTo(d.x, d.y);
+                ctx.lineTo(d.x - d.wind*4, d.y + d.len);
+            }
+            ctx.stroke();
+
+            // Drops reflections on floor (soft, stretched vertical lines)
+
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = 'rgba(0,200,255,0.07)';
+            ctx.shadowColor = 'rgba(0,255,255,0.1)';
+            ctx.shadowBlur = 8;
             ctx.beginPath();
             this.drops.forEach(d => {
-                ctx.moveTo(d.x, d.y);
-                ctx.lineTo(d.x - 1, d.y + d.len);
+                if (d.y > h - 15) {
+                    const reflX = d.x - d.wind * 5;
+                    const reflY = h - 8 + (d.y - (h - 15));
+                    ctx.moveTo(reflX, reflY);
+                    ctx.lineTo(reflX, reflY + 10);
+                }
             });
             ctx.stroke();
+            ctx.shadowBlur = 0;
         }
     }
 
-    // Global Objects
-    let starfield, bg, layers = [], traffic, rain;
+    // Globals & init
+    let starfield, bg, layers, traffic, rain;
 
     function init() {
         w = window.innerWidth;
@@ -397,64 +425,59 @@
         canvas.width = w;
         canvas.height = h;
 
-        starfield = new Starfield(150);
+        starfield = new Starfield(190);
         bg = new Background();
-        
-        // Create layers (Speed, Color, IsFront)
-        layers = [
-            new Layer(0.5, CONFIG.colors.layer1, false),
-            new Layer(1.5, CONFIG.colors.layer2, false),
-            new Layer(3.5, CONFIG.colors.layer3, true)
-        ];
 
+        layers = [
+            new Layer(0.4, CONFIG.colors.layer1, false),
+            new Layer(1.3, CONFIG.colors.layer2, false),
+            new Layer(3.8, CONFIG.colors.layer3, true)
+        ];
         traffic = new TrafficSystem();
         rain = new Rain();
     }
 
     function animate() {
         frame++;
-        
-        // Update
         layers.forEach(l => l.update());
         traffic.update();
         rain.update();
 
-        // Draw
         ctx.clearRect(0, 0, w, h);
-        
-        bg.draw(); // Sky & Sun
-        starfield.draw(frame);
 
-        // Layer 0 (Back)
+        bg.draw();
+        starfield.draw(frame * 0.08);
+
         layers[0].draw();
-        
-        // Layer 1 (Mid)
         layers[1].draw();
 
-        // Traffic behind front buildings
         traffic.draw();
 
-        // Layer 2 (Front)
         layers[2].draw();
-        
-        // Atmosphere overlay (Vignette)
-        const grad = ctx.createRadialGradient(w/2, h/2, h/2, w/2, h/2, w);
-        grad.addColorStop(0, 'rgba(0,0,0,0)');
-        grad.addColorStop(1, 'rgba(0,0,0,0.6)');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0,0,w,h);
+
+        // Soft vignette for atmosphere depth
+        const vignette = ctx.createRadialGradient(w/2, h/2, h/2, w/2, h/2, w);
+        vignette.addColorStop(0, 'rgba(0,0,0,0)');
+        vignette.addColorStop(1, 'rgba(0,0,0,0.55)');
+        ctx.fillStyle = vignette;
+        ctx.fillRect(0, 0, w, h);
 
         rain.draw();
 
-        animationId = requestAnimationFrame(animate);
+        requestAnimationFrame(animate);
     }
 
-    // Resize Handling
     window.addEventListener('resize', () => {
         w = window.innerWidth;
         h = window.innerHeight;
         canvas.width = w;
         canvas.height = h;
+        starfield.init();
+        layers.forEach(layer => {
+            layer.buildings = [];
+            layer.totalWidth = 0;
+            layer.populate();
+        });
     });
 
     init();
