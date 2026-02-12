@@ -180,7 +180,7 @@ High aesthetic output; moderate structural volatility.
 
 ### 3. ChatGPT 5.2 Thinking (Canvas)
 
-<div style="position:relative; width:100%; padding-top:56.25%;">
+<div style="position:relative; width:100%; padding-top:84.375%;">
   <iframe
     src="/assets/2026-02-12-passing-code-across-ai-platforms/chatgpt-5-2-thinking/index.html"
     style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
