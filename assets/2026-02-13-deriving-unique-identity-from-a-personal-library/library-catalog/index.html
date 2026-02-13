@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AWL Library Catalog</title>
+  <style>
+    :root{
+      --bg:#07070a;
+      --panel:#101018;
+      --panel2:#0c0c12;
+      --text:#e8e8ee;
+      --muted:#9a9ab0;
+      --line:rgba(255,255,255,.08);
+      --accent:#7cf0ff;
+      --accent2:#c084fc;
+      --good:#48f2a6;
+      --warn:#ffcc66;
+      --bad:#ff4d6d;
+      --shadow: 0 18px 50px rgba(0,0,0,.55);
+      --r: 16px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      background:
+        radial-gradient(900px 600px at 15% 20%, rgba(124,240,255,.12), transparent 60%),
+        radial-gradient(900px 600px at 85% 20%, rgba(192,132,252,.12), transparent 60%),
+        radial-gradient(1200px 900px at 50% 120%, rgba(72,242,166,.08), transparent 60%),
+        var(--bg);
+      color:var(--text);
+      overflow:hidden;
+    }
+    .wrap{
+      height:100%;
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap:14px;
+      padding:14px;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--line);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      min-height:0;
+    }
+    .left{
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+    }
+    .head{
+      padding:16px 16px 10px;
+      border-bottom:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), transparent);
+    }
+    .title{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .title h1{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.2px;
+      font-weight:800;
+    }
+    .title .stamp{
+      font-family:var(--mono);
+      font-size:11px;
+      color:var(--muted);
+      white-space:nowrap;
+    }
+    .sub{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+    }
+    .controls{
+      padding:12px 16px;
+      border-bottom:1px solid var(--line);
+      display:grid;
+      gap:10px;
+      background: rgba(0,0,0,.25);
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    input, select, button, textarea{
+      font: inherit;
+      color:var(--text);
+      background: rgba(0,0,0,.35);
+      border:1px solid var(--line);
+      border-radius: 12px;
+      padding:10px 10px;
+      outline:none;
+    }
+    input::placeholder{color:rgba(154,154,176,.75)}
+    input:focus, select:focus, textarea:focus{border-color:rgba(124,240,255,.55); box-shadow:0 0 0 3px rgba(124,240,255,.12)}
+    button{
+      cursor:pointer;
+      background: linear-gradient(135deg, rgba(124,240,255,.18), rgba(192,132,252,.16));
+      border-color: rgba(124,240,255,.30);
+    }
+    button:hover{filter:brightness(1.08)}
+    .btnGhost{
+      background: rgba(0,0,0,.18);
+      border-color: var(--line);
+    }
+    .pill{
+      font-family:var(--mono);
+      font-size:11px;
+      padding:6px 8px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      color:var(--muted);
+      background: rgba(0,0,0,.25);
+      white-space:nowrap;
+    }
+    .stats{
+      padding:12px 16px;
+      border-bottom:1px solid var(--line);
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      background: linear-gradient(180deg, rgba(0,0,0,.12), transparent);
+    }
+    .stat{
+      padding:10px 10px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.22);
+      min-height:66px;
+    }
+    .stat .k{
+      font-family:var(--mono);
+      font-size:11px;
+      color:var(--muted);
+    }
+    .stat .v{
+      margin-top:6px;
+      font-size:16px;
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+    .stat .s{
+      margin-top:4px;
+      font-size:11px;
+      color:var(--muted);
+      line-height:1.25;
+    }
+    .list{
+      padding:10px 10px 14px;
+      overflow:auto;
+      min-height:0;
+    }
+    .item{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap:10px;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(0,0,0,.20);
+      margin-bottom:10px;
+    }
+    .item:hover{border-color:rgba(192,132,252,.45)}
+    .meta{
+      min-width:0;
+    }
+    .meta .t{
+      font-size:13px;
+      font-weight:800;
+      margin:0 0 3px 0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .meta .a{
+      font-size:12px;
+      color:var(--muted);
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .meta .tags{
+      margin-top:8px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+    }
+    .tag{
+      font-family:var(--mono);
+      font-size:10px;
+      padding:4px 7px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      color:rgba(232,232,238,.85);
+      background: rgba(255,255,255,.03);
+    }
+    .tag.good{border-color:rgba(72,242,166,.28); color:rgba(72,242,166,.95)}
+    .tag.warn{border-color:rgba(255,204,102,.28); color:rgba(255,204,102,.95)}
+    .tag.bad{border-color:rgba(255,77,109,.28); color:rgba(255,77,109,.95)}
+    .right{
+      display:grid;
+      grid-template-rows: auto 1fr;
+      min-height:0;
+    }
+    .rightTop{
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      background: rgba(0,0,0,.20);
+    }
+    .rightTop h2{
+      margin:0;
+      font-size:14px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .rightBody{
+      min-height:0;
+      display:grid;
+      grid-template-columns: 1fr 380px;
+      gap:14px;
+      padding:14px;
+      overflow:hidden;
+    }
+    .editor, .profile{
+      border-radius: var(--r);
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+      overflow:hidden;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+    }
+    .paneHead{
+      padding:10px 12px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background: linear-gradient(180deg, rgba(255,255,255,.04), transparent);
+    }
+    .paneHead .h{
+      font-family:var(--mono);
+      font-size:11px;
+      color:var(--muted);
+      letter-spacing:.4px;
+      text-transform:uppercase;
+    }
+    .paneBody{
+      padding:12px;
+      overflow:auto;
+      min-height:0;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .grid .full{grid-column: 1 / -1;}
+    .label{
+      font-family:var(--mono);
+      font-size:11px;
+      color:var(--muted);
+      margin:0 0 6px 2px;
+    }
+    textarea{min-height:84px; resize:vertical}
+    .tiny{font-size:11px; color:var(--muted); line-height:1.35}
+    .kbd{
+      font-family:var(--mono);
+      font-size:10px;
+      padding:2px 6px;
+      border-radius:8px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.24);
+      color:rgba(232,232,238,.9);
+      margin-left:6px;
+      white-space:nowrap;
+    }
+    @media (max-width: 1100px){
+      body{overflow:auto}
+      .wrap{grid-template-columns: 1fr; height:auto}
+      .rightBody{grid-template-columns: 1fr; height:auto}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="card left">
+      <div class="head">
+        <div class="title">
+          <h1>AWL Library Catalog</h1>
+          <div class="stamp" id="stamp"></div>
+        </div>
+        <div class="sub">
+          A shelf treated as data: totals, filters, and a derived cognition profile.
+          Edit metadata as you catalog; export JSON for daily AI ingestion.
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="row">
+          <input id="q" type="text" placeholder="Search title / author / tags…" style="flex:1" />
+          <select id="readFilter">
+            <option value="ALL">All statuses</option>
+            <option value="ALL_READ">Read (ALL / MOST)</option>
+            <option value="IN_PROGRESS">In progress (HALF / PART)</option>
+            <option value="UNREAD">Unread (NONE)</option>
+          </select>
+        </div>
+        <div class="row">
+          <select id="themeFilter" style="flex:1">
+            <option value="ALL">All themes</option>
+          </select>
+          <button class="btnGhost" id="newBook">+ Add book</button>
+        </div>
+        <div class="row">
+          <button id="exportBtn" style="flex:1">Export JSON</button>
+          <button class="btnGhost" id="importBtn" style="flex:1">Import JSON</button>
+          <input id="importFile" type="file" accept="application/json" style="display:none" />
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="k">BOOK COUNT</div>
+          <div class="v" id="statCount">—</div>
+          <div class="s">Filtered / total</div>
+        </div>
+        <div class="stat">
+          <div class="k">REPLACEMENT COST</div>
+          <div class="v" id="statCost">—</div>
+          <div class="s">Editable per book</div>
+        </div>
+        <div class="stat">
+          <div class="k">PAGES / WORDS</div>
+          <div class="v" id="statWords">—</div>
+          <div class="s">Words default: pages × 300</div>
+        </div>
+        <div class="stat">
+          <div class="k">READING MIX</div>
+          <div class="v" id="statMix">—</div>
+          <div class="s">Read vs unfinished vs unread</div>
+        </div>
+      </div>
+
+      <div class="list" id="list"></div>
+    </section>
+
+    <section class="card right">
+      <div class="rightTop">
+        <h2>Book Editor + Derived Profile</h2>
+        <div class="pill">Shortcuts: <span class="kbd">Ctrl</span> + <span class="kbd">S</span> save · <span class="kbd">Del</span> delete</div>
+      </div>
+
+      <div class="rightBody">
+        <div class="editor">
+          <div class="paneHead">
+            <div class="h">Selected book</div>
+            <div class="row" style="gap:8px">
+              <button class="btnGhost" id="dupBtn">Duplicate</button>
+              <button class="btnGhost" id="delBtn">Delete</button>
+              <button id="saveBtn">Save</button>
+            </div>
+          </div>
+          <div class="paneBody">
+            <div class="grid">
+              <div class="full">
+                <div class="label">Title</div>
+                <input id="eTitle" type="text" />
+              </div>
+              <div class="full">
+                <div class="label">Author</div>
+                <input id="eAuthor" type="text" />
+              </div>
+              <div>
+                <div class="label">Read status</div>
+                <select id="eStatus">
+                  <option>ALL</option>
+                  <option>MOST</option>
+                  <option>HALF</option>
+                  <option>PART</option>
+                  <option>NONE</option>
+                </select>
+              </div>
+              <div>
+                <div class="label">Year obtained</div>
+                <input id="eYear" type="number" min="1900" max="2100" />
+              </div>
+              <div>
+                <div class="label">Pages</div>
+                <input id="ePages" type="number" min="0" />
+              </div>
+              <div>
+                <div class="label">Words</div>
+                <input id="eWords" type="number" min="0" />
+              </div>
+              <div>
+                <div class="label">Replacement cost (USD)</div>
+                <input id="eCost" type="number" min="0" step="0.01" />
+              </div>
+              <div>
+                <div class="label">Reading level</div>
+                <select id="eLevel">
+                  <option value="">(unset)</option>
+                  <option>Intro</option>
+                  <option>Intermediate</option>
+                  <option>Advanced</option>
+                  <option>Reference</option>
+                </select>
+              </div>
+              <div class="full">
+                <div class="label">Themes (comma-separated)</div>
+                <input id="eThemes" type="text" placeholder="urbanism, systems, geopolitics…" />
+              </div>
+              <div class="full">
+                <div class="label">Notes (why keep it / what it’s for)</div>
+                <textarea id="eNotes" placeholder="What does this book do for you? What work does it support?"></textarea>
+              </div>
+              <div class="full tiny">
+                Tip: if you only enter pages, words will auto-estimate (pages × 300). You can override.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile">
+          <div class="paneHead">
+            <div class="h">Derived cognition profile</div>
+            <button class="btnGhost" id="recalcBtn">Recalculate</button>
+          </div>
+          <div class="paneBody" id="profileBody">
+            <div class="tiny">Select a book or recalculate to see theme weights, unfinished “debt,” and suggested next actions.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+<script>
+  const DEFAULT_WORDS_PER_PAGE = 300;
+
+  // Seed data from your message (metadata fields intentionally sparse; you’ll fill during cataloging).
+  let books = [
+    {id: uid(), title:"Chinese Espionage: Operations and Tactics", author:"Nicholas Eftimiades", status:"HALF", year:2025, pages:null, words:null, cost:null, level:"", themes:["geopolitics","china","intelligence"], notes:""},
+    {id: uid(), title:"The Urban Design Reader", author:"Michael Larice; Elizabeth Macdonald (eds.)", status:"ALL", year:2013, pages:null, words:null, cost:null, level:"", themes:["urbanism","design"], notes:""},
+    {id: uid(), title:"Pattern-Thinking", author:"Buckminster Fuller", status:"ALL", year:2021, pages:null, words:null, cost:null, level:"", themes:["systems","design","fuller"], notes:""},
+    {id: uid(), title:"Stand on Zanzibar", author:"John Brunner", status:"PART", year:2024, pages:null, words:null, cost:null, level:"", themes:["fiction","systems","society"], notes:""},
+    {id: uid(), title:"Holy Blood, Holy Grail", author:"Michael Baigent et al.", status:"PART", year:2025, pages:null, words:null, cost:null, level:"", themes:["history","myth","religion"], notes:""},
+    {id: uid(), title:"Van Life", author:"Foster Huntington", status:"ALL", year:2016, pages:null, words:null, cost:null, level:"", themes:["lifestyle","mobility"], notes:"Gift from cousin Laura"},
+    {id: uid(), title:"Data Science from Scratch", author:"Joel Grus", status:"PART", year:2024, pages:null, words:null, cost:null, level:"", themes:["data","programming"], notes:""},
+    {id: uid(), title:"On Growth and Form", author:"D’Arcy Wentworth Thompson", status:"PART", year:2025, pages:null, words:null, cost:null, level:"", themes:["biology","form","systems"], notes:""},
+    {id: uid(), title:"The Penguin Dictionary of Architecture", author:"John Fleming; Hugh Honour; Nikolaus Pevsner", status:"PART", year:null, pages:null, words:null, cost:null, level:"Reference", themes:["architecture","reference"], notes:""},
+    {id: uid(), title:"Into the Anthropocosmos", author:"Ariel Ekblaw", status:"HALF", year:2022, pages:null, words:null, cost:null, level:"", themes:["space","design","futures"], notes:""},
+    {id: uid(), title:"The Egyptian Book of the Dead", author:"Ogden Goelet Jr. et al.", status:"PART", year:2025, pages:null, words:null, cost:null, level:"", themes:["myth","ritual","history"], notes:""},
+    {id: uid(), title:"Mona Lisa Overdrive", author:"William Gibson", status:"PART", year:2024, pages:null, words:null, cost:null, level:"", themes:["fiction","cyberpunk"], notes:""},
+    {id: uid(), title:"AI Superpowers", author:"Kai-Fu Lee", status:"HALF", year:2023, pages:null, words:null, cost:null, level:"", themes:["ai","economics","china"], notes:""},
+    {id: uid(), title:"Unsettled", author:"Steven E. Koonin", status:"HALF", year:2020, pages:null, words:null, cost:null, level:"", themes:["climate","policy"], notes:""},
+    {id: uid(), title:"Evicted", author:"Matthew Desmond", status:"PART", year:2023, pages:null, words:null, cost:null, level:"", themes:["housing","inequality","policy"], notes:""},
+    {id: uid(), title:"Ant", author:"Chris Hine", status:"NONE", year:2025, pages:null, words:null, cost:null, level:"", themes:["fiction"], notes:""},
+    {id: uid(), title:"The Image of the City", author:"Kevin Lynch", status:"ALL", year:2007, pages:null, words:null, cost:null, level:"", themes:["urbanism","cognition","design"], notes:""},
+    {id: uid(), title:"The California Crackup", author:"Mathews; Paul", status:"PART", year:2023, pages:null, words:null, cost:null, level:"", themes:["politics","california","history"], notes:""},
+    {id: uid(), title:"The Zoning Game", author:"Richard F. Babcock", status:"ALL", year:2012, pages:null, words:null, cost:null, level:"", themes:["urbanism","law","policy"], notes:""},
+    {id: uid(), title:"The Holographic Universe", author:"Michael Talbot", status:"ALL", year:2004, pages:null, words:null, cost:null, level:"", themes:["physics","consciousness","speculation"], notes:""},
+    {id: uid(), title:"Railtown", author:"Nicholas Elkind", status:"HALF", year:2023, pages:null, words:null, cost:null, level:"", themes:["cities","transport","history"], notes:""},
+    {id: uid(), title:"The Affordable City", author:"(unknown / verify)", status:"HALF", year:2023, pages:null, words:null, cost:null, level:"", themes:["housing","urbanism"], notes:""},
+    {id: uid(), title:"The Alchemist's Tao Te Ching", author:"Andrew McCart, PhD", status:"PART", year:2018, pages:null, words:null, cost:null, level:"", themes:["philosophy","taoism"], notes:""},
+    {id: uid(), title:"The Definitive Book of Body Language", author:"Allan & Barbara Pease", status:"PART", year:2021, pages:null, words:null, cost:null, level:"", themes:["psychology","communication"], notes:""},
+    {id: uid(), title:"Streets for People", author:"Bernard Rudofsky", status:"ALL", year:2013, pages:null, words:null, cost:null, level:"", themes:["urbanism","public-space"], notes:""},
+    {id: uid(), title:"The Human Stain", author:"Philip Roth", status:"NONE", year:2021, pages:null, words:null, cost:null, level:"", themes:["fiction"], notes:""},
+    {id: uid(), title:"Capitalism and Freedom", author:"Milton Friedman", status:"PART", year:2023, pages:null, words:null, cost:null, level:"", themes:["economics","policy"], notes:""},
+    {id: uid(), title:"The New Urban Crisis", author:"Richard Florida", status:"PART", year:2023, pages:null, words:null, cost:null, level:"", themes:["cities","economics","inequality"], notes:""},
+    {id: uid(), title:"That's Not All Folks", author:"Mel Blanc", status:"PART", year:2021, pages:null, words:null, cost:null, level:"", themes:["memoir","performance"], notes:""},
+    {id: uid(), title:"Calculating God", author:"Robert J. Sawyer", status:"NONE", year:2022, pages:null, words:null, cost:null, level:"", themes:["fiction","science"], notes:""},
+    {id: uid(), title:"Think & Grow Rich", author:"Napoleon Hill", status:"ALL", year:2007, pages:null, words:null, cost:null, level:"", themes:["self-help","business"], notes:""},
+    {id: uid(), title:"Maps of Meaning", author:"Jordan B. Peterson", status:"MOST", year:2017, pages:null, words:null, cost:null, level:"Advanced", themes:["psychology","myth","meaning"], notes:""},
+    {id: uid(), title:"The 48 Laws of Power", author:"Robert Greene", status:"PART", year:2010, pages:null, words:null, cost:null, level:"", themes:["power","strategy"], notes:""},
+    {id: uid(), title:"Adults in the Room", author:"Yanis Varoufakis", status:"MOST", year:2016, pages:null, words:null, cost:null, level:"", themes:["economics","politics","europe"], notes:""},
+    {id: uid(), title:"Wherever You Go, There You Are", author:"Jon Kabat-Zinn", status:"PART", year:2022, pages:null, words:null, cost:null, level:"", themes:["meditation","mindfulness"], notes:""},
+    {id: uid(), title:"Who Are China's Walking Dead", author:"Rubacek", status:"ALL", year:2021, pages:null, words:null, cost:null, level:"", themes:["china","geopolitics"], notes:""},
+    {id: uid(), title:"The Eight Characters of Comedy", author:"Scott Sedita", status:"PART", year:2022, pages:null, words:null, cost:null, level:"", themes:["comedy","craft","performance"], notes:""},
+    {id: uid(), title:"I'd Like to Play Alone Please", author:"Tom Segura", status:"ALL", year:2021, pages:null, words:null, cost:null, level:"", themes:["comedy","memoir"], notes:""},
+    {id: uid(), title:"Lessons in Chemistry", author:"Bonnie Garmus", status:"ALL", year:2022, pages:null, words:null, cost:null, level:"", themes:["fiction"], notes:""},
+    {id: uid(), title:"Principles: Life & Work", author:"Ray Dalio", status:"NONE", year:2023, pages:null, words:null, cost:null, level:"", themes:["management","decision-making"], notes:""},
+    {id: uid(), title:"A Legal Guide to Urban and Sustainable Development for Planners, Developers, and Architects", author:"(unknown / verify)", status:"PART", year:2023, pages:null, words:null, cost:null, level:"", themes:["urbanism","law","development"], notes:""},
+    {id: uid(), title:"The City Shaped", author:"Spiro Kostof", status:"MOST", year:2011, pages:null, words:null, cost:null, level:"", themes:["urbanism","history"], notes:""},
+    {id: uid(), title:"An Illustrated History of UFOs", author:"Nobrow", status:"PART", year:2022, pages:null, words:null, cost:null, level:"", themes:["ufo","history","culture"], notes:""},
+    {id: uid(), title:"The Chinese Invasion Threat", author:"Easton", status:"MOST", year:2022, pages:null, words:null, cost:null, level:"", themes:["geopolitics","china","military"], notes:""},
+    {id: uid(), title:"The Hero with a Thousand Faces", author:"Joseph Campbell", status:"MOST", year:2005, pages:null, words:null, cost:null, level:"", themes:["myth","story","psychology"], notes:""},
+    {id: uid(), title:"Mastery", author:"Robert Greene", status:"MOST", year:2023, pages:null, words:null, cost:null, level:"", themes:["craft","strategy"], notes:""},
+    {id: uid(), title:"The Deep State", author:"Mike Lofgren", status:"MOST", year:2023, pages:null, words:null, cost:null, level:"", themes:["politics","institutions"], notes:""},
+    {id: uid(), title:"Developing Jin", author:"Starr", status:"PART", year:2019, pages:null, words:null, cost:null, level:"", themes:["language","chinese"], notes:""},
+    {id: uid(), title:"The Voice Over Actor's Handbook", author:"Burr", status:"NONE", year:2022, pages:null, words:null, cost:null, level:"", themes:["voice","craft","performance"], notes:""},
+    {id: uid(), title:"Journey of Awakening", author:"Ram Dass", status:"ALL", year:2011, pages:null, words:null, cost:null, level:"", themes:["meditation","spirituality"], notes:""},
+    {id: uid(), title:"Zen and the Art of Motorcycle Maintenance", author:"Robert M. Pirsig", status:"ALL", year:2007, pages:null, words:null, cost:null, level:"", themes:["philosophy","quality","memoir"], notes:""},
+    {id: uid(), title:"Tetrascroll", author:"Buckminster Fuller", status:"PART", year:2021, pages:null, words:null, cost:null, level:"", themes:["systems","fuller"], notes:""},
+    {id: uid(), title:"Scenes for Actors and Voices", author:"Butler", status:"PART", year:2022, pages:null, words:null, cost:null, level:"", themes:["acting","voice","craft"], notes:""},
+    {id: uid(), title:"Places of the Heart", author:"Ellard", status:"ALL", year:2017, pages:null, words:null, cost:null, level:"", themes:["place","psychology","urbanism"], notes:""},
+    {id: uid(), title:"The Myth of Freedom and the Way of Meditation", author:"Chögyam Trungpa", status:"HALF", year:2017, pages:null, words:null, cost:null, level:"", themes:["meditation","philosophy"], notes:""},
+    {id: uid(), title:"The Order of Time", author:"Carlo Rovelli", status:"ALL", year:2022, pages:null, words:null, cost:null, level:"", themes:["physics","time"], notes:""},
+    {id: uid(), title:"Interior Chinatown", author:"Charles Yu", status:"ALL", year:2022, pages:null, words:null, cost:null, level:"", themes:["fiction","identity"], notes:""},
+    {id: uid(), title:"The Rebel", author:"Albert Camus", status:"PART", year:2022, pages:null, words:null, cost:null, level:"", themes:["philosophy","politics"], notes:""},
+    {id: uid(), title:"Bucky: A Guided Tour of Buckminster Fuller", author:"Hugh Kenner", status:"PART", year:2021, pages:null, words:null, cost:null, level:"", themes:["fuller","biography","design"], notes:""},
+    {id: uid(), title:"Slouching Towards Bethlehem", author:"Joan Didion", status:"PART", year:2022, pages:null, words:null, cost:null, level:"", themes:["essays","culture"], notes:"Loaned by neighbor; later moved"},
+    {id: uid(), title:"Lautner A–Z", author:"(unknown / verify)", status:"ALL", year:2021, pages:null, words:null, cost:null, level:"", themes:["architecture","monographs"], notes:""},
+    {id: uid(), title:"Recombinant Urbanism", author:"David Grahame Shane", status:"ALL", year:2011, pages:null, words:null, cost:null, level:"Advanced", themes:["urbanism","theory"], notes:"Given by Aunt Janine"},
+    {id: uid(), title:"The Phenomenon of Life", author:"Christopher Alexander", status:"ALL", year:2012, pages:null, words:null, cost:null, level:"Advanced", themes:["design","systems","architecture"], notes:""},
+    {id: uid(), title:"Geodesic Math and How to Use It", author:"Hugh Kenner", status:"PART", year:2021, pages:null, words:null, cost:null, level:"", themes:["geometry","fuller"], notes:""},
+    {id: uid(), title:"Bucky Works", author:"Baldwin", status:"MOST", year:2021, pages:null, words:null, cost:null, level:"", themes:["fuller","design"], notes:""},
+    {id: uid(), title:"An Introduction to Urban Design", author:"Jonathan Barnett", status:"ALL", year:2011, pages:null, words:null, cost:null, level:"", themes:["urbanism","design"], notes:""},
+    {id: uid(), title:"Cities for People", author:"Jan Gehl", status:"ALL", year:2018, pages:null, words:null, cost:null, level:"", themes:["urbanism","public-space"], notes:""},
+    {id: uid(), title:"Reshaping Winter Cities", author:"Norman Pressman", status:"ALL", year:2014, pages:null, words:null, cost:null, level:"", themes:["urbanism","climate","design"], notes:""},
+    {id: uid(), title:"Atlas of Cities", author:"Knox", status:"PART", year:2019, pages:null, words:null, cost:null, level:"", themes:["urbanism","reference"], notes:""},
+    {id: uid(), title:"The American City: What Works, What Doesn't", author:"Jonathan Barnett Garvin? (verify)", status:"ALL", year:2018, pages:null, words:null, cost:null, level:"", themes:["urbanism","practice"], notes:""},
+    {id: uid(), title:"Inventor of the Future", author:"Alec Nevala-Lee", status:"PART", year:2023, pages:null, words:null, cost:null, level:"", themes:["biography","tesla","innovation"], notes:""},
+    {id: uid(), title:"The Master Switch", author:"Tim Wu", status:"HALF", year:2025, pages:null, words:null, cost:null, level:"", themes:["technology","policy","media"], notes:""}
+  ];
+
+  // UI state
+  let selectedId = null;
+  let dirty = false;
+
+  const el = (id)=>document.getElementById(id);
+
+  function uid(){ return Math.random().toString(16).slice(2) + Date.now().toString(16); }
+
+  function fmtMoney(n){
+    if(!isFinite(n)) return "—";
+    return n.toLocaleString(undefined,{style:"currency",currency:"USD",maximumFractionDigits:0});
+  }
+  function fmtNum(n){
+    if(!isFinite(n)) return "—";
+    return n.toLocaleString();
+  }
+
+  function statusClass(s){
+    if(s==="ALL"||s==="MOST") return "good";
+    if(s==="HALF"||s==="PART") return "warn";
+    return "bad";
+  }
+
+  function norm(str){ return (str||"").toLowerCase().trim(); }
+
+  function getAllThemes(){
+    const set = new Set();
+    books.forEach(b => (b.themes||[]).forEach(t => set.add(t)));
+    return Array.from(set).sort((a,b)=>a.localeCompare(b));
+  }
+
+  function classifyRead(s){
+    if(s==="ALL"||s==="MOST") return "read";
+    if(s==="HALF"||s==="PART") return "progress";
+    return "unread";
+  }
+
+  function filteredBooks(){
+    const q = norm(el("q").value);
+    const rf = el("readFilter").value;
+    const tf = el("themeFilter").value;
+
+    return books.filter(b=>{
+      const hay = norm([b.title,b.author,(b.themes||[]).join(" "),b.notes].join(" "));
+      if(q && !hay.includes(q)) return false;
+
+      const cls = classifyRead(b.status);
+      if(rf==="ALL_READ" && cls!=="read") return false;
+      if(rf==="IN_PROGRESS" && cls!=="progress") return false;
+      if(rf==="UNREAD" && cls!=="unread") return false;
+
+      if(tf!=="ALL"){
+        const themes = (b.themes||[]);
+        if(!themes.includes(tf)) return false;
+      }
+      return true;
+    });
+  }
+
+  function recomputeTotals(){
+    const fb = filteredBooks();
+    const total = books.length;
+
+    const costSum = books.reduce((acc,b)=>acc+(+b.cost||0),0);
+    const pagesSum = books.reduce((acc,b)=>acc+(+b.pages||0),0);
+    const wordsSum = books.reduce((acc,b)=>acc+(+b.words||0),0);
+
+    const read = books.filter(b=>classifyRead(b.status)==="read").length;
+    const progress = books.filter(b=>classifyRead(b.status)==="progress").length;
+    const unread = books.filter(b=>classifyRead(b.status)==="unread").length;
+
+    el("statCount").textContent = `${fb.length} / ${total}`;
+    el("statCost").textContent = fmtMoney(costSum);
+    el("statWords").textContent = `${fmtNum(pagesSum)} / ${fmtNum(wordsSum)}`;
+    el("statMix").textContent = `${read} · ${progress} · ${unread}`;
+  }
+
+  function renderThemeFilter(){
+    const themes = getAllThemes();
+    const sel = el("themeFilter");
+    const current = sel.value;
+    sel.innerHTML = `<option value="ALL">All themes</option>` + themes.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
+    if(themes.includes(current)) sel.value = current;
+  }
+
+  function renderList(){
+    const fb = filteredBooks().sort((a,b)=> (b.year||0)-(a.year||0) || a.title.localeCompare(b.title));
+    const list = el("list");
+    list.innerHTML = fb.map(b=>{
+      const themes = (b.themes||[]).slice(0,6);
+      return `
+        <div class="item" data-id="${b.id}">
+          <div class="meta">
+            <div class="t" title="${esc(b.title)}">${esc(b.title)}</div>
+            <div class="a" title="${esc(b.author)}">${esc(b.author)}${b.year?` · <span style="font-family:var(--mono);color:var(--muted)">${b.year}</span>`:""}</div>
+            <div class="tags">
+              <span class="tag ${statusClass(b.status)}">${b.status}</span>
+              ${themes.map(t=>`<span class="tag">${esc(t)}</span>`).join("")}
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-end; justify-content:center;">
+            <span class="pill">${b.pages?`${fmtNum(b.pages)}p`:"—p"} · ${b.words?`${fmtNum(b.words)}w`:"—w"}</span>
+            <span class="pill">${b.cost?fmtMoney(+b.cost):"—"}</span>
+          </div>
+        </div>
+      `;
+    }).join("") || `<div class="tiny">No matches.</div>`;
+
+    list.querySelectorAll(".item").forEach(node=>{
+      node.addEventListener("click", ()=>{
+        const id = node.getAttribute("data-id");
+        selectBook(id);
+      });
+    });
+  }
+
+  function selectBook(id){
+    selectedId = id;
+    const b = books.find(x=>x.id===id);
+    if(!b) return;
+
+    el("eTitle").value = b.title||"";
+    el("eAuthor").value =
