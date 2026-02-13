@@ -217,7 +217,7 @@ Architecturally mature; slightly heavy for simple tasks.
 
 ### 4. Claude Code (Sonnet 4.5)
 
-<div style="position:relative; width:100%; padding-top:100%;">
+<div style="position:relative; width:100%; padding-top:110%;">
   <iframe
     src="/assets/2026-02-12-passing-code-across-ai-platforms/claude-code-sonnet-4-5/index.html"
     style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
