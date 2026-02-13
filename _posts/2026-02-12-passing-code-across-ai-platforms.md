@@ -21,7 +21,7 @@ abstract: |
   ></iframe>
 </div>
 
-> The above artifact is the result of iterative relay between PDCo Dev Studio and Gemini (Canvas). All other embedded examples in this article represent first-pass outputs only.
+> The above artifact is the result of iterative relay between PDCo Dev Studio and Gemini Pro (Canvas). All other embedded examples in this article represent first-pass outputs only.
 
 ---
 
@@ -139,7 +139,7 @@ Competent, clean, conservative.
 
 ---
 
-### 2. Gemini (Canvas)
+### 2. Gemini Pro (Canvas)
 
 <div style="position:relative; width:100%; padding-top:56.25%;">
   <iframe
@@ -436,7 +436,7 @@ Below is the comparative matrix.
 | Model                        | Visual | Architecture | Stability | Feature Preservation | Context | Debuggability | Packaging | Relay Utility | Overall |
 |-----------------------------|--------|--------------|-----------|----------------------|---------|---------------|-----------|--------------|---------|
 | PDCo Dev Studio             | 7.10   | 8.40         | 8.20      | 8.00                 | 8.60    | 8.50          | 9.00      | 8.70         | 8.28    |
-| Gemini (Canvas)             | 9.10   | 7.80         | 6.80      | 6.70                 | 6.90    | 7.20          | 7.10      | 8.90         | 7.94    |
+| Gemini Pro (Canvas)             | 9.10   | 7.80         | 6.80      | 6.70                 | 6.90    | 7.20          | 7.10      | 8.90         | 7.94    |
 | ChatGPT 5.2 Thinking        | 8.70   | 9.20         | 8.80      | 8.60                 | 8.70    | 8.90          | 8.20      | 8.40         | 8.72    |
 | Claude Code (Sonnet 4.5)    | 7.20   | 7.50         | 7.10      | 6.90                 | 7.20    | 7.80          | 8.00      | 7.10         | 7.20    |
 | Grok 4.1 (Code Mode)        | 7.40   | 7.80         | 7.90      | 7.30                 | 7.50    | 7.60          | 8.10      | 7.30         | 7.63    |
