@@ -655,4 +655,290 @@
     if(!b) return;
 
     el("eTitle").value = b.title||"";
-    el("eAuthor").value =
+    el("eAuthor").value = b.author||"";
+    el("eStatus").value = b.status||"PART";
+    el("eYear").value = b.year||"";
+    el("ePages").value = b.pages??"";
+    el("eWords").value = b.words??"";
+    el("eCost").value = b.cost??"";
+    el("eLevel").value = b.level||"";
+    el("eThemes").value = (b.themes||[]).join(", ");
+    el("eNotes").value = b.notes||"";
+    dirty = false;
+    deriveProfile();
+  }
+
+  function saveSelected(){
+    const b = books.find(x=>x.id===selectedId);
+    if(!b) return;
+
+    b.title = el("eTitle").value.trim();
+    b.author = el("eAuthor").value.trim();
+    b.status = el("eStatus").value;
+    b.year = el("eYear").value? +el("eYear").value : null;
+
+    b.pages = el("ePages").value? +el("ePages").value : null;
+
+    // auto-estimate words if empty and pages present
+    const wIn = el("eWords").value;
+    if(wIn){
+      b.words = +wIn;
+    } else if(b.pages){
+      b.words = Math.round(b.pages * DEFAULT_WORDS_PER_PAGE);
+    } else {
+      b.words = null;
+    }
+
+    b.cost = el("eCost").value? +el("eCost").value : null;
+    b.level = el("eLevel").value;
+
+    b.themes = el("eThemes").value
+      .split(",")
+      .map(s=>s.trim())
+      .filter(Boolean);
+
+    b.notes = el("eNotes").value;
+
+    dirty = false;
+    renderThemeFilter();
+    recomputeTotals();
+    renderList();
+    deriveProfile();
+  }
+
+  function deleteSelected(){
+    if(!selectedId) return;
+    const idx = books.findIndex(x=>x.id===selectedId);
+    if(idx<0) return;
+    books.splice(idx,1);
+    selectedId = null;
+    dirty = false;
+    renderThemeFilter();
+    recomputeTotals();
+    renderList();
+    el("profileBody").innerHTML = `<div class="tiny">Select a book or recalculate to see theme weights, unfinished “debt,” and suggested next actions.</div>`;
+  }
+
+  function duplicateSelected(){
+    const b = books.find(x=>x.id===selectedId);
+    if(!b) return;
+    const copy = JSON.parse(JSON.stringify(b));
+    copy.id = uid();
+    copy.title = copy.title + " (copy)";
+    books.unshift(copy);
+    renderThemeFilter();
+    recomputeTotals();
+    renderList();
+    selectBook(copy.id);
+  }
+
+  function addNewBook(){
+    const nb = {id:uid(), title:"Untitled", author:"", status:"NONE", year:null, pages:null, words:null, cost:null, level:"", themes:[], notes:""};
+    books.unshift(nb);
+    renderThemeFilter();
+    recomputeTotals();
+    renderList();
+    selectBook(nb.id);
+  }
+
+  function deriveProfile(){
+    // Theme weights (by unread/read state) + unfinished debt + suggested next actions.
+    const weights = new Map();
+    const debt = [];
+
+    books.forEach(b=>{
+      const cls = classifyRead(b.status);
+      const base = (cls==="read") ? 1.0 : (cls==="progress" ? 1.35 : 1.15);
+      (b.themes||[]).forEach(t=>{
+        weights.set(t, (weights.get(t)||0) + base);
+      });
+      if(cls==="progress") debt.push(b);
+    });
+
+    const topThemes = Array.from(weights.entries())
+      .sort((a,b)=>b[1]-a[1])
+      .slice(0,10);
+
+    // Heuristic gradients: structure vs narrative; agency vs truth; inner vs outer.
+    const themeSet = new Set(books.flatMap(b=>b.themes||[]));
+    const axes = [
+      {name:"Structure ↔ Narrative", left:["systems","design","architecture","reference","data","geometry","law"], right:["fiction","memoir","essays","story","myth"]},
+      {name:"Truth-seeking ↔ Agency-seeking", left:["policy","history","climate","housing","institutions","economics","intelligence"], right:["power","strategy","self-help","management","craft"]},
+      {name:"Outer-world ↔ Inner-world", left:["cities","urbanism","geopolitics","technology","military","transport"], right:["meditation","mindfulness","meaning","philosophy","spirituality","identity"]}
+    ];
+    const axisScores = axes.map(ax=>{
+      const L = ax.left.reduce((s,t)=>s+(themeSet.has(t)?1:0),0);
+      const R = ax.right.reduce((s,t)=>s+(themeSet.has(t)?1:0),0);
+      return {name:ax.name, L, R};
+    });
+
+    const debtTop = debt
+      .slice()
+      .sort((a,b)=> (b.year||0)-(a.year||0))
+      .slice(0,6);
+
+    const unread = books.filter(b=>classifyRead(b.status)==="unread");
+    const read = books.filter(b=>classifyRead(b.status)==="read");
+
+    // Suggested next actions (simple rules; you’ll refine in the essay)
+    const nextRead = unread.slice().sort((a,b)=>(b.year||0)-(a.year||0)).slice(0,5);
+    const nextReread = read
+      .filter(b => (b.themes||[]).includes("urbanism") || (b.themes||[]).includes("systems") || (b.themes||[]).includes("design"))
+      .slice(0,5);
+
+    const html = `
+      <div style="display:grid; gap:12px;">
+        <div class="tiny">
+          This panel is intentionally heuristic: it summarizes the shelf as a set of return-attractors (themes), plus a “finish debt” list.
+          The essay should explain which heuristics you trust, and which are merely prompts.
+        </div>
+
+        <div style="padding:10px; border:1px solid var(--line); border-radius:14px; background:rgba(0,0,0,.20)">
+          <div class="label">Top theme weights</div>
+          ${topThemes.map(([t,w])=>`
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin:6px 0;">
+              <div style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(t)}</div>
+              <div class="pill">${w.toFixed(2)}</div>
+            </div>
+          `).join("") || `<div class="tiny">No themes yet.</div>`}
+        </div>
+
+        <div style="padding:10px; border:1px solid var(--line); border-radius:14px; background:rgba(0,0,0,.20)">
+          <div class="label">Cognitive gradients</div>
+          ${axisScores.map(a=>{
+            const total = a.L + a.R + 0.0001;
+            const pL = Math.round((a.L/total)*100);
+            const pR = 100 - pL;
+            return `
+              <div style="margin:8px 0 10px;">
+                <div style="display:flex; justify-content:space-between; gap:10px;">
+                  <div style="font-size:12px; font-weight:800;">${esc(a.name)}</div>
+                  <div class="pill">${pL}/${pR}</div>
+                </div>
+                <div style="height:8px; border-radius:999px; overflow:hidden; border:1px solid var(--line); background:rgba(255,255,255,.03); margin-top:7px;">
+                  <div style="height:100%; width:${pL}%; background:linear-gradient(90deg, rgba(124,240,255,.55), rgba(192,132,252,.35));"></div>
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+
+        <div style="padding:10px; border:1px solid var(--line); border-radius:14px; background:rgba(0,0,0,.20)">
+          <div class="label">Finish debt (in progress)</div>
+          ${debtTop.map(b=>`
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin:6px 0;">
+              <div style="min-width:0">
+                <div style="font-size:12px; font-weight:800; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(b.title)}</div>
+                <div style="font-size:11px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(b.author||"")}</div>
+              </div>
+              <span class="tag ${statusClass(b.status)}">${b.status}</span>
+            </div>
+          `).join("") || `<div class="tiny">No in-progress books.</div>`}
+        </div>
+
+        <div style="padding:10px; border:1px solid var(--line); border-radius:14px; background:rgba(0,0,0,.20)">
+          <div class="label">Suggested next actions</div>
+          <div class="tiny" style="margin-bottom:8px;">
+            Next read = pick unread books that expand your dominant themes or correct a blind spot. Next re-read = re-run foundations that define your default frame.
+          </div>
+
+          <div style="margin-bottom:10px;">
+            <div class="label">Read next (unread)</div>
+            ${nextRead.map(b=>`<div style="margin:6px 0;"><span class="tag bad">NONE</span> <span style="font-size:12px; font-weight:800;">${esc(b.title)}</span> <span style="color:var(--muted); font-size:11px;">— ${esc(b.author||"")}</span></div>`).join("") || `<div class="tiny">No unread books.</div>`}
+          </div>
+
+          <div>
+            <div class="label">Re-read next (foundations)</div>
+            ${nextReread.map(b=>`<div style="margin:6px 0;"><span class="tag good">${esc(b.status)}</span> <span style="font-size:12px; font-weight:800;">${esc(b.title)}</span> <span style="color:var(--muted); font-size:11px;">— ${esc(b.author||"")}</span></div>`).join("") || `<div class="tiny">No obvious foundations found (add themes).</div>`}
+          </div>
+        </div>
+      </div>
+    `;
+    el("profileBody").innerHTML = html;
+  }
+
+  function exportJSON(){
+    const blob = new Blob([JSON.stringify({version:"1.0", generatedAt:new Date().toISOString(), books}, null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "awl-library-catalog.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  function importJSON(file){
+    const r = new FileReader();
+    r.onload = ()=>{
+      try{
+        const obj = JSON.parse(r.result);
+        if(!obj || !Array.isArray(obj.books)) throw new Error("Missing books[]");
+        books = obj.books.map(b=>({id:b.id||uid(), title:b.title||"", author:b.author||"", status:b.status||"NONE", year:b.year??null, pages:b.pages??null, words:b.words??null, cost:b.cost??null, level:b.level||"", themes:b.themes||[], notes:b.notes||""}));
+        selectedId = null;
+        renderThemeFilter();
+        recomputeTotals();
+        renderList();
+        deriveProfile();
+      }catch(e){
+        alert("Import failed: " + e.message);
+      }
+    };
+    r.readAsText(file);
+  }
+
+  function esc(s){
+    return (s??"").toString()
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  // events
+  el("q").addEventListener("input", ()=>{ recomputeTotals(); renderList(); });
+  el("readFilter").addEventListener("change", ()=>{ recomputeTotals(); renderList(); });
+  el("themeFilter").addEventListener("change", ()=>{ recomputeTotals(); renderList(); });
+
+  el("newBook").addEventListener("click", addNewBook);
+  el("saveBtn").addEventListener("click", saveSelected);
+  el("delBtn").addEventListener("click", deleteSelected);
+  el("dupBtn").addEventListener("click", duplicateSelected);
+  el("recalcBtn").addEventListener("click", deriveProfile);
+
+  el("exportBtn").addEventListener("click", exportJSON);
+  el("importBtn").addEventListener("click", ()=> el("importFile").click());
+  el("importFile").addEventListener("change", (e)=>{
+    const f = e.target.files && e.target.files[0];
+    if(f) importJSON(f);
+    e.target.value = "";
+  });
+
+  // mark dirty on edit
+  ["eTitle","eAuthor","eStatus","eYear","ePages","eWords","eCost","eLevel","eThemes","eNotes"].forEach(id=>{
+    el(id).addEventListener("input", ()=> dirty = true);
+    el(id).addEventListener("change", ()=> dirty = true);
+  });
+
+  // keyboard shortcuts
+  window.addEventListener("keydown", (e)=>{
+    if((e.ctrlKey || e.metaKey) && e.key.toLowerCase()==="s"){
+      e.preventDefault();
+      saveSelected();
+    }
+    if(e.key==="Delete"){
+      if(selectedId) deleteSelected();
+    }
+  });
+
+  // init
+  el("stamp").textContent = new Date().toISOString().replace("T"," ").slice(0,19) + "Z";
+  renderThemeFilter();
+  recomputeTotals();
+  renderList();
+  // select first book by default
+  if(books[0]) selectBook(books[0].id);
+  deriveProfile();
+</script>
+</body>
+</html>
