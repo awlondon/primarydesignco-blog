@@ -2,36 +2,144 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Latest Blog Post</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Latest Blog Link Embed</title>
   <meta name="robots" content="noindex">
+  <style>
+    :root {
+      --bg: #f9f9f9;
+      --text: #333;
+      --muted: #666;
+      --line: #e5e5e5;
+      --link: #0066cc;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--text);
+    }
+
+    .latest-embed {
+      width: 100%;
+      background: var(--bg);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .latest-embed__inner {
+      width: min(1100px, 100%);
+      margin: 0 auto;
+      padding: 0.9rem 1rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      line-height: 1.4;
+    }
+
+    .latest-embed__label {
+      margin: 0;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .latest-embed__title {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 400;
+    }
+
+    .latest-embed__link {
+      color: var(--link);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .latest-embed__link:hover,
+    .latest-embed__link:focus-visible {
+      text-decoration: underline;
+      outline: none;
+    }
+
+    .latest-embed__status {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 640px) {
+      .latest-embed__title {
+        font-size: 1rem;
+      }
+    }
+  </style>
   <script>
-    async function redirectToLatest() {
+    async function loadLatestLink() {
+      const titleEl = document.getElementById("latest-title");
+      const linkEl = document.getElementById("latest-link");
+      const statusEl = document.getElementById("status");
+
       try {
-        const feedUrl = "https://blog.primarydesignco.com/feed.xml"; 
+        const feedUrl = "https://blog.primarydesignco.com/feed.xml";
         const proxy = "https://api.allorigins.win/raw?url=";
-        const res = await fetch(proxy + encodeURIComponent(feedUrl));
-        const text = await res.text();
+        const response = await fetch(proxy + encodeURIComponent(feedUrl));
+        const xmlText = await response.text();
 
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(text, "application/xml");
+        const xml = new DOMParser().parseFromString(xmlText, "application/xml");
+        const atomEntry = xml.querySelector("entry");
+        const rssItem = xml.querySelector("item");
 
-        const firstItem =
-          xml.querySelector("entry link") ||   // Atom
-          xml.querySelector("item link");       // RSS
+        const title = atomEntry?.querySelector("title")?.textContent?.trim()
+          || rssItem?.querySelector("title")?.textContent?.trim()
+          || "Read the latest article";
 
-        const link = firstItem.getAttribute("href") || firstItem.textContent;
+        const linkNode = atomEntry?.querySelector("link") || rssItem?.querySelector("link");
+        const url = linkNode?.getAttribute("href") || linkNode?.textContent?.trim();
 
-        window.location.replace(link);
-      } catch (e) {
-        // fallback: blog homepage
-        window.location.replace("https://blog.primarydesignco.com/feed.xml");
+        if (!url) throw new Error("No article URL found");
+
+        titleEl.textContent = title;
+        linkEl.href = url;
+        linkEl.hidden = false;
+        statusEl.hidden = true;
+      } catch {
+        titleEl.textContent = "Could not load the latest article.";
+        linkEl.href = "https://blog.primarydesignco.com";
+        linkEl.textContent = "Visit the blog";
+        linkEl.hidden = false;
+        statusEl.textContent = "Please try again shortly.";
       }
     }
 
-    redirectToLatest();
+    window.addEventListener("DOMContentLoaded", loadLatestLink);
   </script>
 </head>
 <body>
-  Redirecting to latest article…
+  <section class="latest-embed" aria-label="Latest blog article">
+    <div class="latest-embed__inner">
+      <p class="latest-embed__label">Latest from the blog:</p>
+      <p class="latest-embed__title" id="latest-title">Loading latest article…</p>
+      <a
+        id="latest-link"
+        class="latest-embed__link"
+        href="https://blog.primarydesignco.com"
+        target="_top"
+        rel="noopener"
+        hidden
+      >
+        Read now
+      </a>
+      <p id="status" class="latest-embed__status">Fetching newest post.</p>
+    </div>
+  </section>
 </body>
 </html>
