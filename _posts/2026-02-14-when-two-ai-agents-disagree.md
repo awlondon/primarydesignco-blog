@@ -13,10 +13,11 @@ abstract: |
 ---
 
 <div class="kelvin-gallery">
-  <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-hero.jpg" alt="LanternHill mass timber terraced housing hero view">
-  <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-aerial.jpg" alt="Aerial view of Kelvin Agora aggregation">
-  <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-terrace.jpg" alt="Terraced social lattice condition">
-  <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-structure.jpg" alt="Hybrid timber structural expression">
+  <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-hero.png" alt="LanternHill mass timber terraced housing hero view">
+  <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-aerial.png" alt="Aerial view of Kelvin Agora aggregation">
+  <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-terrace.png" alt="Terraced social lattice condition">
+  <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-structure.png" alt="Hybrid timber structural expression">\
+  <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-interior.png" alt="Interior view of a unit pod">
 </div>
 
 ## The Building Was Not the Point
