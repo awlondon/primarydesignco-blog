@@ -22,12 +22,15 @@ abstract: |
   <a href="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-terrace.png" class="kelvin-thumb">
     <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-terrace.png" alt="Terraced social lattice condition">
   </a>
-  <a href="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-structure.png" class="kelvin-thumb">
-    <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-structure.png" alt="Hybrid timber structural expression">
+  <a href="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-interior-labels.png" class="kelvin-thumb">
+    <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-interior-labels.png" alt="Interior view of a unit pod">
   </a>
   <a href="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-interior.png" class="kelvin-thumb">
     <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-interior.png" alt="Interior view of a unit pod">
   </a>
+  <a href="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-structure.png" class="kelvin-thumb">
+    <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-structure.png" alt="Hybrid timber structural expression">
+  </a> 
 </div>
 
 <div id="kelvin-lightbox" class="kelvin-lightbox">
