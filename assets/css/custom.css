@@ -107,6 +107,52 @@ hr {
   margin-bottom: 0.5rem;
 }
 
+/* Kelvin Gallery */
+.kelvin-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  margin-bottom: 2rem;
+}
+
+.kelvin-thumb img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.kelvin-thumb img:hover {
+  transform: scale(1.04);
+}
+
+.kelvin-lightbox {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  justify-content: center;
+  align-items: center;
+}
+
+.kelvin-lightbox-img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 8px;
+}
+
+.kelvin-close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  color: white;
+  font-size: 32px;
+  cursor: pointer;
+}
+
 /* Dark mode styles */
 @media (prefers-color-scheme: dark) {
   body {
