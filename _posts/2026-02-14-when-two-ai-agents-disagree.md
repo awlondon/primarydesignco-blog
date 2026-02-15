@@ -1,7 +1,3 @@
-
-::contentReference[oaicite:0]{index=0}
-
-
 ---
 layout: post
 title: "When Two AI Agents Disagree"
@@ -15,6 +11,13 @@ reading_time: 19
 abstract: |
   A speculative housing concept evolved into a structured feasibility loop when a second AI agent challenged its assumptions. This essay documents how expansion-oriented prompting collided with underwriting logic—and why multi-agent negotiation may define the future of development.
 ---
+
+<div class="kelvin-gallery">
+  <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-hero.jpg" alt="LanternHill mass timber terraced housing hero view">
+  <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-aerial.jpg" alt="Aerial view of Kelvin Agora aggregation">
+  <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-terrace.jpg" alt="Terraced social lattice condition">
+  <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-structure.jpg" alt="Hybrid timber structural expression">
+</div>
 
 ## The Building Was Not the Point
 
