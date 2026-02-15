@@ -12,13 +12,79 @@ abstract: |
   A speculative housing concept evolved into a structured feasibility loop when a second AI agent challenged its assumptions. This essay documents how expansion-oriented prompting collided with underwriting logic—and why multi-agent negotiation may define the future of development.
 ---
 
+.kelvin-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  margin-bottom: 2rem;
+}
+
+.kelvin-thumb img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.kelvin-thumb img:hover {
+  transform: scale(1.04);
+}
+
+.kelvin-lightbox {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  justify-content: center;
+  align-items: center;
+}
+
+.kelvin-lightbox-img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 8px;
+}
+
+.kelvin-close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  color: white;
+  font-size: 32px;
+  cursor: pointer;
+}
+
+
 <div class="kelvin-gallery">
-  <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-hero.png" alt="LanternHill mass timber terraced housing hero view">
-  <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-aerial.png" alt="Aerial view of Kelvin Agora aggregation">
-  <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-terrace.png" alt="Terraced social lattice condition">
-  <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-structure.png" alt="Hybrid timber structural expression">\
-  <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-interior.png" alt="Interior view of a unit pod">
+  <a href="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-hero.png" class="kelvin-thumb">
+    <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-hero.png" alt="LanternHill mass timber terraced housing hero view">
+  </a>
+
+  <a href="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-aerial.png" class="kelvin-thumb">
+    <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-aerial.png" alt="Aerial view of Kelvin Agora aggregation">
+  </a>
+
+  <a href="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-terrace.png" class="kelvin-thumb">
+    <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-terrace.png" alt="Terraced social lattice condition">
+  </a>
+
+  <a href="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-structure.png" class="kelvin-thumb">
+    <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-structure.png" alt="Hybrid timber structural expression">
+  </a>
+
+  <a href="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-interior.png" class="kelvin-thumb">
+    <img src="/assets/2026-02-14-when-two-ai-agents-disagree/lanternhill-interior.png" alt="Interior view of a unit pod">
+  </a>
 </div>
+
+<div id="kelvin-lightbox" class="kelvin-lightbox">
+  <span class="kelvin-close">&times;</span>
+  <img class="kelvin-lightbox-img" src="" alt="">
+</div>
+
 
 ## The Building Was Not the Point
 
@@ -352,3 +418,30 @@ It is automating the disagreement.
 ^[2]: McKinsey & Company. (2019). *Modular construction: From projects to products.*  
 ^[3]: International Code Council. (2021). *International Building Code: Tall Mass Timber Provisions.*  
 ^[4]: MSCI Research. (2022). *ESG and Real Estate Valuations.*
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const lightbox = document.getElementById("kelvin-lightbox");
+  const lightboxImg = document.querySelector(".kelvin-lightbox-img");
+  const closeBtn = document.querySelector(".kelvin-close");
+
+  document.querySelectorAll(".kelvin-thumb").forEach(link => {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+      lightbox.style.display = "flex";
+      lightboxImg.src = this.href;
+    });
+  });
+
+  closeBtn.addEventListener("click", function () {
+    lightbox.style.display = "none";
+  });
+
+  lightbox.addEventListener("click", function (e) {
+    if (e.target === lightbox) {
+      lightbox.style.display = "none";
+    }
+  });
+});
+</script>
+
