@@ -1,0 +1,85 @@
+<!-- assets/2026-02-15-reality-invariant-atlas/atlas-bundle.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-label="Reality anchor bundle diagram: claim, method, authority, tolerance feeding into a verification decision">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#05050c"/>
+      <stop offset="1" stop-color="#070716"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <style>
+      .t { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji"; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+      .title { fill:#e7fbff; font-weight:800; font-size:28px; letter-spacing:0.02em; }
+      .sub { fill:#86e7f3; font-weight:700; font-size:14px; letter-spacing:0.18em; text-transform:uppercase; }
+      .label { fill:#c9f7ff; font-weight:800; font-size:16px; }
+      .body { fill:#b7c7cf; font-size:14px; line-height:1.4; }
+      .muted { fill:#7e93a0; font-size:12px; }
+      .stroke { stroke:#22d3ee; stroke-width:2; opacity:0.9; }
+      .stroke2 { stroke:#22d3ee; stroke-width:1.25; opacity:0.55; }
+      .panel { fill: rgba(255,255,255,0.04); stroke: rgba(34,211,238,0.28); stroke-width:1.5; }
+      .chip { fill: rgba(34,211,238,0.10); stroke: rgba(34,211,238,0.35); stroke-width:1.2; }
+      .warn { stroke:#ff4d6d; opacity:0.7; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="720" fill="url(#bg)"/>
+
+  <!-- Header -->
+  <text x="64" y="84" class="t title">Reality Anchor Bundle</text>
+  <text x="64" y="114" class="t sub">claim → method → authority → tolerance → decision</text>
+
+  <!-- Left panels -->
+  <g transform="translate(64,160)">
+    <rect class="panel" x="0" y="0" width="480" height="120" rx="18"/>
+    <text class="t label" x="24" y="38">Invariant claim</text>
+    <text class="t body" x="24" y="64">What stays binding under transformation.</text>
+    <text class="t muted" x="24" y="90">Example: “hash changes if any bit changes”</text>
+
+    <rect class="panel" x="0" y="150" width="480" height="120" rx="18"/>
+    <text class="t label" x="24" y="188">Check method</text>
+    <text class="t body" x="24" y="214">How the claim is tested, repeatably.</text>
+    <text class="t muted" x="24" y="240">Example: recompute SHA-256 on artifact bytes</text>
+
+    <rect class="panel" x="0" y="300" width="480" height="120" rx="18"/>
+    <text class="t label" x="24" y="338">Authority chain</text>
+    <text class="t body" x="24" y="364">Who maintains the definition and how it’s updated.</text>
+    <text class="t muted" x="24" y="390">Example: NIST FIPS / standards body / lab calibration</text>
+
+    <rect class="panel" x="0" y="450" width="480" height="120" rx="18"/>
+    <text class="t label" x="24" y="488">Tolerance & failure mode</text>
+    <text class="t body" x="24" y="514">What error is acceptable; what breaks first when drift enters.</text>
+    <text class="t muted" x="24" y="540">Example: clock discontinuity; key compromise; protocol mismatch</text>
+  </g>
+
+  <!-- Convergence node -->
+  <g transform="translate(620,245)">
+    <rect class="chip" x="0" y="0" width="516" height="270" rx="22"/>
+    <text class="t label" x="28" y="44">Verification decision</text>
+
+    <text class="t body" x="28" y="82">Given a claim under dispute, the atlas forces you to:</text>
+
+    <text class="t body" x="28" y="118">1) pick the layer of constraint you’ll accept as binding,</text>
+    <text class="t body" x="28" y="146">2) run the check (or name the missing measurement),</text>
+    <text class="t body" x="28" y="174">3) interpret results within stated tolerance,</text>
+    <text class="t body" x="28" y="202">4) log what was checked so drift can’t recycle the fight.</text>
+
+    <text class="t muted" x="28" y="240">Outcome: “verified”, “inconclusive”, “drift detected”, or “domain-switching”.</text>
+  </g>
+
+  <!-- Arrows -->
+  <g filter="url(#glow)">
+    <path class="stroke" d="M544 220 C 590 220 590 290 620 290" fill="none"/>
+    <path class="stroke" d="M544 370 C 590 370 590 330 620 330" fill="none"/>
+    <path class="stroke" d="M544 520 C 590 520 590 370 620 370" fill="none"/>
+    <path class="stroke warn" d="M544 670 C 590 670 590 410 620 410" fill="none"/>
+  </g>
+
+  <!-- Footer note -->
+  <text x="64" y="690" class="t muted">Diagram intent: stop arguing at the conclusion layer; move down to checkable constraints.</text>
+</svg>
