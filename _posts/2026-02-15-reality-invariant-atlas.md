@@ -1,8 +1,3 @@
-<!--
-FILE: _posts/2026-02-15-reality-invariant-atlas.md
-PASS: 2 (Opening + first major section filled; citations started; embed + media stub paths defined)
--->
-
 ---
 layout: post
 title: "The Reality Invariant Atlas"
