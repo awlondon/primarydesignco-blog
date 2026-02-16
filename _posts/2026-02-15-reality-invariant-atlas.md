@@ -1,4 +1,3 @@
-# FILE: _posts/2026-02-15-reality-invariant-atlas.md
 ---
 layout: post
 title: "Reality Invariant Atlas"
