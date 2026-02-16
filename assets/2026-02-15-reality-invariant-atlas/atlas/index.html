@@ -1,446 +1,399 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Eye, EyeOff, Wind, Zap, RefreshCw, Info, Lock, Layers } from 'lucide-react';
+<!-- FILE: assets/2026-02-15-reality-invariant-atlas/atlas/index.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Reality Invariant Atlas v2.1</title>
 
-const AnchorIcon = ({ id, active }) => {
-  const baseClass = `transition-all duration-500 ${active ? 'scale-110' : 'scale-100 opacity-40 group-hover:opacity-100 group-hover:scale-105'}`;
-  const color = active ? "#22d3ee" : "white";
-
-  switch (id) {
-    case 1: // Speed of Light - Photon wave/beam
-      return (
-        <svg viewBox="0 0 100 100" className={baseClass} width="40" height="40">
-          <line x1="10" y1="50" x2="90" y2="50" stroke={color} strokeWidth="2" strokeDasharray="4 2">
-            <animate attributeName="stroke-dashoffset" from="0" to="6" dur="0.5s" repeatCount="indefinite" />
-          </line>
-          <circle cx="50" cy="50" r="3" fill={color}>
-            <animate attributeName="r" values="3;5;3" dur="1s" repeatCount="indefinite" />
-          </circle>
-          <path d="M30 40 Q 50 20 70 40 Q 90 60 110 40" fill="none" stroke={color} strokeWidth="1" opacity="0.5">
-            <animate attributeName="d" values="M-10 40 Q 10 20 30 40 Q 50 60 70 40;M10 40 Q 30 20 50 40 Q 70 60 90 40" dur="1s" repeatCount="indefinite" />
-          </path>
-        </svg>
-      );
-    case 2: // Proton Number - Atomic nucleus
-      return (
-        <svg viewBox="0 0 100 100" className={baseClass} width="40" height="40">
-          <circle cx="50" cy="50" r="10" fill={color} />
-          <circle cx="50" cy="50" r="30" fill="none" stroke={color} strokeWidth="0.5" strokeDasharray="2 4">
-            <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="3s" repeatCount="indefinite" />
-          </circle>
-          <circle cx="80" cy="50" r="3" fill={color}>
-            <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="2s" repeatCount="indefinite" />
-          </circle>
-        </svg>
-      );
-    case 3: // Cryptographic Hash - Hexagon/Block structure
-      return (
-        <svg viewBox="0 0 100 100" className={baseClass} width="40" height="40">
-          <path d="M50 10 L85 30 L85 70 L50 90 L15 70 L15 30 Z" fill="none" stroke={color} strokeWidth="2" />
-          <path d="M50 10 L50 90 M15 30 L85 70 M85 30 L15 70" stroke={color} strokeWidth="0.5" opacity="0.5" />
-          {active && <rect x="45" y="45" width="10" height="10" fill={color} className="animate-pulse" />}
-        </svg>
-      );
-    case 4: // Rest Mass - Gravity well/Density
-      return (
-        <svg viewBox="0 0 100 100" className={baseClass} width="40" height="40">
-          <circle cx="50" cy="50" r="15" fill={color} opacity="0.8" />
-          {[25, 35, 45].map((r, i) => (
-            <circle key={i} cx="50" cy="50" r={r} fill="none" stroke={color} strokeWidth="0.5" opacity="0.3">
-              <animate attributeName="r" values={`${r};${r+5};${r}`} dur="2s" repeatCount="indefinite" begin={`${i*0.2}s`} />
-            </circle>
-          ))}
-        </svg>
-      );
-    case 5: // Homeostasis - Pulsing rhythm
-      return (
-        <svg viewBox="0 0 100 100" className={baseClass} width="40" height="40">
-          <path d="M10 50 L30 50 L40 20 L50 80 L60 50 L90 50" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round">
-            <animate attributeName="stroke-dasharray" values="0,200;200,0;0,200" dur="2s" repeatCount="indefinite" />
-          </path>
-          <circle cx="50" cy="50" r="40" fill="none" stroke={color} strokeWidth="0.5" strokeDasharray="1 5" />
-        </svg>
-      );
-    case 6: // Pi - Circle ratio
-      return (
-        <svg viewBox="0 0 100 100" className={baseClass} width="40" height="40">
-          <circle cx="50" cy="50" r="35" fill="none" stroke={color} strokeWidth="2" />
-          <line x1="15" y1="50" x2="85" y2="50" stroke={color} strokeWidth="1" strokeDasharray="2 2" />
-          <text x="50" y="45" fontSize="12" fill={color} textAnchor="middle" className="font-serif italic">π</text>
-          {active && <circle cx="50" cy="50" r="35" fill="none" stroke={color} strokeWidth="4" opacity="0.2" className="animate-ping" />}
-        </svg>
-      );
-    case 7: // Constitution - Pillar/Scroll
-      return (
-        <svg viewBox="0 0 100 100" className={baseClass} width="40" height="40">
-          <rect x="30" y="20" width="40" height="60" rx="2" fill="none" stroke={color} strokeWidth="2" />
-          <line x1="35" y1="35" x2="65" y2="35" stroke={color} strokeWidth="1" />
-          <line x1="35" y1="45" x2="65" y2="45" stroke={color} strokeWidth="1" />
-          <line x1="35" y1="55" x2="55" y2="55" stroke={color} strokeWidth="1" />
-          <path d="M25 80 L75 80" stroke={color} strokeWidth="4" strokeLinecap="round" />
-        </svg>
-      );
-    case 8: // Topology - Morphing torus
-      return (
-        <svg viewBox="0 0 100 100" className={baseClass} width="40" height="40">
-          <path d="M50 20 C 70 20 80 35 80 50 C 80 65 70 80 50 80 C 30 80 20 65 20 50 C 20 35 30 20 50 20 M 50 40 C 60 40 65 45 65 50 C 65 55 60 60 50 60 C 40 60 35 55 35 50 C 35 45 40 40 50 40" 
-            fill="none" stroke={color} strokeWidth="1.5">
-            <animate attributeName="d" 
-              values="M50 20...;M50 10...;M50 20..." 
-              dur="3s" repeatCount="indefinite" 
-            />
-          </path>
-          <circle cx="50" cy="50" r="5" fill={color} opacity={active ? 1 : 0.3} />
-        </svg>
-      );
-    case 9: // UTC - Atomic clock
-      return (
-        <svg viewBox="0 0 100 100" className={baseClass} width="40" height="40">
-          <circle cx="50" cy="50" r="40" fill="none" stroke={color} strokeWidth="1" />
-          <line x1="50" y1="50" x2="50" y2="20" stroke={color} strokeWidth="2" strokeLinecap="round">
-            <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="10s" repeatCount="indefinite" />
-          </line>
-          <line x1="50" y1="50" x2="75" y2="50" stroke={color} strokeWidth="1" strokeLinecap="round">
-            <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="60s" repeatCount="indefinite" />
-          </line>
-          <circle cx="50" cy="50" r="2" fill={color} />
-        </svg>
-      );
-    case 10: // Identity - A=A
-      return (
-        <svg viewBox="0 0 100 100" className={baseClass} width="40" height="40">
-          <text x="50" y="55" fontSize="24" fill={color} textAnchor="middle" fontWeight="bold">A</text>
-          <path d="M20 70 L80 70" stroke={color} strokeWidth="1" strokeDasharray="4 4" />
-          <path d="M50 10 L50 90" stroke={color} strokeWidth="0.5" opacity="0.2" />
-          {active && <circle cx="50" cy="50" r="45" fill="none" stroke={color} strokeWidth="1" className="animate-ping" />}
-        </svg>
-      );
-    default: return null;
-  }
-};
-
-const REALITY_ANCHORS = [
-  {
-    id: 1,
-    title: "The Speed of Light (c)",
-    subtitle: "Anchor for Spacetime",
-    formula: "c = 299,792,458 \\text{ m/s}",
-    description: "The universal constant against which all distortion is measured. It holds the causality of the universe together.",
-    category: "Physics"
-  },
-  {
-    id: 2,
-    title: "The Proton Number",
-    subtitle: "Anchor for Elemental Identity",
-    formula: "Z = \\text{atomic number}",
-    description: "If you change the protons, the 'reality' of the element shifts fundamentally. Carbon is Carbon because it has 6 protons.",
-    category: "Chemistry"
-  },
-  {
-    id: 3,
-    title: "Cryptographic Hash",
-    subtitle: "Anchor for Digital Integrity",
-    formula: "H(x) = y",
-    description: "A hash is the anchor that proves data is 'real' and unaltered. Change one bit, and the hash changes completely.",
-    category: "Information"
-  },
-  {
-    id: 4,
-    title: "Rest Mass (m₀)",
-    subtitle: "Anchor for Material Existence",
-    formula: "m_0 = \\frac{E}{c^2} \\text{ (at rest)}",
-    description: "An intrinsic invariant property that defines what an object is, independent of the observer's motion.",
-    category: "Physics"
-  },
-  {
-    id: 5,
-    title: "Homeostasis",
-    subtitle: "Anchor for Biological Life",
-    formula: "T \\approx 37^\\circ C",
-    description: "The body works tirelessly to anchor its internal reality to specific set points. Drift too far, and the system collapses.",
-    category: "Biology"
-  },
-  {
-    id: 6,
-    title: "Pi (π)",
-    subtitle: "Anchor for Geometry",
-    formula: "\\pi = \\frac{C}{d}",
-    description: "A structural truth that survives scaling. The relationship between circumference and diameter is an absolute invariant.",
-    category: "Mathematics"
-  },
-  {
-    id: 7,
-    title: "The Constitution",
-    subtitle: "Anchor for Societal Order",
-    formula: "\\text{Lex Superior}",
-    description: "The invariant document that dictates how all other variable laws must be formed, ensuring identity through change.",
-    category: "Sociology"
-  },
-  {
-    id: 8,
-    title: "Topological Genus",
-    subtitle: "Anchor for Shape",
-    formula: "g = \\text{number of holes}",
-    description: "The invariant that defines the class of an object (e.g., a donut vs a sphere) regardless of stretching or twisting.",
-    category: "Topology"
-  },
-  {
-    id: 9,
-    title: "UTC Time",
-    subtitle: "Anchor for Synchronization",
-    formula: "\\Delta t = 0",
-    description: "A master clock based on Cesium atoms that anchors the reality of 'when' for billions of independent devices.",
-    category: "Time"
-  },
-  {
-    id: 10,
-    title: "Law of Identity",
-    subtitle: "Anchor for Logic",
-    formula: "A = A",
-    description: "A thing is itself. Without this anchor, communication and logic dissolve into a blur of contradictions.",
-    category: "Philosophy"
-  }
-];
-
-const App = () => {
-  const [beliefLevel, setBeliefLevel] = useState(100);
-  const [glitchActive, setGlitchActive] = useState(false);
-  const [activeAnchor, setActiveAnchor] = useState(null);
-  const [hoveredAnchor, setHoveredAnchor] = useState(null);
-  const [viewMode, setViewMode] = useState('simulation');
-  const canvasRef = useRef(null);
-  const particles = useRef([]);
-
-  const QUOTE = "Reality is that which, when you stop believing in it, doesn't go away.";
-  const AUTHOR = "— Philip K. Dick";
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let animationFrameId;
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+  <script>
+    // MathJax config (enable $...$)
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
     };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    window.addEventListener('resize', resize);
-    resize();
+  <style>
+    html, body { height: 100%; margin: 0; background: #000; }
+    #root { height: 100%; }
 
-    const createParticles = () => {
-      particles.current = Array.from({ length: 70 }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        size: Math.random() * 1.5 + 0.5,
-        speedX: (Math.random() - 0.5) * 0.4,
-        speedY: (Math.random() - 0.5) * 0.4,
-        opacity: Math.random() * 0.4 + 0.1
-      }));
-    };
-    createParticles();
+    /* Tailwind CDN won’t include tailwindcss-animate; provide minimal equivalents used by the app. */
+    @keyframes _fadeIn { from { opacity: 0 } to { opacity: 1 } }
+    @keyframes _zoomIn { from { transform: scale(0.98) } to { transform: scale(1) } }
+    .animate-in { animation: _fadeIn .7s ease both, _zoomIn .7s ease both; }
+    .fade-in { animation-name: _fadeIn; }
+    .zoom-in { animation-name: _zoomIn; }
+    .duration-700 { animation-duration: .7s; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
 
-    const draw = () => {
-      const bgOpacity = beliefLevel / 100;
-      ctx.fillStyle = `rgba(5, 5, 12, ${1.2 - bgOpacity})`;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+  <script type="module">
+    import React, { useState, useEffect, useRef } from "https://esm.sh/react@18.2.0";
+    import { createRoot } from "https://esm.sh/react-dom@18.2.0/client";
+    import { Eye, EyeOff, Zap, RefreshCw, Lock, Layers } from "https://esm.sh/lucide-react@0.382.0?deps=react@18.2.0";
 
-      particles.current.forEach(p => {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        const intensity = 0.2 + (1 - bgOpacity) * 0.8;
-        ctx.fillStyle = `rgba(34, 211, 238, ${p.opacity * intensity})`;
-        ctx.fill();
+    const AnchorIcon = ({ id, active }) => {
+      const baseClass = `transition-all duration-500 ${active ? "scale-110" : "scale-100 opacity-40 group-hover:opacity-100 group-hover:scale-105"}`;
+      const color = active ? "#22d3ee" : "white";
 
-        p.x += p.speedX;
-        p.y += p.speedY;
-
-        if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
-      });
-
-      if (glitchActive || beliefLevel < 15) {
-        if (Math.random() > 0.98) {
-          ctx.fillStyle = 'rgba(34, 211, 238, 0.08)';
-          ctx.fillRect(0, Math.random() * canvas.height, canvas.width, 2);
+      switch (id) {
+        case 1:
+          return (
+            React.createElement("svg", { viewBox:"0 0 100 100", className: baseClass, width:"40", height:"40" },
+              React.createElement("line", { x1:"10", y1:"50", x2:"90", y2:"50", stroke:color, strokeWidth:"2", strokeDasharray:"4 2" },
+                React.createElement("animate", { attributeName:"stroke-dashoffset", from:"0", to:"6", dur:"0.5s", repeatCount:"indefinite" })
+              ),
+              React.createElement("circle", { cx:"50", cy:"50", r:"3", fill:color },
+                React.createElement("animate", { attributeName:"r", values:"3;5;3", dur:"1s", repeatCount:"indefinite" })
+              ),
+              React.createElement("path", {
+                d:"M30 40 Q 50 20 70 40 Q 90 60 110 40",
+                fill:"none", stroke:color, strokeWidth:"1", opacity:"0.5"
+              },
+                React.createElement("animate", {
+                  attributeName:"d",
+                  values:"M-10 40 Q 10 20 30 40 Q 50 60 70 40;M10 40 Q 30 20 50 40 Q 70 60 90 40",
+                  dur:"1s", repeatCount:"indefinite"
+                })
+              )
+            )
+          );
+        case 2:
+          return (
+            React.createElement("svg", { viewBox:"0 0 100 100", className: baseClass, width:"40", height:"40" },
+              React.createElement("circle", { cx:"50", cy:"50", r:"10", fill:color }),
+              React.createElement("circle", { cx:"50", cy:"50", r:"30", fill:"none", stroke:color, strokeWidth:"0.5", strokeDasharray:"2 4" },
+                React.createElement("animateTransform", { attributeName:"transform", type:"rotate", from:"0 50 50", to:"360 50 50", dur:"3s", repeatCount:"indefinite" })
+              ),
+              React.createElement("circle", { cx:"80", cy:"50", r:"3", fill:color },
+                React.createElement("animateTransform", { attributeName:"transform", type:"rotate", from:"0 50 50", to:"360 50 50", dur:"2s", repeatCount:"indefinite" })
+              )
+            )
+          );
+        case 3:
+          return (
+            React.createElement("svg", { viewBox:"0 0 100 100", className: baseClass, width:"40", height:"40" },
+              React.createElement("path", { d:"M50 10 L85 30 L85 70 L50 90 L15 70 L15 30 Z", fill:"none", stroke:color, strokeWidth:"2" }),
+              React.createElement("path", { d:"M50 10 L50 90 M15 30 L85 70 M85 30 L15 70", stroke:color, strokeWidth:"0.5", opacity:"0.5" }),
+              active ? React.createElement("rect", { x:"45", y:"45", width:"10", height:"10", fill:color, className:"animate-pulse" }) : null
+            )
+          );
+        case 4:
+          return (
+            React.createElement("svg", { viewBox:"0 0 100 100", className: baseClass, width:"40", height:"40" },
+              React.createElement("circle", { cx:"50", cy:"50", r:"15", fill:color, opacity:"0.8" }),
+              [25,35,45].map((r,i) =>
+                React.createElement("circle", { key:i, cx:"50", cy:"50", r:String(r), fill:"none", stroke:color, strokeWidth:"0.5", opacity:"0.3" },
+                  React.createElement("animate", { attributeName:"r", values:`${r};${r+5};${r}`, dur:"2s", repeatCount:"indefinite", begin:`${i*0.2}s` })
+                )
+              )
+            )
+          );
+        case 5:
+          return (
+            React.createElement("svg", { viewBox:"0 0 100 100", className: baseClass, width:"40", height:"40" },
+              React.createElement("path", { d:"M10 50 L30 50 L40 20 L50 80 L60 50 L90 50", fill:"none", stroke:color, strokeWidth:"2", strokeLinecap:"round" },
+                React.createElement("animate", { attributeName:"stroke-dasharray", values:"0,200;200,0;0,200", dur:"2s", repeatCount:"indefinite" })
+              ),
+              React.createElement("circle", { cx:"50", cy:"50", r:"40", fill:"none", stroke:color, strokeWidth:"0.5", strokeDasharray:"1 5" })
+            )
+          );
+        case 6:
+          return (
+            React.createElement("svg", { viewBox:"0 0 100 100", className: baseClass, width:"40", height:"40" },
+              React.createElement("circle", { cx:"50", cy:"50", r:"35", fill:"none", stroke:color, strokeWidth:"2" }),
+              React.createElement("line", { x1:"15", y1:"50", x2:"85", y2:"50", stroke:color, strokeWidth:"1", strokeDasharray:"2 2" }),
+              React.createElement("text", { x:"50", y:"45", fontSize:"12", fill:color, textAnchor:"middle", className:"font-serif italic" }, "π"),
+              active ? React.createElement("circle", { cx:"50", cy:"50", r:"35", fill:"none", stroke:color, strokeWidth:"4", opacity:"0.2", className:"animate-ping" }) : null
+            )
+          );
+        case 7:
+          return (
+            React.createElement("svg", { viewBox:"0 0 100 100", className: baseClass, width:"40", height:"40" },
+              React.createElement("rect", { x:"30", y:"20", width:"40", height:"60", rx:"2", fill:"none", stroke:color, strokeWidth:"2" }),
+              React.createElement("line", { x1:"35", y1:"35", x2:"65", y2:"35", stroke:color, strokeWidth:"1" }),
+              React.createElement("line", { x1:"35", y1:"45", x2:"65", y2:"45", stroke:color, strokeWidth:"1" }),
+              React.createElement("line", { x1:"35", y1:"55", x2:"55", y2:"55", stroke:color, strokeWidth:"1" }),
+              React.createElement("path", { d:"M25 80 L75 80", stroke:color, strokeWidth:"4", strokeLinecap:"round" })
+            )
+          );
+        case 8: {
+          // Use valid path morph values (no ellipses).
+          const d1 = "M50 20 C72 20 82 36 82 50 C82 64 72 80 50 80 C28 80 18 64 18 50 C18 36 28 20 50 20 M50 38 C60 38 66 44 66 50 C66 56 60 62 50 62 C40 62 34 56 34 50 C34 44 40 38 50 38";
+          const d2 = "M50 18 C74 22 84 36 80 52 C76 68 64 82 46 78 C28 74 18 60 20 46 C22 32 34 14 50 18 M50 40 C62 40 68 46 64 52 C60 58 52 62 44 60 C36 58 32 52 36 46 C40 40 46 40 50 40";
+          return (
+            React.createElement("svg", { viewBox:"0 0 100 100", className: baseClass, width:"40", height:"40" },
+              React.createElement("path", { d: d1, fill:"none", stroke:color, strokeWidth:"1.5" },
+                React.createElement("animate", { attributeName:"d", values:`${d1};${d2};${d1}`, dur:"3s", repeatCount:"indefinite" })
+              ),
+              React.createElement("circle", { cx:"50", cy:"50", r:"5", fill:color, opacity: active ? 1 : 0.3 })
+            )
+          );
         }
+        case 9:
+          return (
+            React.createElement("svg", { viewBox:"0 0 100 100", className: baseClass, width:"40", height:"40" },
+              React.createElement("circle", { cx:"50", cy:"50", r:"40", fill:"none", stroke:color, strokeWidth:"1" }),
+              React.createElement("line", { x1:"50", y1:"50", x2:"50", y2:"20", stroke:color, strokeWidth:"2", strokeLinecap:"round" },
+                React.createElement("animateTransform", { attributeName:"transform", type:"rotate", from:"0 50 50", to:"360 50 50", dur:"10s", repeatCount:"indefinite" })
+              ),
+              React.createElement("line", { x1:"50", y1:"50", x2:"75", y2:"50", stroke:color, strokeWidth:"1", strokeLinecap:"round" },
+                React.createElement("animateTransform", { attributeName:"transform", type:"rotate", from:"0 50 50", to:"360 50 50", dur:"60s", repeatCount:"indefinite" })
+              ),
+              React.createElement("circle", { cx:"50", cy:"50", r:"2", fill:color })
+            )
+          );
+        case 10:
+          return (
+            React.createElement("svg", { viewBox:"0 0 100 100", className: baseClass, width:"40", height:"40" },
+              React.createElement("text", { x:"50", y:"55", fontSize:"24", fill:color, textAnchor:"middle", fontWeight:"bold" }, "A"),
+              React.createElement("path", { d:"M20 70 L80 70", stroke:color, strokeWidth:"1", strokeDasharray:"4 4" }),
+              React.createElement("path", { d:"M50 10 L50 90", stroke:color, strokeWidth:"0.5", opacity:"0.2" }),
+              active ? React.createElement("circle", { cx:"50", cy:"50", r:"45", fill:"none", stroke:color, strokeWidth:"1", className:"animate-ping" }) : null
+            )
+          );
+        default:
+          return null;
       }
-
-      animationFrameId = requestAnimationFrame(draw);
     };
 
-    draw();
-    return () => {
-      window.removeEventListener('resize', resize);
-      cancelAnimationFrame(animationFrameId);
+    const REALITY_ANCHORS = [
+      { id:1, title:"The Speed of Light (c)", subtitle:"Anchor for Spacetime", formula:"c = 299,792,458 \\\\text{ m/s}", description:"The universal constant against which all distortion is measured. It holds the causality of the universe together.", category:"Physics" },
+      { id:2, title:"The Proton Number", subtitle:"Anchor for Elemental Identity", formula:"Z = \\\\text{atomic number}", description:"If you change the protons, the 'reality' of the element shifts fundamentally. Carbon is Carbon because it has 6 protons.", category:"Chemistry" },
+      { id:3, title:"Cryptographic Hash", subtitle:"Anchor for Digital Integrity", formula:"H(x) = y", description:"A hash is the anchor that proves data is 'real' and unaltered. Change one bit, and the hash changes completely.", category:"Information" },
+      { id:4, title:"Rest Mass (m₀)", subtitle:"Anchor for Material Existence", formula:"m_0 = \\\\frac{E}{c^2} \\\\text{ (at rest)}", description:"An intrinsic invariant property that defines what an object is, independent of the observer's motion.", category:"Physics" },
+      { id:5, title:"Homeostasis", subtitle:"Anchor for Biological Life", formula:"T \\\\approx 37^\\\\circ C", description:"The body works tirelessly to anchor its internal reality to specific set points. Drift too far, and the system collapses.", category:"Biology" },
+      { id:6, title:"Pi (π)", subtitle:"Anchor for Geometry", formula:"\\\\pi = \\\\frac{C}{d}", description:"A structural truth that survives scaling. The relationship between circumference and diameter is an absolute invariant.", category:"Mathematics" },
+      { id:7, title:"The Constitution", subtitle:"Anchor for Societal Order", formula:"\\\\text{Lex Superior}", description:"The invariant document that dictates how all other variable laws must be formed, ensuring identity through change.", category:"Sociology" },
+      { id:8, title:"Topological Genus", subtitle:"Anchor for Shape", formula:"g = \\\\text{number of holes}", description:"The invariant that defines the class of an object (e.g., a donut vs a sphere) regardless of stretching or twisting.", category:"Topology" },
+      { id:9, title:"UTC Time", subtitle:"Anchor for Synchronization", formula:"\\\\Delta t = 0", description:"A master clock based on Cesium atoms that anchors the reality of 'when' for billions of independent devices.", category:"Time" },
+      { id:10, title:"Law of Identity", subtitle:"Anchor for Logic", formula:"A = A", description:"A thing is itself. Without this anchor, communication and logic dissolve into a blur of contradictions.", category:"Philosophy" }
+    ];
+
+    const App = () => {
+      const [beliefLevel, setBeliefLevel] = useState(100);
+      const [glitchActive, setGlitchActive] = useState(false);
+      const [activeAnchor, setActiveAnchor] = useState(null);
+      const [hoveredAnchor, setHoveredAnchor] = useState(null);
+      const [viewMode, setViewMode] = useState("simulation");
+      const canvasRef = useRef(null);
+      const particles = useRef([]);
+
+      const QUOTE = "Reality is that which, when you stop believing in it, doesn't go away.";
+      const AUTHOR = "— Philip K. Dick";
+
+      useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        let animationFrameId;
+
+        const resize = () => {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        };
+
+        window.addEventListener("resize", resize);
+        resize();
+
+        const createParticles = () => {
+          particles.current = Array.from({ length: 70 }, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 1.5 + 0.5,
+            speedX: (Math.random() - 0.5) * 0.4,
+            speedY: (Math.random() - 0.5) * 0.4,
+            opacity: Math.random() * 0.4 + 0.1
+          }));
+        };
+        createParticles();
+
+        const draw = () => {
+          const bgOpacity = beliefLevel / 100;
+          ctx.fillStyle = `rgba(5, 5, 12, ${1.2 - bgOpacity})`;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          particles.current.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            const intensity = 0.2 + (1 - bgOpacity) * 0.8;
+            ctx.fillStyle = `rgba(34, 211, 238, ${p.opacity * intensity})`;
+            ctx.fill();
+
+            p.x += p.speedX;
+            p.y += p.speedY;
+
+            if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+            if (p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+          });
+
+          if (glitchActive || beliefLevel < 15) {
+            if (Math.random() > 0.98) {
+              ctx.fillStyle = "rgba(34, 211, 238, 0.08)";
+              ctx.fillRect(0, Math.random() * canvas.height, canvas.width, 2);
+            }
+          }
+
+          animationFrameId = requestAnimationFrame(draw);
+        };
+
+        draw();
+        return () => {
+          window.removeEventListener("resize", resize);
+          cancelAnimationFrame(animationFrameId);
+        };
+      }, [beliefLevel, glitchActive]);
+
+      // Retypeset math when the DOM changes meaningfully.
+      useEffect(() => {
+        if (window.MathJax && window.MathJax.typesetPromise) {
+          window.MathJax.typesetPromise().catch(() => {});
+        }
+      }, [viewMode, activeAnchor, beliefLevel]);
+
+      const toggleGlitch = () => {
+        setGlitchActive(true);
+        setTimeout(() => setGlitchActive(false), 200);
+      };
+
+      return (
+        React.createElement("div", { className:"relative w-full h-screen bg-black overflow-hidden font-mono text-zinc-300" },
+          React.createElement("canvas", { ref:canvasRef, className:"absolute inset-0 z-0 pointer-events-none" }),
+
+          React.createElement("div", { className:"relative z-10 flex flex-col h-full" },
+            React.createElement("header", { className:"p-6 flex justify-between items-start" },
+              React.createElement("div", { className:"space-y-1" },
+                React.createElement("h2", { className:"text-[10px] tracking-[0.4em] uppercase text-cyan-400 font-bold drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]" }, "Reality Invariant Atlas v2.1"),
+                React.createElement("div", { className:"text-white/30 text-[9px] uppercase tracking-widest" }, "Scanning Invariant Structures...")
+              ),
+              React.createElement("button", {
+                onClick: () => setViewMode(viewMode === "simulation" ? "atlas" : "simulation"),
+                className:"px-4 py-1.5 border border-cyan-900/50 bg-cyan-950/20 rounded-full text-[10px] uppercase hover:border-cyan-400 hover:text-white transition-all flex items-center gap-2 group"
+              },
+                React.createElement(Layers, { size:12, className:"group-hover:rotate-180 transition-transform duration-500" }),
+                viewMode === "simulation" ? "Observe Anchors" : "Return to Simulation"
+              )
+            ),
+
+            React.createElement("main", { className:"flex-grow flex items-center justify-center p-6" },
+              viewMode === "simulation"
+                ? React.createElement("div", {
+                    className:"max-w-4xl text-center transition-all duration-1000",
+                    style: { opacity: 0.05 + (beliefLevel / 100) * 0.95, filter: `blur(${(100 - beliefLevel) / 12}px)` }
+                  },
+                    React.createElement("h1", { className:"text-4xl md:text-7xl font-bold text-white mb-8 tracking-tighter leading-none uppercase" }, QUOTE),
+                    React.createElement("p", { className:"text-cyan-500 text-2xl italic opacity-50 tracking-wide" }, AUTHOR)
+                  )
+                : React.createElement("div", { className:"grid grid-cols-2 md:grid-cols-5 gap-6 w-full max-w-7xl animate-in fade-in zoom-in duration-700" },
+                    REALITY_ANCHORS.map(anchor =>
+                      React.createElement("button", {
+                        key: anchor.id,
+                        onClick: () => setActiveAnchor(anchor),
+                        onMouseEnter: () => setHoveredAnchor(anchor.id),
+                        onMouseLeave: () => setHoveredAnchor(null),
+                        className: `group relative p-6 border transition-all duration-500 text-left h-56 flex flex-col justify-between overflow-hidden ${
+                          (activeAnchor && activeAnchor.id === anchor.id)
+                            ? "border-cyan-500 bg-cyan-500/10 shadow-[0_0_20px_rgba(34,211,238,0.15)]"
+                            : "border-white/5 bg-zinc-900/10 hover:border-cyan-500/40 hover:bg-cyan-500/5"
+                        }`
+                      },
+                        React.createElement("div", { className:"flex justify-between items-start mb-4" },
+                          React.createElement("div", { className:"text-[9px] text-cyan-500/70 uppercase tracking-[0.2em] font-bold" }, anchor.category),
+                          React.createElement(Lock, { size:12, className:`transition-opacity duration-300 ${hoveredAnchor === anchor.id ? "opacity-100" : "opacity-10"}` })
+                        ),
+                        React.createElement("div", { className:"flex-grow flex flex-col items-center justify-center mb-4" },
+                          React.createElement(AnchorIcon, { id: anchor.id, active: hoveredAnchor === anchor.id || (activeAnchor && activeAnchor.id === anchor.id) })
+                        ),
+                        React.createElement("div", null,
+                          React.createElement("div", { className:"text-xs font-bold text-white uppercase tracking-tighter group-hover:text-cyan-300 transition-colors mb-2" }, anchor.title),
+                          React.createElement("div", { className:"font-serif italic text-[10px] text-white/30 group-hover:text-white/50 truncate" }, `$ ${anchor.formula} $`)
+                        ),
+                        React.createElement("div", { className:`absolute bottom-0 left-0 h-[1px] bg-cyan-500 transition-all duration-700 ${hoveredAnchor === anchor.id ? "w-full" : "w-0"}` })
+                      )
+                    )
+                  )
+            ),
+
+            activeAnchor ? React.createElement("div", { className:"absolute inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-md animate-in fade-in duration-300" },
+              React.createElement("div", { className:"max-w-xl w-full bg-zinc-950 border border-cyan-500/50 p-10 rounded-xl shadow-[0_0_50px_rgba(0,0,0,1)] relative overflow-hidden" },
+                React.createElement("div", { className:"absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500 to-transparent" }),
+                React.createElement("button", { onClick:() => setActiveAnchor(null), className:"absolute top-6 right-6 text-zinc-600 hover:text-white transition-colors" }, "✕"),
+                React.createElement("div", { className:"flex items-center gap-6 mb-8" },
+                  React.createElement("div", { className:"p-4 bg-cyan-500/10 rounded-lg border border-cyan-500/20" },
+                    React.createElement(AnchorIcon, { id: activeAnchor.id, active: true })
+                  ),
+                  React.createElement("div", null,
+                    React.createElement("div", { className:"text-cyan-400 text-[10px] uppercase tracking-[0.4em] font-black mb-1" }, activeAnchor.subtitle),
+                    React.createElement("h3", { className:"text-4xl font-black text-white tracking-tighter uppercase" }, activeAnchor.title)
+                  )
+                ),
+                React.createElement("div", { className:"bg-cyan-950/20 border border-cyan-500/20 p-6 rounded-lg mb-8 font-serif text-2xl text-center text-cyan-300 shadow-inner" },
+                  `$ ${activeAnchor.formula} $`
+                ),
+                React.createElement("p", { className:"text-zinc-300 text-lg leading-relaxed mb-10 font-sans" }, activeAnchor.description),
+                React.createElement("div", { className:"flex justify-between items-center text-[10px] text-zinc-600 border-t border-white/5 pt-6 uppercase tracking-widest font-bold" },
+                  React.createElement("span", null, "Core Invariant Verified"),
+                  React.createElement("span", { className:"text-cyan-900 animate-pulse" }, "Stability: Absolute")
+                )
+              )
+            ) : null,
+
+            React.createElement("footer", { className:"p-10 flex flex-col items-center" },
+              React.createElement("div", { className:"w-full max-w-md bg-zinc-950/80 border border-white/5 p-8 rounded-3xl backdrop-blur-2xl shadow-2xl relative overflow-hidden group" },
+                React.createElement("div", { className:"absolute -inset-24 bg-cyan-500/5 blur-3xl rounded-full transition-opacity group-hover:opacity-100 opacity-0 pointer-events-none" }),
+                React.createElement("div", { className:"flex justify-between items-center mb-6 text-[10px] uppercase tracking-[0.3em] font-black text-white/40" },
+                  React.createElement("div", { className:"flex items-center gap-3" },
+                    React.createElement(Eye, { size:16, className: beliefLevel < 20 ? "text-red-500 animate-ping" : "text-cyan-400" }),
+                    React.createElement("span", null, "Belief Suppression")
+                  ),
+                  React.createElement("span", { className: beliefLevel < 20 ? "text-red-500" : "text-cyan-500" }, `${beliefLevel}%`)
+                ),
+
+                React.createElement("input", {
+                  type:"range", min:"0", max:"100", value: beliefLevel,
+                  onChange: (e) => { setBeliefLevel(parseInt(e.target.value, 10)); if (Math.random() > 0.85) toggleGlitch(); },
+                  className:"w-full h-1.5 bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-cyan-500 mb-8"
+                }),
+
+                React.createElement("div", { className:"grid grid-cols-4 gap-4" },
+                  React.createElement("button", { onClick:toggleGlitch, className:"flex flex-col items-center p-3 hover:bg-white/5 rounded-xl transition-all group/btn" },
+                    React.createElement(Zap, { size:18, className:"text-zinc-600 group-hover/btn:text-yellow-400 transition-colors" }),
+                    React.createElement("span", { className:"text-[9px] mt-2 uppercase font-bold text-zinc-700 group-hover/btn:text-white" }, "Pulse")
+                  ),
+                  React.createElement("button", { onClick:() => setViewMode(viewMode === "simulation" ? "atlas" : "simulation"), className:"flex flex-col items-center p-3 hover:bg-white/5 rounded-xl transition-all group/btn" },
+                    React.createElement(Layers, { size:18, className:"text-zinc-600 group-hover/btn:text-cyan-400 transition-colors" }),
+                    React.createElement("span", { className:"text-[9px] mt-2 uppercase font-bold text-zinc-700 group-hover/btn:text-white" }, "Atlas")
+                  ),
+                  React.createElement("button", { onClick:() => setBeliefLevel(beliefLevel === 0 ? 100 : 0), className:"flex flex-col items-center p-3 hover:bg-white/5 rounded-xl transition-all group/btn" },
+                    React.createElement(EyeOff, { size:18, className:"text-zinc-600 group-hover/btn:text-purple-400 transition-colors" }),
+                    React.createElement("span", { className:"text-[9px] mt-2 uppercase font-bold text-zinc-700 group-hover/btn:text-white" }, "Erode")
+                  ),
+                  React.createElement("button", { onClick:() => { setBeliefLevel(100); setViewMode("simulation"); }, className:"flex flex-col items-center p-3 hover:bg-white/5 rounded-xl transition-all group/btn" },
+                    React.createElement(RefreshCw, { size:18, className:"text-zinc-600 group-hover/btn:text-green-400 transition-colors" }),
+                    React.createElement("span", { className:"text-[9px] mt-2 uppercase font-bold text-zinc-700 group-hover/btn:text-white" }, "Reset")
+                  )
+                )
+              )
+            )
+          ),
+
+          beliefLevel < 12
+            ? React.createElement("div", { className:"absolute inset-0 flex items-center justify-center pointer-events-none z-0" },
+                React.createElement("div", { className:"text-[18vw] font-black text-cyan-500/[0.02] select-none uppercase tracking-tighter leading-none text-center" },
+                  "CONSTANT", React.createElement("br"), "REALITY"
+                )
+              )
+            : null
+        )
+      );
     };
-  }, [beliefLevel, glitchActive]);
 
-  const toggleGlitch = () => {
-    setGlitchActive(true);
-    setTimeout(() => setGlitchActive(false), 200);
-  };
-
-  return (
-    <div className="relative w-full h-screen bg-black overflow-hidden font-mono text-zinc-300">
-      <canvas ref={canvasRef} className="absolute inset-0 z-0 pointer-events-none" />
-
-      <div className="relative z-10 flex flex-col h-full">
-        <header className="p-6 flex justify-between items-start">
-          <div className="space-y-1">
-            <h2 className="text-[10px] tracking-[0.4em] uppercase text-cyan-400 font-bold drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">Reality Invariant Atlas v2.1</h2>
-            <div className="text-white/30 text-[9px] uppercase tracking-widest">Scanning Invariant Structures...</div>
-          </div>
-          <button 
-            onClick={() => setViewMode(viewMode === 'simulation' ? 'atlas' : 'simulation')}
-            className="px-4 py-1.5 border border-cyan-900/50 bg-cyan-950/20 rounded-full text-[10px] uppercase hover:border-cyan-400 hover:text-white transition-all flex items-center gap-2 group"
-          >
-            <Layers size={12} className="group-hover:rotate-180 transition-transform duration-500" /> 
-            {viewMode === 'simulation' ? 'Observe Anchors' : 'Return to Simulation'}
-          </button>
-        </header>
-
-        <main className="flex-grow flex items-center justify-center p-6">
-          {viewMode === 'simulation' ? (
-            <div 
-              className="max-w-4xl text-center transition-all duration-1000"
-              style={{ 
-                opacity: 0.05 + (beliefLevel / 100) * 0.95,
-                filter: `blur(${(100 - beliefLevel) / 12}px)` 
-              }}
-            >
-              <h1 className="text-4xl md:text-7xl font-bold text-white mb-8 tracking-tighter leading-none uppercase">
-                {QUOTE}
-              </h1>
-              <p className="text-cyan-500 text-2xl italic opacity-50 tracking-wide">{AUTHOR}</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-6 w-full max-w-7xl animate-in fade-in zoom-in duration-700">
-              {REALITY_ANCHORS.map((anchor) => (
-                <button
-                  key={anchor.id}
-                  onClick={() => setActiveAnchor(anchor)}
-                  onMouseEnter={() => setHoveredAnchor(anchor.id)}
-                  onMouseLeave={() => setHoveredAnchor(null)}
-                  className={`group relative p-6 border transition-all duration-500 text-left h-56 flex flex-col justify-between overflow-hidden
-                    ${activeAnchor?.id === anchor.id 
-                      ? 'border-cyan-500 bg-cyan-500/10 shadow-[0_0_20px_rgba(34,211,238,0.15)]' 
-                      : 'border-white/5 bg-zinc-900/10 hover:border-cyan-500/40 hover:bg-cyan-500/5'}`}
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="text-[9px] text-cyan-500/70 uppercase tracking-[0.2em] font-bold">{anchor.category}</div>
-                    <Lock size={12} className={`transition-opacity duration-300 ${hoveredAnchor === anchor.id ? 'opacity-100' : 'opacity-10'}`} />
-                  </div>
-                  
-                  <div className="flex-grow flex flex-col items-center justify-center mb-4">
-                    <AnchorIcon id={anchor.id} active={hoveredAnchor === anchor.id || activeAnchor?.id === anchor.id} />
-                  </div>
-
-                  <div>
-                    <div className="text-xs font-bold text-white uppercase tracking-tighter group-hover:text-cyan-300 transition-colors mb-2">
-                      {anchor.title}
-                    </div>
-                    <div className="font-serif italic text-[10px] text-white/30 group-hover:text-white/50 truncate">
-                      $ {anchor.formula} $
-                    </div>
-                  </div>
-
-                  {/* Visual flourish for hover */}
-                  <div className={`absolute bottom-0 left-0 h-[1px] bg-cyan-500 transition-all duration-700 ${hoveredAnchor === anchor.id ? 'w-full' : 'w-0'}`} />
-                </button>
-              ))}
-            </div>
-          )}
-        </main>
-
-        {activeAnchor && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
-            <div className="max-w-xl w-full bg-zinc-950 border border-cyan-500/50 p-10 rounded-xl shadow-[0_0_50px_rgba(0,0,0,1)] relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500 to-transparent" />
-              
-              <button 
-                onClick={() => setActiveAnchor(null)}
-                className="absolute top-6 right-6 text-zinc-600 hover:text-white transition-colors"
-              >✕</button>
-              
-              <div className="flex items-center gap-6 mb-8">
-                <div className="p-4 bg-cyan-500/10 rounded-lg border border-cyan-500/20">
-                  <AnchorIcon id={activeAnchor.id} active={true} />
-                </div>
-                <div>
-                  <div className="text-cyan-400 text-[10px] uppercase tracking-[0.4em] font-black mb-1">{activeAnchor.subtitle}</div>
-                  <h3 className="text-4xl font-black text-white tracking-tighter uppercase">{activeAnchor.title}</h3>
-                </div>
-              </div>
-
-              <div className="bg-cyan-950/20 border border-cyan-500/20 p-6 rounded-lg mb-8 font-serif text-2xl text-center text-cyan-300 shadow-inner">
-                $ {activeAnchor.formula} $
-              </div>
-
-              <p className="text-zinc-300 text-lg leading-relaxed mb-10 font-sans">
-                {activeAnchor.description}
-              </p>
-
-              <div className="flex justify-between items-center text-[10px] text-zinc-600 border-t border-white/5 pt-6 uppercase tracking-widest font-bold">
-                <span>Core Invariant Verified</span>
-                <span className="text-cyan-900 animate-pulse">Stability: Absolute</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <footer className="p-10 flex flex-col items-center">
-          <div className="w-full max-w-md bg-zinc-950/80 border border-white/5 p-8 rounded-3xl backdrop-blur-2xl shadow-2xl relative overflow-hidden group">
-            {/* Subtle glow effect */}
-            <div className="absolute -inset-24 bg-cyan-500/5 blur-3xl rounded-full transition-opacity group-hover:opacity-100 opacity-0 pointer-events-none" />
-            
-            <div className="flex justify-between items-center mb-6 text-[10px] uppercase tracking-[0.3em] font-black text-white/40">
-              <div className="flex items-center gap-3">
-                <Eye size={16} className={beliefLevel < 20 ? 'text-red-500 animate-ping' : 'text-cyan-400'} />
-                <span>Belief Suppression</span>
-              </div>
-              <span className={beliefLevel < 20 ? 'text-red-500' : 'text-cyan-500'}>{beliefLevel}%</span>
-            </div>
-
-            <input 
-              type="range" min="0" max="100" value={beliefLevel} 
-              onChange={(e) => {
-                setBeliefLevel(parseInt(e.target.value));
-                if (Math.random() > 0.85) toggleGlitch();
-              }}
-              className="w-full h-1.5 bg-zinc-900 rounded-lg appearance-none cursor-pointer accent-cyan-500 mb-8"
-            />
-
-            <div className="grid grid-cols-4 gap-4">
-              <button onClick={toggleGlitch} className="flex flex-col items-center p-3 hover:bg-white/5 rounded-xl transition-all group/btn">
-                <Zap size={18} className="text-zinc-600 group-hover/btn:text-yellow-400 transition-colors" />
-                <span className="text-[9px] mt-2 uppercase font-bold text-zinc-700 group-hover/btn:text-white">Pulse</span>
-              </button>
-              <button onClick={() => setViewMode(viewMode === 'simulation' ? 'atlas' : 'simulation')} className="flex flex-col items-center p-3 hover:bg-white/5 rounded-xl transition-all group/btn">
-                <Layers size={18} className="text-zinc-600 group-hover/btn:text-cyan-400 transition-colors" />
-                <span className="text-[9px] mt-2 uppercase font-bold text-zinc-700 group-hover/btn:text-white">Atlas</span>
-              </button>
-              <button onClick={() => setBeliefLevel(beliefLevel === 0 ? 100 : 0)} className="flex flex-col items-center p-3 hover:bg-white/5 rounded-xl transition-all group/btn">
-                <EyeOff size={18} className="text-zinc-600 group-hover/btn:text-purple-400 transition-colors" />
-                <span className="text-[9px] mt-2 uppercase font-bold text-zinc-700 group-hover/btn:text-white">Erode</span>
-              </button>
-              <button onClick={() => { setBeliefLevel(100); setViewMode('simulation'); }} className="flex flex-col items-center p-3 hover:bg-white/5 rounded-xl transition-all group/btn">
-                <RefreshCw size={18} className="text-zinc-600 group-hover/btn:text-green-400 transition-colors" />
-                <span className="text-[9px] mt-2 uppercase font-bold text-zinc-700 group-hover/btn:text-white">Reset</span>
-              </button>
-            </div>
-          </div>
-        </footer>
-      </div>
-
-      {beliefLevel < 12 && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-          <div className="text-[18vw] font-black text-cyan-500/[0.02] select-none uppercase tracking-tighter leading-none text-center">
-            CONSTANT<br/>REALITY
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default App;
+    createRoot(document.getElementById("root")).render(React.createElement(App));
+  </script>
+</body>
+</html>
