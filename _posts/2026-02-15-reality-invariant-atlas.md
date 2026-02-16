@@ -22,7 +22,7 @@ abstract: |
 </div>
 
 <div class="embed-frame" style="width:100%; margin: 1.25rem 0 1.5rem 0;">
-  <div style="position:relative; width:100%; padding-top:56.25%; border:1px solid rgba(255,255,255,0.08); border-radius:16px; overflow:hidden; background:#000;">
+  <div style="position:relative; width:100%; padding-top:85.00%; border:1px solid rgba(255,255,255,0.08); border-radius:16px; overflow:hidden; background:#000;">
     <iframe
       src="/assets/2026-02-15-reality-invariant-atlas/atlas/index.html"
       title="Reality Invariant Atlas v2.1"
