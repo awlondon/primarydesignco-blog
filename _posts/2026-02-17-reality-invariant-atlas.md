@@ -16,7 +16,7 @@ abstract: |
 <div style="max-width:1100px;margin:0 auto 1.25rem auto;">
   <div style="position:relative;padding-top:100%;border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;background:#05050c;">
     <iframe
-      src="/assets/2026-02-17-reality-invariant-atlas/atlas/index.html"
+      src="/assets/2026-02-15-reality-invariant-atlas/atlas/index.html"
       title="Reality Invariant Atlas v2.1"
       loading="eager"
       style="position:absolute;inset:0;width:100%;height:100%;border:0;"
